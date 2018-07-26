@@ -74,10 +74,11 @@ namespace AutoAPI.Controllers
                 return NotFound();
 
             object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(routeInfo.Id);
-            if (entity != null)
+            if (entity == null)
             {
-                context.Remove(entity);
+                return NotFound();
             }
+            context.Remove(entity);
             context.SaveChanges();
             return Ok();
         }
