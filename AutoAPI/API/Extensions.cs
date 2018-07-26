@@ -54,9 +54,10 @@ namespace AutoAPI.API
             switch (controller.Request.Method)
             {
                 case "POST":
+				case "PUT":
                     result.Data = GetData(controller.Request.Body, apiEntity.EntityType);
                     break;
-            }
+			}
 
             return result;
         }

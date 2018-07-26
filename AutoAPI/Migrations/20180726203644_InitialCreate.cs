@@ -31,7 +31,7 @@ namespace AutoAPI.Migrations
                     City = table.Column<string>(nullable: true),
                     State = table.Column<string>(nullable: true),
                     Zip = table.Column<string>(nullable: true),
-                    PersonId = table.Column<int>(nullable: true)
+                    PersonId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,8 +41,28 @@ namespace AutoAPI.Migrations
                         column: x => x.PersonId,
                         principalTable: "Persons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Persons",
+                columns: new[] { "Id", "FirstName", "LastName" },
+                values: new object[] { 1, "William", "Shakespeare" });
+
+            migrationBuilder.InsertData(
+                table: "Persons",
+                columns: new[] { "Id", "FirstName", "LastName" },
+                values: new object[] { 2, "John", "Adams" });
+
+            migrationBuilder.InsertData(
+                table: "Addresses",
+                columns: new[] { "Id", "City", "PersonId", "State", "Street", "Zip" },
+                values: new object[] { 2, "New York", 1, "NY", "123 Maple Ave", "10001" });
+
+            migrationBuilder.InsertData(
+                table: "Addresses",
+                columns: new[] { "Id", "City", "PersonId", "State", "Street", "Zip" },
+                values: new object[] { 1, "Chicago", 2, "IL", "123 Main ST", "60606" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_PersonId",
