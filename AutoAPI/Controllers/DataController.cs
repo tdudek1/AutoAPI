@@ -59,22 +59,10 @@ namespace AutoAPI.Controllers
 			if (routeInfo.Entity == null || routeInfo.Id == null)
 				return NotFound();
 
-			object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(routeInfo.Id);
-
-			if (entity == null)
-			{
-				return NotFound();
-			}
-
-			if (((dynamic)entity).Id != ((dynamic)routeInfo.Data).Id)
-			{
-				return BadRequest();
-			}
-
 			context.Entry(routeInfo.Data).State = EntityState.Modified;
 			context.SaveChanges();
 
-			return Ok();
+			return Ok(routeInfo.Data);
 		}
 
 		[HttpDelete]
