@@ -15,5 +15,7 @@ namespace AutoAPI.API
         public Type EntityType { get; set; }
 
         public List<PropertyInfo> Properties { get; set; }
+
+        public PropertyInfo Id { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,7 +20,7 @@ namespace AutoAPI.API
             AutoAPIEntityCache = (from p in typeof(T).GetProperties()
                                   let g = p.PropertyType.GetGenericArguments()
                                   where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
-                                  select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList() }).ToList();
+                                  select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList(), Id = g.First().GetProperties().Where(x=> x.IsDefined(typeof(KeyAttribute))).FirstOrDefault() }).ToList();
 
         }
 
@@ -41,23 +42,16 @@ namespace AutoAPI.API
 
             if (route.Length > 1)
             {
-                if (int.TryParse(route[1], out int id))
-                {
-                    result.Id = id;
-                }
-                else
-                {
-                    result.Id = route[1];
-                }
+                result.Id = route[1];
             }
 
             switch (controller.Request.Method)
             {
                 case "POST":
-				case "PUT":
+                case "PUT":
                     result.Data = GetData(controller.Request.Body, apiEntity.EntityType);
                     break;
-			}
+            }
 
             return result;
         }

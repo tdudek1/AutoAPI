@@ -9,7 +9,7 @@ namespace AutoAPI.API
     public class RouteInfo
     {
         public APIEntity Entity{ get; set; }
-        public object Id { get; set; }
+        public string Id { get; set; }
         public Dictionary<string, object> Filters { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
