@@ -28,7 +28,10 @@ namespace AutoAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DataContext")));
+            services.AddTransient<DbContext>(x =>
+            {
+                return new DataContext(new DbContextOptionsBuilder<DataContext>().UseSqlServer(Configuration.GetConnectionString("DataContext")).Options);
+            });
             services.AddAutoAPI<DataContext>();
         }
 

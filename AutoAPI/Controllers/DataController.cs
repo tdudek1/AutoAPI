@@ -14,9 +14,9 @@ namespace AutoAPI.Controllers
     [Route("/api/data/{*query}")]
     public class DataController : ControllerBase
     {
-        private readonly DataContext context;
+        private readonly DbContext context;
 
-        public DataController(DataContext context)
+        public DataController(DbContext context)
         {
             this.context = context;
         }
