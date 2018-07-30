@@ -12,6 +12,7 @@ namespace AutoAPI.Controllers
 
 
     [Route("/api/data/{*query}")]
+    [ApiController]
     public class DataController : ControllerBase
     {
         private readonly DbContext context;
@@ -26,7 +27,7 @@ namespace AutoAPI.Controllers
         public IActionResult Get()
         {
 
-            //var routeInfo = this.GetRoutInfo();
+    
 
             //if (routeInfo.Entity == null)
             //    return NotFound();

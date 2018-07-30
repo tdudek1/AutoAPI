@@ -8,13 +8,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
 
 namespace AutoAPI.API
 {
     public class RequestProcessor
     {
 
-        private RouteInfo GetRoutInfo(ControllerBase controller)
+        private RouteInfo GetRoutInfo(RouteData routeData,HttpRequest request)
         {
             var result = new RouteInfo();
 
@@ -35,11 +37,11 @@ namespace AutoAPI.API
                 result.Id = route[1];
             }
 
-            switch (controller.Request.Method)
+            switch (request.Method)
             {
                 case "POST":
                 case "PUT":
-                    result.Data = GetData(controller.Request.Body, apiEntity.EntityType);
+                    result.Data = GetData(request.Body, apiEntity.EntityType);
                     break;
             }
 
