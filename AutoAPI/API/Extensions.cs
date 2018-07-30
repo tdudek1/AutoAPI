@@ -17,11 +17,15 @@ namespace AutoAPI.API
 
         public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
         {
+            Init<T>();
+        }
+
+        public static void Init<T>()
+        {
             AutoAPIEntityCache = (from p in typeof(T).GetProperties()
                                   let g = p.PropertyType.GetGenericArguments()
                                   where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
-                                  select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList(), Id = g.First().GetProperties().Where(x=> x.IsDefined(typeof(KeyAttribute))).FirstOrDefault() }).ToList();
-
+                                  select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList(), Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault() }).ToList();
         }
 
         public static RouteInfo GetRoutInfo(this ControllerBase controller)

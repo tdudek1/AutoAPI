@@ -11,12 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using AutoAPI.API;
-
+using Microsoft.Extensions.Logging.Console;
 
 namespace AutoAPI
 {
     public class Startup
     {
+        public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -28,7 +30,10 @@ namespace AutoAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DataContext")));
+            services.AddTransient<DbContext>(x =>
+            {
+                return new DataContext(new DbContextOptionsBuilder<DataContext>().UseSqlServer(Configuration.GetConnectionString("DataContext")).UseLoggerFactory(LoggerFactory).Options);
+            });
             services.AddAutoAPI<DataContext>();
         }
 
