@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoAPI.API;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,9 +11,7 @@ namespace AutoAPI.Tests
 
         public static TestContext BuildTestContext()
         {
-            var options = new DbContextOptionsBuilder<TestContext>().UseInMemoryDatabase(databaseName: "test")
-           .Options;
-
+            var options = new DbContextOptionsBuilder<TestContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
             var context = new TestContext(options);
 
             context.Add(new Author()
@@ -36,5 +35,6 @@ namespace AutoAPI.Tests
 
             return new TestContext(options);
         }
+
     }
 }

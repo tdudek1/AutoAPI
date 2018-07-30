@@ -15,18 +15,24 @@ namespace AutoAPI.Controllers
     public class DataController : ControllerBase
     {
         private readonly DbContext context;
-
+        private readonly IRequestProcessor requestProcessor;
         public DataController(DbContext context)
         {
             this.context = context;
+            this.requestProcessor = new RequestProcessor();
+        }
+
+        public DataController(DbContext context, IRequestProcessor requestProcessor)
+        {
+            this.context = context;
+            this.requestProcessor = requestProcessor;
         }
 
 
         [HttpGet]
         public IActionResult Get()
         {
-
-            var routeInfo = this.GetRoutInfo();
+            var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
 
             if (routeInfo.Entity == null)
                 return NotFound();
@@ -40,41 +46,43 @@ namespace AutoAPI.Controllers
         [HttpPost]
         public IActionResult Post()
         {
-            var routeInfo = this.GetRoutInfo();
+            var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
 
             if (routeInfo.Entity == null)
                 return NotFound();
+            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.GetType());
 
-            context.Add(routeInfo.Data);
+            context.Add(entity);
             context.SaveChanges();
 
-            return Created(routeInfo.Entity.Route, routeInfo.Data);
+            return Created(routeInfo.Entity.Route, entity);
         }
 
         [HttpPut]
         public IActionResult Put()
         {
-            var routeInfo = this.GetRoutInfo();
+            var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
 
             if (routeInfo.Entity == null || routeInfo.Id == null)
                 return NotFound();
 
-            var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(routeInfo.Data), routeInfo.Entity.Id.PropertyType);
+            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.GetType());
+            var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
             var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
 
             if (!objectId.Equals(routeId))
                 return BadRequest();
 
-            context.Entry(routeInfo.Data).State = EntityState.Modified;
+            context.Entry(entity).State = EntityState.Modified;
             context.SaveChanges();
 
-            return Ok(routeInfo.Data);
+            return Ok(entity);
         }
 
         [HttpDelete]
         public IActionResult Delete()
         {
-            var routeInfo = this.GetRoutInfo();
+            var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
 
             if (routeInfo.Entity == null)
                 return NotFound();
