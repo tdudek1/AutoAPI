@@ -8,15 +8,23 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http;
 
 namespace AutoAPI.API
 {
-    public class RequestProcessor
+    public static class Extensions
     {
+        public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
-        private RouteInfo GetRoutInfo(RouteData routeData,HttpRequest request)
+        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
+        {
+            AutoAPIEntityCache = (from p in typeof(T).GetProperties()
+                                  let g = p.PropertyType.GetGenericArguments()
+                                  where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
+                                  select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList(), Id = g.First().GetProperties().Where(x=> x.IsDefined(typeof(KeyAttribute))).FirstOrDefault() }).ToList();
+
+        }
+
+        public static RouteInfo GetRoutInfo(this ControllerBase controller)
         {
             var result = new RouteInfo();
 
@@ -25,7 +33,7 @@ namespace AutoAPI.API
             if (route.Length == 0)
                 return result;
 
-            var apiEntity = RequestBuilder.AutoAPIEntityCache.Where(x => x.Route == route[0]).FirstOrDefault();
+            var apiEntity = AutoAPIEntityCache.Where(x => x.Route == route[0]).FirstOrDefault();
 
             if (apiEntity == null)
                 return result;
@@ -37,18 +45,18 @@ namespace AutoAPI.API
                 result.Id = route[1];
             }
 
-            switch (request.Method)
+            switch (controller.Request.Method)
             {
                 case "POST":
                 case "PUT":
-                    result.Data = GetData(request.Body, apiEntity.EntityType);
+                    result.Data = GetData(controller.Request.Body, apiEntity.EntityType);
                     break;
             }
 
             return result;
         }
 
-        private object GetData(Stream stream, Type type)
+        private static object GetData(Stream stream, Type type)
         {
             var serializer = new JsonSerializer();
 
