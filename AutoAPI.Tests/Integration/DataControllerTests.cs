@@ -13,7 +13,7 @@ namespace AutoAPI.Tests.Integration
         [Fact]
         public void Get_WithNoID_ReturnAll()
         {
-            Extensions.Init<TestContext>();
+            RequestBuilder.Init<TestContext>();
 
             var controller = new DataController(SetupHelper.BuildTestContext());
             

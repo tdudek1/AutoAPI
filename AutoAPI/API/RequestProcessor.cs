@@ -11,24 +11,10 @@ using System.Threading.Tasks;
 
 namespace AutoAPI.API
 {
-    public static class Extensions
+    public class RequestProcessor
     {
-        public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
-        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
-        {
-            Init<T>();
-        }
-
-        public static void Init<T>()
-        {
-            AutoAPIEntityCache = (from p in typeof(T).GetProperties()
-                                  let g = p.PropertyType.GetGenericArguments()
-                                  where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
-                                  select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList(), Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault() }).ToList();
-        }
-
-        public static RouteInfo GetRoutInfo(this ControllerBase controller)
+        private RouteInfo GetRoutInfo(ControllerBase controller)
         {
             var result = new RouteInfo();
 
@@ -37,7 +23,7 @@ namespace AutoAPI.API
             if (route.Length == 0)
                 return result;
 
-            var apiEntity = AutoAPIEntityCache.Where(x => x.Route == route[0]).FirstOrDefault();
+            var apiEntity = RequestBuilder.AutoAPIEntityCache.Where(x => x.Route == route[0]).FirstOrDefault();
 
             if (apiEntity == null)
                 return result;
@@ -60,7 +46,7 @@ namespace AutoAPI.API
             return result;
         }
 
-        private static object GetData(Stream stream, Type type)
+        private object GetData(Stream stream, Type type)
         {
             var serializer = new JsonSerializer();
 
