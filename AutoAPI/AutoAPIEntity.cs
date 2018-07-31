@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AutoAPI.API
+namespace AutoAPI
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class AutoAPIEntity : Attribute

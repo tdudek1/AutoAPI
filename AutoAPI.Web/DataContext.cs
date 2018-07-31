@@ -1,12 +1,11 @@
-﻿using AutoAPI.API;
-using AutoAPI.Entity;
+﻿using AutoAPI.Web.Entity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AutoAPI
+namespace AutoAPI.Web
 {
 	public class DataContext : DbContext
 	{

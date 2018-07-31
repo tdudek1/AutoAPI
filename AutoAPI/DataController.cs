@@ -1,5 +1,4 @@
-﻿using AutoAPI.API;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,22 +6,19 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
-namespace AutoAPI.Controllers
+namespace AutoAPI
 {
-
-
-    [Route("/api/data/{*query}")]
-    public class DataController : ControllerBase
+    public class AutoAPIController : ControllerBase
     {
         private readonly DbContext context;
         private readonly IRequestProcessor requestProcessor;
-        public DataController(DbContext context)
+        public AutoAPIController(DbContext context)
         {
             this.context = context;
             this.requestProcessor = new RequestProcessor();
         }
 
-        public DataController(DbContext context, IRequestProcessor requestProcessor)
+        public AutoAPIController(DbContext context, IRequestProcessor requestProcessor)
         {
             this.context = context;
             this.requestProcessor = requestProcessor;
