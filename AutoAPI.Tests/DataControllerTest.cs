@@ -130,7 +130,7 @@ namespace AutoAPI.Tests
 			//arrange
 			var requestProcessorMock = new Mock<IRequestProcessor>();
 			requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>())).Returns(new RouteInfo() { Entity = enitityList.Where(x => x.Route == "authors").First() });
-			requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.IsAny<Type>())).Returns(new Author { Id = 3, Name = "J.R.R.Tolkien" });
+			requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.Is<Type>(t => t.FullName == typeof(Author).FullName))).Returns(new Author { Id = 3, Name = "J.R.R.Tolkien" });
 			var testContext = SetupHelper.BuildTestContext();
 
 			//act
@@ -166,7 +166,7 @@ namespace AutoAPI.Tests
 			//arrange
 			var requestProcessorMock = new Mock<IRequestProcessor>();
 			requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>())).Returns(new RouteInfo() { Entity = enitityList.Where(x => x.Route == "authors").First(), Id = "1" });
-			requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.IsAny<Type>())).Returns(new Author { Id = 1, Name = "J.R.R.Tolkien" });
+			requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.Is<Type>(t => t.FullName == typeof(Author).FullName))).Returns(new Author { Id = 1, Name = "J.R.R.Tolkien" });
 			var testContext = SetupHelper.BuildTestContext();
 
 			//act
