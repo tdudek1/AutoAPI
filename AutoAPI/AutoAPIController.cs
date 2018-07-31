@@ -46,7 +46,7 @@ namespace AutoAPI
 
             if (routeInfo.Entity == null)
                 return NotFound();
-            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.GetType());
+            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
 
             context.Add(entity);
             context.SaveChanges();
@@ -62,7 +62,7 @@ namespace AutoAPI
             if (routeInfo.Entity == null || routeInfo.Id == null)
                 return NotFound();
 
-            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.GetType());
+            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
             var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
             var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
 
