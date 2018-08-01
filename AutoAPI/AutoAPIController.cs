@@ -1,5 +1,4 @@
-﻿using AutoAPI.API;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,22 +6,19 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
-namespace AutoAPI.Controllers
+namespace AutoAPI
 {
-
-
-    [Route("/api/data/{*query}")]
-    public class DataController : ControllerBase
+    public class AutoAPIController : ControllerBase
     {
         private readonly DbContext context;
         private readonly IRequestProcessor requestProcessor;
-        public DataController(DbContext context)
+        public AutoAPIController(DbContext context)
         {
             this.context = context;
             this.requestProcessor = new RequestProcessor();
         }
 
-        public DataController(DbContext context, IRequestProcessor requestProcessor)
+        public AutoAPIController(DbContext context, IRequestProcessor requestProcessor)
         {
             this.context = context;
             this.requestProcessor = requestProcessor;
@@ -50,7 +46,7 @@ namespace AutoAPI.Controllers
 
             if (routeInfo.Entity == null)
                 return NotFound();
-            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.GetType());
+            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
 
             context.Add(entity);
             context.SaveChanges();
@@ -66,7 +62,7 @@ namespace AutoAPI.Controllers
             if (routeInfo.Entity == null || routeInfo.Id == null)
                 return NotFound();
 
-            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.GetType());
+            var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
             var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
             var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
 

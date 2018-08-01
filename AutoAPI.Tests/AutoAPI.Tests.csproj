@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoAPI\AutoAPI.csproj" />
+    <ProjectReference Include="..\AutoAPI.Web\AutoAPI.Web.csproj" />
   </ItemGroup>
 
 </Project>
