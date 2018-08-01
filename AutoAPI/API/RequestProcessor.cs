@@ -36,6 +36,18 @@ namespace AutoAPI.API
             return result;
         }
 
+        public Tuple<string, object[]> BuildFilter(APIEntity entity, IQueryCollection queryString)
+        {
+            
+
+            foreach(var key in queryString.Keys.Where(x=>x.StartsWith("filter")))
+            {
+                
+
+            }
+            return null;
+        }
+
         public object GetData(HttpRequest request, Type type)
         {
             var serializer = new JsonSerializer();
