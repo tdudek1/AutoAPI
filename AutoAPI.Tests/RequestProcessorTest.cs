@@ -1,5 +1,4 @@
-﻿using AutoAPI.API;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -12,7 +11,7 @@ namespace AutoAPI.Tests
 {
     public class RequestProcessorTest
     {
-        private readonly List<APIEntity> enitityList;
+        private readonly List<APIEntity> entityList;
 
         public RequestProcessorTest()
         {
@@ -27,7 +26,7 @@ namespace AutoAPI.Tests
             queryString.Add("filter[Name]", "Ernest Hemingway");
 
             //act
-            var result = (new RequestProcessor()).BuildFilter(enitityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
+            var result = (new RequestProcessor()).BuildFilter(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
 
             Assert.Equal("Name = @0", result.Item1);
             Assert.Single(result.Item2);
