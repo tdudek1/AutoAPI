@@ -1,8 +1,8 @@
-# Automatic REST api for EF entities in .Net Core
+## Automatic REST api for EF entities in .Net Core
 
-This library automaticlly generates RESTful api for DbSets in DbContext.
+This library automatically generates RESTful API for DbSets in DbContext.
 
-## Getting Started
+### Getting Started
 
 Create controller deriving from AutoAPIController for all entities
 
@@ -17,7 +17,7 @@ public class DataController : AutoAPI.AutoAPIController
 }
 ```
 
-Anontate Data Contexxt
+Annotate Data Context
 ```c#
 [AutoAPIEntity(Route = "authors")]
 public DbSet<Author> Authors { get; set; }
@@ -42,14 +42,14 @@ Update          PUT /api/data/authors
 Delete          DELETE /api/data/authors/1
 ```
 
-### To Dos
+#### To Dos
 
 - Filtering
 - Paging
 - Sorting
-- Include releted entities in results
+- Include related entities in results
 - Improve routing/registration
 
-### License
+#### License
 
 https://opensource.org/licenses/GPL-3.0
