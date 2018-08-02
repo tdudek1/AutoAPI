@@ -1,4 +1,4 @@
-## Automatic REST api for EF entities in .Net Core
+# Automatic REST api library for EF entities in .Net Core
 
 This library automatically generates RESTful API for DbSets in DbContext.
 
@@ -27,7 +27,8 @@ Register in ConfigureServices
 ```c#
 services.AddTransient<DbContext>(x =>
 {
-	return new DataContext(new DbContextOptionsBuilder<DataContext>().UseSqlServer(Configuration.GetConnectionString("DataContext"));
+	return new DataContext(new DbContextOptionsBuilder<DataContext>()
+              .UseSqlServer(Configuration.GetConnectionString("DataContext"));
 });
 services.AddAutoAPI<DataContext>();
 ```
