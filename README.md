@@ -45,6 +45,7 @@ Delete          DELETE /api/data/authors/1
 
 #### To Dos
 
+- Authentication
 - Filtering
 - Paging
 - Sorting
