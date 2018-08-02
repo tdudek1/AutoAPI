@@ -4,7 +4,7 @@ This library automaticlly generates RESTful api for DbSets in DbContext.
 
 ## Getting Started
 
-Create controller deriving from AutoAPIController
+Create controller deriving from AutoAPIController for all entities
 
 ```c#
 [Route("/api/data/{*query}")]
@@ -35,12 +35,20 @@ services.AddAutoAPI<DataContext>();
 Access at
 
 ```
-Read all        GET /authors 
-Read by id      GET /authors/1 
-Create          POST /authors
-Update          PUT /authors
-Delete          DELETE /authors/1
+Read all        GET /api/data/authors 
+Read by id      GET /api/data/authors/1 
+Create          POST /api/data/authors
+Update          PUT /api/data/authors
+Delete          DELETE /api/data/authors/1
 ```
+
+### To Dos
+
+- Filtering
+- Paging
+- Sorting
+- Include releted entities in results
+- Improve routing/registration
 
 ### License
 
