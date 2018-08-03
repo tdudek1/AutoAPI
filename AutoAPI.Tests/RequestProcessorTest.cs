@@ -26,11 +26,11 @@ namespace AutoAPI.Tests
             queryString.Add("filter[Name]", "Ernest Hemingway");
 
             //act
-            var result = (new RequestProcessor()).BuildFilter(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
+            var result = (new RequestProcessor()).GetFilter(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
 
-            //Assert.Equal("Name = @0", result.Item1);
-            //Assert.Single(result.Item2);
-            //Assert.Equal("Ernest Hemingway", (string)result.Item2[0]);
+            Assert.Equal("Name == @0", result.Item1);
+            Assert.Single(result.Item2);
+            Assert.Equal("Ernest Hemingway", (string)result.Item2[0]);
 
         }
     }

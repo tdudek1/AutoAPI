@@ -12,5 +12,7 @@ namespace AutoAPI
         RouteInfo GetRoutInfo(RouteData routeData);
 
         object GetData(HttpRequest request, Type type);
+
+		Tuple<string, object[]> GetFilter(APIEntity entity, IQueryCollection queryString);
     }
 }
