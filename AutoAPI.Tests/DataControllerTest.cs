@@ -25,7 +25,6 @@ namespace AutoAPI.Tests
 			//arrange
 			var requestProcessorMock = new Mock<IRequestProcessor>();
 			requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
-
 			//act
 			var controller = new AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
 			var result = (OkObjectResult)controller.Get();

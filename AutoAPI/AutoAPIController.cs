@@ -37,7 +37,7 @@ namespace AutoAPI
 			{
 				return Ok(((IQueryable)routeInfo.Entity.DbSet.GetValue(context)).Where("Id == @0", routeInfo.Id).FirstOrDefault());
 			}
-			else if (this.Request.Query.Count > 0)
+			else if (this.Request?.Query.Count > 0)
 			{
 				var fitler = requestProcessor.GetFilter(routeInfo.Entity, this.Request.Query);
 				if (fitler == null)
