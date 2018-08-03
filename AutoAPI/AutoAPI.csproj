@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Thomas Dudek</Authors>
+    <Company />
+    <Description>Automatic REST api library for EF entities in .Net Core</Description>
+    <Copyright>Copyright ©2016 Thomas Dudek</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/GPL-3.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
+    <PackageTags>rest api entityframework</PackageTags>
+    <PackageId>Auto.Rest.API</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
