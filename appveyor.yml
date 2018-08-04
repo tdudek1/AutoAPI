@@ -10,7 +10,7 @@ dotnet_csproj:
   file_version: '{version}'
   informational_version: '{version}'
 environment:
-  nuget_api_key:
+  key:
     secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
 before_build:
 - ps: nuget restore
@@ -20,6 +20,5 @@ build:
 deploy_script:
 - ps: >-
     if($env:appveyor_repo_branch -eq 'master') {
-       Write-Host "Deploying to Nuget..."
-       dotnet nuget push ".\AutoAPI\bin\Release\Auto.Rest.API.$Env:APPVEYOR_BUILD_VERSION.nupkg" -s nuget.org -k $Env:nuget_api_key
+       dotnet nuget push ".\AutoAPI\bin\Release\Auto.Rest.API.$Env:APPVEYOR_BUILD_VERSION.nupkg" -s nuget.org -k $Env:key
     }
