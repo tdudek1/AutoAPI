@@ -17,5 +17,9 @@ before_build:
 build:
   project: AutoAPI.sln
   verbosity: normal
-after_build:
-- ps: Get-ChildItem -Recurse .\AutoAPI\bin\ ; Get-ChildItem Env:*
+deploy_script:
+- ps: >-
+    if($env:appveyor_repo_branch -eq 'master') {
+       Write-Host "Deploying to Nuget..."
+       dotnet nuget push ".\AutoAPI\bin\Release\Auto.Rest.API.$Env:APPVEYOR_BUILD_VERSION.nupkg" -s nuget.org -k $Env:nuget_api_key
+    }
