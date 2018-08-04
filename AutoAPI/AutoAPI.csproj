@@ -12,6 +12,7 @@
     <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
     <PackageTags>rest api entityframework</PackageTags>
     <PackageId>Auto.Rest.API</PackageId>
+    <Version>1.0.25</Version>
   </PropertyGroup>
 
   <ItemGroup>
