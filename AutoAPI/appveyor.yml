@@ -1,0 +1,21 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+environment:
+  nuget_api_key:
+    secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
+before_build:
+- ps: nuget restore
+build:
+  project: AutoAPI.sln
+  verbosity: normal
+after_build:
+- ps: Get-ChildItem -Recurse .\AutoAPI\bin\ ; Get-ChildItem Env:*
