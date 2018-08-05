@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace AutoAPI
         private const string SORTPREFIX = "sort";
         private const string PAGINGPREFIX = "page";
 
-        public RouteInfo GetRoutInfo(RouteData routeData)
+        public RouteInfo GetRoutInfo(RouteData routeData, IQueryCollection queryString = null)
         {
             var result = new RouteInfo();
 
@@ -38,7 +39,32 @@ namespace AutoAPI
                 result.Id = route[1];
             }
 
+            if (queryString?.Keys.Count > 0)
+            {
+                var filterResult = GetFilter(apiEntity, queryString);
+                result.FilterExpression = filterResult.Expression;
+                result.FilterValues = filterResult.Values;
+
+                result.FilterExpression = GetSort(apiEntity, queryString);
+
+                var pageResult = GetPaging(queryString);
+                result.Take = pageResult.Take;
+                result.Skip = pageResult.Skip;
+
+            }
+
             return result;
+        }
+
+        public object GetData(HttpRequest request, Type type)
+        {
+            var serializer = new JsonSerializer();
+
+            using (var sr = new StreamReader(request.Body))
+            using (var jsonTextReader = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize(jsonTextReader, type);
+            }
         }
 
         public (string Expression, object[] Values) GetFilter(APIEntity entity, IQueryCollection queryString)
@@ -99,17 +125,6 @@ namespace AutoAPI
             else
             {
                 return null;
-            }
-        }
-
-        public object GetData(HttpRequest request, Type type)
-        {
-            var serializer = new JsonSerializer();
-
-            using (var sr = new StreamReader(request.Body))
-            using (var jsonTextReader = new JsonTextReader(sr))
-            {
-                return serializer.Deserialize(jsonTextReader, type);
             }
         }
 

@@ -39,20 +39,18 @@ services.AddAutoAPI<DataContext>();
 Access at
 
 ```
-Read all        GET /api/data/authors 
-Read by id      GET /api/data/authors/1 
-Filter	        GET /api/data/authors?filter[Name]=J.R.R.Tolkien
-Create          POST /api/data/authors
-Update          PUT /api/data/authors/1
-Delete          DELETE /api/data/authors/1
+Read all				GET /api/data/authors 
+Read by id				GET /api/data/authors/1 
+Filter/Sort/Paging		GET /api/data/authors?filter[Name]=J.R.R.Tolkien&sort[Id]=desc&pageSize=10&page=2
+Create					POST /api/data/authors
+Update					PUT /api/data/authors/1
+Delete					DELETE /api/data/authors/1
 ```
 
 #### To Dos
 
 - Authentication
-- Filtering
-- Paging
-- Sorting
+- Filtering (operators and expresssions)
 - Include related entities in results
 - Improve routing/registration
 

@@ -37,23 +37,19 @@ namespace AutoAPI
             {
                 return Ok(((IQueryable)routeInfo.Entity.DbSet.GetValue(context)).Where("Id == @0", routeInfo.Id).FirstOrDefault());
             }
-            else if (this.Request?.Query.Count > 0)
+            else if (routeInfo.HasModifiers)
             {
                 IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(context));
 
-                var fitler = requestProcessor.GetFilter(routeInfo.Entity, this.Request.Query);
-                var paging = requestProcessor.GetPaging(this.Request.Query);
-                var sorts = requestProcessor.GetSort(routeInfo.Entity, this.Request.Query);
+                if (routeInfo.FilterExpression != null)
+                    dbSet = dbSet.Where(routeInfo.FilterExpression, routeInfo.FilterValues);
 
-                if (fitler.Expression != null)
-                    dbSet = dbSet.Where(fitler.Item1, fitler.Item2);
+                if (routeInfo.Take != 0)
+                    dbSet = dbSet.Skip(routeInfo.Skip).Take(routeInfo.Take);
 
-                if (paging.Take != 0)
-                    dbSet = dbSet.Skip(paging.Skip).Take(paging.Take);
-
-                if(sorts != null)
+                if (routeInfo.SortExpression != null)
                 {
-                    dbSet = dbSet.OrderBy(sorts);
+                    dbSet = dbSet.OrderBy(routeInfo.SortExpression);
                 }
 
                 return Ok(dbSet.ToDynamicList());
