@@ -13,6 +13,9 @@ namespace AutoAPI
 
         object GetData(HttpRequest request, Type type);
 
-		Tuple<string, object[]> GetFilter(APIEntity entity, IQueryCollection queryString);
+        (string Expression, object[] Values) GetFilter(APIEntity entity, IQueryCollection queryString);
+
+        (uint PageSize, uint Page) GetPaging(IQueryCollection queryString);
+
     }
 }
