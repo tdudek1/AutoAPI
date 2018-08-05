@@ -6,12 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AutoAPI
 {
     public class RequestProcessor : IRequestProcessor
     {
+        private const string FILTERPREFIX = "filter";
+        private const string SORTPREFIX = "sort";
+        private const string PAGINGPREFIX = "page";
+
         public RouteInfo GetRoutInfo(RouteData routeData)
         {
             var result = new RouteInfo();
@@ -38,25 +43,25 @@ namespace AutoAPI
 
         public (string Expression, object[] Values) GetFilter(APIEntity entity, IQueryCollection queryString)
         {
-
-            var filters = new Dictionary<string, object>();
-            var filterCount = 0;
-
-            foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith("filter")))
-            {
-                var filterName = getFilterProperty(key);
-                var property = entity.Properties.Where(x => x.Name.ToLower() == filterName.ToLower()).FirstOrDefault();
-
-                if (property != null)
-                {
-                    filters.Add($"{property.Name} == @{filterCount}", Convert.ChangeType(queryString[key].ToString(), property.PropertyType));
-                    filterCount++;
-                }
-            }
+            var filters = GetOperationData(entity, queryString, FILTERPREFIX, (input, type) => Convert.ChangeType(input, type));
 
             if (filters.Count > 0)
             {
                 return (String.Join(" && ", filters.Keys.ToArray()), filters.Values.ToArray());
+            }
+            else
+            {
+                return (null, null);
+            }
+        }
+
+        public (string Expression, object[] Values) GetGetFilter(APIEntity entity, IQueryCollection queryString)
+        {
+            var filters = GetOperationData(entity, queryString, FILTERPREFIX, (input, type) => Convert.ChangeType(input, type));
+
+            if (filters.Count > 0)
+            {
+                return (String.Join(" && ", filters.Keys.Select((x, i) => $"{x} == @{i}").ToArray()), filters.Values.ToArray());
             }
             else
             {
@@ -86,14 +91,29 @@ namespace AutoAPI
 
         }
 
-        public (string Property, bool Desending) GetSort(APIEntity entity, IQueryCollection queryString)
+        public string GetSort(APIEntity entity, IQueryCollection queryString)
         {
-            return (null, false);
-        }
+            var sorts = GetOperationData(entity, queryString, SORTPREFIX, (input, type) =>
+            {
+                switch (input.ToLower())
+                {
+                    case "desc":
+                    case "1":
+                    case "descending":
+                        return "desc";
+                    default:
+                        return "asc";
+                }
+            });
 
-        private string getFilterProperty(string key)
-        {
-            return key.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1];
+            if (sorts.Count > 0)
+            {
+                return string.Join(", ", sorts.Select(x => $"{x.Key} {(string)x.Value}").ToArray());
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public object GetData(HttpRequest request, Type type)
@@ -106,5 +126,29 @@ namespace AutoAPI
                 return serializer.Deserialize(jsonTextReader, type);
             }
         }
+
+        private string GetFilterProperty(string key)
+        {
+            return key.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1];
+        }
+
+        private Dictionary<string, object> GetOperationData(APIEntity entity, IQueryCollection queryString, string prefix, Func<string, Type, Object> valueConverter)
+        {
+            var result = new Dictionary<string, object>();
+
+            foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(prefix)))
+            {
+                var filterName = GetFilterProperty(key);
+                var property = entity.Properties.Where(x => x.Name.ToLower() == filterName.ToLower()).FirstOrDefault();
+
+                if (property != null)
+                {
+                    result.Add(property.Name, valueConverter(queryString[key].ToString(), property.PropertyType));
+                }
+            }
+
+            return result;
+        }
+
     }
 }

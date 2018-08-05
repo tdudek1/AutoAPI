@@ -17,6 +17,6 @@ namespace AutoAPI
 
         (int Take, int Skip) GetPaging(IQueryCollection queryString);
 
-        (string Property, bool Desending) GetSort(APIEntity entity, IQueryCollection queryString);
+        string GetSort(APIEntity entity, IQueryCollection queryString);
     }
 }

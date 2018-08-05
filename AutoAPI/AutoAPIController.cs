@@ -43,6 +43,7 @@ namespace AutoAPI
 
                 var fitler = requestProcessor.GetFilter(routeInfo.Entity, this.Request.Query);
                 var paging = requestProcessor.GetPaging(this.Request.Query);
+                var sorts = requestProcessor.GetSort(routeInfo.Entity, this.Request.Query);
 
                 if (fitler.Expression != null)
                     dbSet = dbSet.Where(fitler.Item1, fitler.Item2);
@@ -50,8 +51,12 @@ namespace AutoAPI
                 if (paging.Take != 0)
                     dbSet = dbSet.Skip(paging.Skip).Take(paging.Take);
 
+                if(sorts != null)
+                {
+                    dbSet = dbSet.OrderBy(sorts);
+                }
 
-                return Ok(dbSet);
+                return Ok(dbSet.ToDynamicList());
             }
             else
             {
