@@ -47,20 +47,6 @@ namespace AutoAPI
 
             if (filters.Count > 0)
             {
-                return (String.Join(" && ", filters.Keys.ToArray()), filters.Values.ToArray());
-            }
-            else
-            {
-                return (null, null);
-            }
-        }
-
-        public (string Expression, object[] Values) GetGetFilter(APIEntity entity, IQueryCollection queryString)
-        {
-            var filters = GetOperationData(entity, queryString, FILTERPREFIX, (input, type) => Convert.ChangeType(input, type));
-
-            if (filters.Count > 0)
-            {
                 return (String.Join(" && ", filters.Keys.Select((x, i) => $"{x} == @{i}").ToArray()), filters.Values.ToArray());
             }
             else
