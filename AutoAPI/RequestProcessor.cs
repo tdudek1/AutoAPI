@@ -45,11 +45,14 @@ namespace AutoAPI
                 result.FilterExpression = filterResult.Expression;
                 result.FilterValues = filterResult.Values;
 
-                result.FilterExpression = GetSort(apiEntity, queryString);
+                result.SortExpression = GetSort(apiEntity, queryString);
 
                 var pageResult = GetPaging(queryString);
                 result.Take = pageResult.Take;
                 result.Skip = pageResult.Skip;
+
+                if (result.FilterExpression != null || result.SortExpression != null || result.Take != 0)
+                    result.HasModifiers = true;
 
             }
 
