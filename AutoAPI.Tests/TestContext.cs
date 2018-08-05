@@ -26,6 +26,7 @@ namespace AutoAPI.Tests
 		public int Id { get; set; }
         public String Name { get; set; }
         public List<Book> Books { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
     }
 

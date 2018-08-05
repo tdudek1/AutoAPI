@@ -18,6 +18,7 @@ namespace AutoAPI.Tests
             {
                 Id = 1,
                 Name = "Ernest Hemingway",
+                DateOfBirth = new DateTime(1899, 7, 21),
                 Books = new List<Book>() {
                     new Book() { ISBN = "1234 5", Title ="For Whom the Bell Tolls" }, new Book() { ISBN = "5678", Title = "A Farewell to Arms" } }
             });
@@ -26,6 +27,7 @@ namespace AutoAPI.Tests
             {
                 Id = 2,
                 Name = "Stephen King",
+                DateOfBirth = new DateTime(1947, 9, 21),
                 Books = new List<Book>() {
                     new Book() { ISBN = "99999", Title ="IT" }, new Book() { ISBN = "324423423", Title = "The Shining" } }
             });

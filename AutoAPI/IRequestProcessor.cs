@@ -9,10 +9,8 @@ namespace AutoAPI
 {
     public interface IRequestProcessor
     {
-        RouteInfo GetRoutInfo(RouteData routeData);
+        RouteInfo GetRoutInfo(RouteData routeData, IQueryCollection queryString = null);
 
         object GetData(HttpRequest request, Type type);
-
-		Tuple<string, object[]> GetFilter(APIEntity entity, IQueryCollection queryString);
     }
 }

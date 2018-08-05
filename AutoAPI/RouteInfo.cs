@@ -10,8 +10,12 @@ namespace AutoAPI
     {
         public APIEntity Entity{ get; set; }
         public string Id { get; set; }
-        public Dictionary<string, object> Filters { get; set; }
-        public int PageNumber { get; set; }
-        public int PageSize { get; set; }
+        public String FilterExpression { get; set; }
+        public object[] FilterValues { get; set; }
+        public int Skip { get; set; }
+        public int Take { get; set; }
+        public string SortExpression { get; set; }
+        public bool HasModifiers { get; set; }
+
     }
 }

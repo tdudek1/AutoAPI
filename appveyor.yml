@@ -5,10 +5,6 @@ dotnet_csproj:
   patch: true
   file: '**\*.csproj'
   version: '{version}'
-  package_version: '{version}'
-  assembly_version: '{version}'
-  file_version: '{version}'
-  informational_version: '{version}'
 environment:
   key:
     secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
