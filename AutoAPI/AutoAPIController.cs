@@ -70,6 +70,11 @@ namespace AutoAPI
 
             var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
 
+            if(!this.TryValidateModel(entity))
+            {
+                return BadRequest(this.ModelState);
+            }
+
             context.Add(entity);
             context.SaveChanges();
 

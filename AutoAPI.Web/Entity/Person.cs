@@ -12,7 +12,9 @@ namespace AutoAPI.Web.Entity
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        [Required]
         public String FirstName { get; set; }
+        [Required]
         public String LastName { get; set; }
         public List<Address> Addresses { get; set; }
 		
