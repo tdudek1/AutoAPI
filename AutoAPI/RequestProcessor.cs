@@ -64,7 +64,7 @@ namespace AutoAPI
             }
         }
 
-        public (uint PageSize, uint Page) GetPaging(IQueryCollection queryString)
+        public (int Take, int Skip) GetPaging(IQueryCollection queryString)
         {
             var pageSize = 0U;
             var page = 1U;
@@ -82,8 +82,13 @@ namespace AutoAPI
                 }
             }
 
-            return (pageSize, page);
+            return ((int)pageSize, (int)((page - 1U) * pageSize));
 
+        }
+
+        public (string Property, bool Desending) GetSort(APIEntity entity, IQueryCollection queryString)
+        {
+            return (null, false);
         }
 
         private string getFilterProperty(string key)

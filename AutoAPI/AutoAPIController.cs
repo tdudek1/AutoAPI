@@ -47,8 +47,8 @@ namespace AutoAPI
                 if (fitler.Expression != null)
                     dbSet = dbSet.Where(fitler.Item1, fitler.Item2);
 
-                if (paging.PageSize != 0)
-                    dbSet = dbSet.Skip(((int)((paging.Page - 1U) * paging.PageSize))).Take((int)paging.PageSize);
+                if (paging.Take != 0)
+                    dbSet = dbSet.Skip(paging.Skip).Take(paging.Take);
 
 
                 return Ok(dbSet);
