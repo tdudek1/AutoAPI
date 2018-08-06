@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using System;
@@ -82,6 +83,12 @@ namespace AutoAPI
             {
                 return (null, null);
             }
+        }
+
+        public ModelStateDictionary Validate(ControllerBase controller, object entity)
+        {
+            controller.TryValidateModel(entity);
+            return controller.ModelState;
         }
 
         public (int Take, int Skip) GetPaging(IQueryCollection queryString)
