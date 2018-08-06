@@ -85,12 +85,6 @@ namespace AutoAPI
             }
         }
 
-        public ModelStateDictionary Validate(ControllerBase controller, object entity)
-        {
-            controller.TryValidateModel(entity);
-            return controller.ModelState;
-        }
-
         public (int Take, int Skip) GetPaging(IQueryCollection queryString)
         {
             var pageSize = 0U;
@@ -136,6 +130,11 @@ namespace AutoAPI
             {
                 return null;
             }
+        }
+
+        public bool Validate(ControllerBase controllerBase, object entity)
+        {
+            return controllerBase.TryValidateModel(entity);
         }
 
         private string GetFilterProperty(string key)

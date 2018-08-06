@@ -15,6 +15,6 @@ namespace AutoAPI
 
         object GetData(HttpRequest request, Type type);
 
-        ModelStateDictionary Validate(ControllerBase controller, object entity);
+        bool Validate(ControllerBase controllerBase, object entity);
     }
 }
