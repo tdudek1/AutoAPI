@@ -70,6 +70,9 @@ namespace AutoAPI
 
             var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
 
+            if(!requestProcessor.Validate(this,entity))
+                return BadRequest(this.ModelState);
+
             context.Add(entity);
             context.SaveChanges();
 
@@ -87,6 +90,9 @@ namespace AutoAPI
             var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
             var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
             var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
+
+            if (!requestProcessor.Validate(this, entity))
+                return BadRequest(this.ModelState);
 
             if (!objectId.Equals(routeId))
                 return BadRequest();

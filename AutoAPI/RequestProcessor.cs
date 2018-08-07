@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using System;
@@ -129,6 +130,11 @@ namespace AutoAPI
             {
                 return null;
             }
+        }
+
+        public bool Validate(ControllerBase controllerBase, object entity)
+        {
+            return controllerBase.TryValidateModel(entity);
         }
 
         private string GetFilterProperty(string key)
