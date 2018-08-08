@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Console;
+using Microsoft.AspNetCore.Identity;
 
 namespace AutoAPI.Web
 {
@@ -35,12 +36,24 @@ namespace AutoAPI.Web
 			});
 			services.AddAutoAPI<DataContext>();
 
+            services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<DbContext>()
+            .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequiredLength = 8;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+            });
 
 
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context,UserManager<IdentityUser> userManager)
 		{
 			if (env.IsDevelopment())
 			{
@@ -48,8 +61,16 @@ namespace AutoAPI.Web
 			}
 
 			app.UseMvc();
+            app.UseAuthentication();
 
             context.Database.EnsureCreated();
+
+            userManager.CreateAsync(new IdentityUser()
+            {
+                UserName = "test@test.com",
+                Email = "test@test.com",
+
+            },"Password");
 		}
 	}
 }
