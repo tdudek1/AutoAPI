@@ -26,7 +26,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
             //act
             var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
             var result = (OkObjectResult)controller.Get();
@@ -44,7 +44,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
 
             //act
             var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
@@ -62,7 +62,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
 
             //act
             var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
@@ -78,7 +78,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
             var testContext = SetupHelper.BuildTestContext();
 
             //act
@@ -96,7 +96,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "5" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "5" });
 
             //act
             var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
@@ -112,7 +112,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
 
             //act
             var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
@@ -130,7 +130,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
             requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.Is<Type>(t => t.FullName == typeof(Author).FullName))).Returns(new Author { Id = 3, Name = "J.R.R.Tolkien" });
             requestProcessorMock.Setup(x => x.Validate(It.IsAny<ControllerBase>(), It.IsNotNull<object>())).Returns(true);
             var testContext = SetupHelper.BuildTestContext();
@@ -151,7 +151,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
 
             //act
             var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
@@ -167,7 +167,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
             requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.Is<Type>(t => t.FullName == typeof(Author).FullName))).Returns(new Author { Id = 1, Name = "J.R.R.Tolkien" });
             requestProcessorMock.Setup(x => x.Validate(It.IsAny<ControllerBase>(), It.IsNotNull<object>())).Returns(true);
             var testContext = SetupHelper.BuildTestContext();
@@ -188,7 +188,7 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
             var testContext = SetupHelper.BuildTestContext();
 
             //act

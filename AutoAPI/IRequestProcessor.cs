@@ -11,7 +11,7 @@ namespace AutoAPI
 {
     public interface IRequestProcessor
     {
-        RouteInfo GetRoutInfo(RouteData routeData, IQueryCollection queryString = null);
+        RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null);
 
         object GetData(HttpRequest request, Type type);
 

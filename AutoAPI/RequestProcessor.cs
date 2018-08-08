@@ -19,7 +19,7 @@ namespace AutoAPI
         private const string SORTPREFIX = "sort";
         private const string PAGINGPREFIX = "page";
 
-        public RouteInfo GetRoutInfo(RouteData routeData, IQueryCollection queryString = null)
+        public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null)
         {
             var result = new RouteInfo();
 
@@ -40,15 +40,15 @@ namespace AutoAPI
                 result.Id = route[1];
             }
 
-            if (queryString?.Keys.Count > 0)
+            if (request.Query?.Keys.Count > 0)
             {
-                var filterResult = GetFilter(apiEntity, queryString);
+                var filterResult = GetFilter(apiEntity, request.Query);
                 result.FilterExpression = filterResult.Expression;
                 result.FilterValues = filterResult.Values;
 
-                result.SortExpression = GetSort(apiEntity, queryString);
+                result.SortExpression = GetSort(apiEntity, request.Query);
 
-                var pageResult = GetPaging(queryString);
+                var pageResult = GetPaging(request.Query);
                 result.Take = pageResult.Take;
                 result.Skip = pageResult.Skip;
 
