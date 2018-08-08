@@ -18,7 +18,7 @@ namespace AutoAPI.Web
 	{
 		public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
 
-		public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
 		}
@@ -31,13 +31,16 @@ namespace AutoAPI.Web
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 			services.AddTransient<DbContext>(x =>
 			{
-				return new DataContext(new DbContextOptionsBuilder<DataContext>().UseSqlServer(Configuration.GetConnectionString("DataContext")).UseLoggerFactory(LoggerFactory).Options);
+                return new DataContext(new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(databaseName: "Data").UseLoggerFactory(LoggerFactory).Options);
 			});
 			services.AddAutoAPI<DataContext>();
+
+
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context)
 		{
 			if (env.IsDevelopment())
 			{
@@ -45,6 +48,8 @@ namespace AutoAPI.Web
 			}
 
 			app.UseMvc();
+
+            context.Database.EnsureCreated();
 		}
 	}
 }

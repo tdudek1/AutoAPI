@@ -11,7 +11,7 @@ namespace AutoAPI.Web
 	{
 		public DataContext(DbContextOptions options) : base(options)
 		{
-
+            
 		}
 
 		[AutoAPIEntity(Route = "persons")]
