@@ -31,7 +31,7 @@ namespace AutoAPI.Web
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 			services.AddTransient<DbContext>(x =>
 			{
-                return new DataContext(new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(databaseName: "Data").UseLoggerFactory(LoggerFactory).Options);
+                return new DataContext(new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(databaseName: "Data").Options);
 			});
 			services.AddAutoAPI<DataContext>();
 

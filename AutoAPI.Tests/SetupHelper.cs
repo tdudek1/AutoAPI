@@ -1,4 +1,5 @@
 ﻿using AutoAPI;
+using AutoAPI.Web;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,33 +10,14 @@ namespace AutoAPI.Tests
     public static class SetupHelper
     {
 
-        public static TestContext BuildTestContext()
+        public static DataContext BuildTestContext()
         {
-            var options = new DbContextOptionsBuilder<TestContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            var context = new TestContext(options);
+            var options = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
+            var context = new DataContext(options);
 
-            context.Add(new Author()
-            {
-                Id = 1,
-                Name = "Ernest Hemingway",
-                DateOfBirth = new DateTime(1899, 7, 21),
-                Books = new List<Book>() {
-                    new Book() { ISBN = "1234 5", Title ="For Whom the Bell Tolls" }, new Book() { ISBN = "5678", Title = "A Farewell to Arms" } }
-            });
+            context.Database.EnsureCreated();
 
-            context.Add(new Author()
-            {
-                Id = 2,
-                Name = "Stephen King",
-                DateOfBirth = new DateTime(1947, 9, 21),
-                Books = new List<Book>() {
-                    new Book() { ISBN = "99999", Title ="IT" }, new Book() { ISBN = "324423423", Title = "The Shining" } }
-            });
-
-            context.SaveChanges();
-            context.Dispose();
-
-            return new TestContext(options);
+            return new DataContext(options);
         }
 
     }

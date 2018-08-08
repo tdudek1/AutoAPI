@@ -28,7 +28,7 @@ namespace AutoAPI
         [HttpGet]
         public IActionResult Get()
         {
-            var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
+            var routeInfo = requestProcessor.GetRoutInfo(this.RouteData, this.Request.Query);
 
             if (routeInfo.Entity == null)
                 return NotFound();
@@ -70,7 +70,7 @@ namespace AutoAPI
 
             var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
 
-            if(!requestProcessor.Validate(this,entity))
+            if (!requestProcessor.Validate(this, entity))
                 return BadRequest(this.ModelState);
 
             context.Add(entity);

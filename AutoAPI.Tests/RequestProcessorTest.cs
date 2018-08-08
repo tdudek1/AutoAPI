@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoAPI.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -15,7 +16,7 @@ namespace AutoAPI.Tests
 
         public RequestProcessorTest()
         {
-            entityList = APIConfiguration.Init<TestContext>();
+            entityList = APIConfiguration.Init<DataContext>();
         }
 
         [Fact]

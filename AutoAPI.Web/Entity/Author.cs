@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 
 namespace AutoAPI.Web.Entity
 {
-    public class Person
+    public class Author
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public String FirstName { get; set; }
-        [Required]
-        public String LastName { get; set; }
-        public List<Address> Addresses { get; set; }
-		
-	}
+        public String Name { get; set; }
+        public List<Book> Books { get; set; }
+        public DateTime DateOfBirth { get; set; }
+
+    }
 }

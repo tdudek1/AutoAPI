@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
+using AutoAPI.Web.Entity;
+using AutoAPI.Web;
 
 namespace AutoAPI.Tests
 {
@@ -16,7 +18,7 @@ namespace AutoAPI.Tests
 
         public DataControllerTests()
         {
-            entityList = APIConfiguration.Init<TestContext>();
+            entityList = APIConfiguration.Init<DataContext>();
         }
 
         [Fact]
