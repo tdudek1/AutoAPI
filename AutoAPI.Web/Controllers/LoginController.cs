@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,21 +18,20 @@ namespace AutoAPI.Web.Controllers
     public class LoginController : ControllerBase
     {
         DataContext context;
-        UserManager<IdentityUser> signInManager;
+        UserManager<IdentityUser> userManager;
 
-        public LoginController(DbContext context, UserManager<IdentityUser> signInManager)
+        public LoginController(DbContext context, UserManager<IdentityUser> userManager)
         {
             this.context = (DataContext)context;
-            this.signInManager = signInManager;
+            this.userManager = userManager;
         }
 
-        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult> Login([FromForm] String UserName, [FromForm] String Password)
         {
-            var user = await signInManager.FindByNameAsync(UserName);
+            var user = await userManager.FindByNameAsync(UserName);
 
-            if (user != null && await signInManager.CheckPasswordAsync(user, Password))
+            if (user != null && await userManager.CheckPasswordAsync(user, Password))
             {
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -38,7 +39,7 @@ namespace AutoAPI.Web.Controllers
                 var token = new JwtSecurityToken(
                     issuer: "test.com",
                     audience: "test.com",
-                    claims: signInManager.GetClaimsAsync(user).Result,
+                    claims: userManager.GetClaimsAsync(user).Result,
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);
                 
@@ -51,6 +52,15 @@ namespace AutoAPI.Web.Controllers
             {
                 return Unauthorized();
             }
+        }
+
+        [HttpGet]
+        [Route("test")]
+        [Authorize]
+        public async Task<ActionResult> Test()
+        {
+            var user = await userManager.FindByNameAsync(User.Claims.Where(x => x.Type == ClaimTypes.Name).FirstOrDefault()?.Value);
+            return Ok(user);
         }
 
     }

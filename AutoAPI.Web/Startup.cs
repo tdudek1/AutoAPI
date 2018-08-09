@@ -13,39 +13,66 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace AutoAPI.Web
 {
-	public class Startup
-	{
-		public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
+    public class Startup
+    {
+        public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
 
         public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+        {
+            Configuration = configuration;
+        }
 
-		public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
-		{
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-			services.AddTransient<DbContext>(x =>
-			{
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddTransient<DbContext>(x =>
+            {
                 return new DataContext(new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(databaseName: "Data").Options);
-			});
-			services.AddAutoAPI<DataContext>();
+            });
+            services.AddAutoAPI<DataContext>();
 
 
             services.AddDbContext<IdentityContext>(options =>
             {
-                options.UseInMemoryDatabase(databaseName:  "Identity");
+                options.UseInMemoryDatabase(databaseName: "Identity");
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
-            .AddEntityFrameworkStores<IdentityContext>()
-            .AddDefaultTokenProviders();
+            services
+                .AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<IdentityContext>()
+                .AddDefaultTokenProviders();
+
+
+            services
+                .AddAuthentication(o =>
+                {
+                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "test.com",
+                        ValidAudience = "test.com",
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"))
+                    };
+                });
+
+            services.AddMvc();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -54,32 +81,35 @@ namespace AutoAPI.Web
             });
 
 
-		}
+        }
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context,UserManager<IdentityUser> userManager,IdentityContext identityContext)
-		{
-			if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
-			app.UseMvc();
             app.UseAuthentication();
+            app.UseMvc();
+
 
             context.Database.EnsureCreated();
             identityContext.Database.EnsureCreated();
 
-           userManager.CreateAsync(new IdentityUser()
+            userManager.CreateAsync(new IdentityUser()
             {
                 UserName = "test@test.com",
                 Email = "test@test.com"
 
-            },"Password1234!");
+            }, "Password1234!");
 
             var user = userManager.FindByNameAsync("test@test.com").Result;
 
             userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
-		}
-	}
+            userManager.AddClaimAsync(user, new Claim(ClaimTypes.NameIdentifier, user.Id));
+            userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, user.UserName));
+        }
+    }
 }
