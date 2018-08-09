@@ -36,15 +36,18 @@ namespace AutoAPI.Web
 			});
 			services.AddAutoAPI<DataContext>();
 
+
+            services.AddDbContext<IdentityContext>(options =>
+            {
+                options.UseInMemoryDatabase(databaseName:  "Identity");
+            });
+
             services.AddIdentity<IdentityUser, IdentityRole>()
-            .AddEntityFrameworkStores<DbContext>()
+            .AddEntityFrameworkStores<IdentityContext>()
             .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
-                // Password settings
-                options.Password.RequiredLength = 8;
-
                 // User settings
                 options.User.RequireUniqueEmail = true;
             });
@@ -53,7 +56,7 @@ namespace AutoAPI.Web
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context,UserManager<IdentityUser> userManager)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context,UserManager<IdentityUser> userManager,IdentityContext identityContext)
 		{
 			if (env.IsDevelopment())
 			{
@@ -64,13 +67,14 @@ namespace AutoAPI.Web
             app.UseAuthentication();
 
             context.Database.EnsureCreated();
+            identityContext.Database.EnsureCreated();
 
             userManager.CreateAsync(new IdentityUser()
             {
                 UserName = "test@test.com",
                 Email = "test@test.com",
 
-            },"Password");
+            },"Password1234!");
 		}
 	}
 }
