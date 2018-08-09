@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace AutoAPI.Web
 {
@@ -69,12 +70,16 @@ namespace AutoAPI.Web
             context.Database.EnsureCreated();
             identityContext.Database.EnsureCreated();
 
-            userManager.CreateAsync(new IdentityUser()
+           userManager.CreateAsync(new IdentityUser()
             {
                 UserName = "test@test.com",
-                Email = "test@test.com",
+                Email = "test@test.com"
 
             },"Password1234!");
+
+            var user = userManager.FindByNameAsync("test@test.com").Result;
+
+            userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
 		}
 	}
 }

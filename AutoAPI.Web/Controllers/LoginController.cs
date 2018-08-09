@@ -32,7 +32,20 @@ namespace AutoAPI.Web.Controllers
 
             if (user != null && await signInManager.CheckPasswordAsync(user, Password))
             {
-                return Ok();
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(
+                    issuer: "test.com",
+                    audience: "test.com",
+                    claims: signInManager.GetClaimsAsync(user).Result,
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: creds);
+                
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token)
+                });
             }
             else
             {
