@@ -70,7 +70,7 @@ Delete			DELETE /api/data/authors/1
 
 #### To Dos
 
-- Authentication
+- Logging 
 - Filtering (operators and expresssions)
 - Include related entities in results
 - Improve routing/registration
