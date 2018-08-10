@@ -72,6 +72,14 @@ namespace AutoAPI.Web
                     };
                 });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsAdmin", policy =>
+                {
+                    policy.RequireRole("Admin");
+                });
+            });
+
             services.AddMvc();
 
             services.Configure<IdentityOptions>(options =>

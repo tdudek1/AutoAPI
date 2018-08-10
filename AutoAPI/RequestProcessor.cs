@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -9,17 +10,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AutoAPI
 {
     public class RequestProcessor : IRequestProcessor
     {
+
         private const string FILTERPREFIX = "filter";
         private const string SORTPREFIX = "sort";
         private const string PAGINGPREFIX = "page";
 
-        public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null)
+        public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request)
         {
             var result = new RouteInfo();
 
@@ -56,6 +59,7 @@ namespace AutoAPI
                     result.HasModifiers = true;
 
             }
+
 
             return result;
         }
@@ -160,5 +164,15 @@ namespace AutoAPI
             return result;
         }
 
+        public bool Authorize(ClaimsPrincipal claimsPrincipal, string policy, IAuthorizationService authorizationService)
+        {
+            if (string.IsNullOrWhiteSpace(policy) || authorizationService == null)
+                return true;
+            else
+            {
+                var result = authorizationService.AuthorizeAsync(claimsPrincipal, policy).Result;
+                return result.Succeeded;
+            }
+        }
     }
 }
