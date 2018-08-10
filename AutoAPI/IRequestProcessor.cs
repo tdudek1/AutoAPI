@@ -13,10 +13,12 @@ namespace AutoAPI
 {
 	public interface IRequestProcessor
 	{
-		RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null, IAuthorizationService authorizationService = null, ClaimsPrincipal user = null);
+		RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null);
 
 		object GetData(HttpRequest request, Type type);
 
 		bool Validate(ControllerBase controllerBase, object entity);
+
+        bool Authorize(ClaimsPrincipal user, string policy, IAuthorizationService authorizationService);
 	}
 }

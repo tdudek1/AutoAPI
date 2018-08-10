@@ -1,11 +1,15 @@
 ﻿using AutoAPI.Web;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AutoAPI.Tests
@@ -138,6 +142,46 @@ namespace AutoAPI.Tests
             //assert
             Assert.Equal(10, result.Take);
             Assert.Equal(20, result.Skip);
+        }
+
+
+        [Fact]
+        public void Authorize_WhenNoPolicyORAuthService_ThenReturnTrue()
+        {
+            //arrange
+            var user = new ClaimsPrincipal();
+
+            //act
+            var result = (new RequestProcessor()).Authorize(user, null, null);
+
+            //assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void Authorize_WhenNoAuthService_ThenReturnTrue()
+        {
+            //arrange
+            var user = new ClaimsPrincipal();
+
+            //act
+            var result = (new RequestProcessor()).Authorize(user, "Admin", null);
+
+            //assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void Authorize_WhenNoPolicy_ThenReturnTrue()
+        {
+            //arrange
+            var user = new ClaimsPrincipal();
+            var authServiceMock = new Mock<IAuthorizationService>();
+            //act
+            var result = (new RequestProcessor()).Authorize(user, null, authServiceMock.Object);
+
+            //assert
+            Assert.True(result);
         }
     }
 }

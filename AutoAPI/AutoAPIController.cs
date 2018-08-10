@@ -9,119 +9,143 @@ using System.Threading.Tasks;
 
 namespace AutoAPI
 {
-	public class AutoAPIController : ControllerBase
-	{
-		private readonly DbContext context;
-		private readonly IRequestProcessor requestProcessor;
-		private readonly IAuthorizationService authorizationService;
-		public AutoAPIController(DbContext context, IAuthorizationService authorizationService)
-		{
-			this.context = context;
-			this.requestProcessor = new RequestProcessor();
-		}
+    public class AutoAPIController : ControllerBase
+    {
+        private readonly DbContext context;
+        private readonly IRequestProcessor requestProcessor;
+        private readonly IAuthorizationService authorizationService;
 
-		public AutoAPIController(DbContext context, IRequestProcessor requestProcessor)
-		{
-			this.context = context;
-			this.requestProcessor = requestProcessor;
-		}
+        public AutoAPIController(DbContext context)
+        {
+            this.context = context;
+            this.requestProcessor = new RequestProcessor();
+        }
+
+        public AutoAPIController(DbContext context, IAuthorizationService authorizationService)
+        {
+            this.context = context;
+            this.requestProcessor = new RequestProcessor();
+            this.authorizationService = authorizationService;
+        }
+
+        public AutoAPIController(DbContext context, IRequestProcessor requestProcessor, IAuthorizationService authorizationService)
+        {
+            this.context = context;
+            this.requestProcessor = requestProcessor;
+            this.authorizationService = authorizationService;
+        }
 
 
-		[HttpGet]
-		public IActionResult Get()
-		{
-			var routeInfo = requestProcessor.GetRoutInfo(this.RouteData, this.Request);
+        [HttpGet]
+        public IActionResult Get()
+        {
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData, Request);
 
-			if (routeInfo.Entity == null)
-				return NotFound();
+            if (routeInfo.Entity == null)
+                return NotFound();
 
-			if (routeInfo.Id != null)
-			{
-				return Ok(((IQueryable)routeInfo.Entity.DbSet.GetValue(context)).Where("Id == @0", routeInfo.Id).FirstOrDefault());
-			}
-			else if (routeInfo.HasModifiers)
-			{
-				IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(context));
+            if (!requestProcessor.Authorize(User, routeInfo.Entity.GETPolicy, authorizationService))
+                return Unauthorized();
 
-				if (routeInfo.FilterExpression != null)
-					dbSet = dbSet.Where(routeInfo.FilterExpression, routeInfo.FilterValues);
 
-				if (routeInfo.Take != 0)
-					dbSet = dbSet.Skip(routeInfo.Skip).Take(routeInfo.Take);
+            if (routeInfo.Id != null)
+            {
+                return Ok(((IQueryable)routeInfo.Entity.DbSet.GetValue(context)).Where("Id == @0", routeInfo.Id).FirstOrDefault());
+            }
+            else if (routeInfo.HasModifiers)
+            {
+                IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(context));
 
-				if (routeInfo.SortExpression != null)
-				{
-					dbSet = dbSet.OrderBy(routeInfo.SortExpression);
-				}
+                if (routeInfo.FilterExpression != null)
+                    dbSet = dbSet.Where(routeInfo.FilterExpression, routeInfo.FilterValues);
 
-				return Ok(dbSet.ToDynamicList());
-			}
-			else
-			{
-				return Ok(routeInfo.Entity.DbSet.GetValue(context));
-			}
-		}
+                if (routeInfo.Take != 0)
+                    dbSet = dbSet.Skip(routeInfo.Skip).Take(routeInfo.Take);
 
-		[HttpPost]
-		public IActionResult Post()
-		{
-			var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
+                if (routeInfo.SortExpression != null)
+                {
+                    dbSet = dbSet.OrderBy(routeInfo.SortExpression);
+                }
 
-			if (routeInfo.Entity == null)
-				return NotFound();
+                return Ok(dbSet.ToDynamicList());
+            }
+            else
+            {
+                return Ok(routeInfo.Entity.DbSet.GetValue(context));
+            }
+        }
 
-			var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
+        [HttpPost]
+        public IActionResult Post()
+        {
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData);
 
-			if (!requestProcessor.Validate(this, entity))
-				return BadRequest(this.ModelState);
+            if (routeInfo.Entity == null)
+                return NotFound();
 
-			context.Add(entity);
-			context.SaveChanges();
+            if (!requestProcessor.Authorize(User, routeInfo.Entity.POSTtPolicy, authorizationService))
+                return Unauthorized();
 
-			return Created(routeInfo.Entity.Route, entity);
-		}
+            var entity = requestProcessor.GetData(Request, routeInfo.Entity.EntityType);
 
-		[HttpPut]
-		public IActionResult Put()
-		{
-			var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
+            if (!requestProcessor.Validate(this, entity))
+                return BadRequest(ModelState);
 
-			if (routeInfo.Entity == null || routeInfo.Id == null)
-				return NotFound();
+            context.Add(entity);
+            context.SaveChanges();
 
-			var entity = requestProcessor.GetData(this.Request, routeInfo.Entity.EntityType);
-			var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
-			var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
+            return Created(routeInfo.Entity.Route, entity);
+        }
 
-			if (!requestProcessor.Validate(this, entity))
-				return BadRequest(this.ModelState);
+        [HttpPut]
+        public IActionResult Put()
+        {
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData);
 
-			if (!objectId.Equals(routeId))
-				return BadRequest();
+            if (routeInfo.Entity == null || routeInfo.Id == null)
+                return NotFound();
 
-			context.Entry(entity).State = EntityState.Modified;
-			context.SaveChanges();
+            if (!requestProcessor.Authorize(User, routeInfo.Entity.PUTPolicy, authorizationService))
+                return Unauthorized();
 
-			return Ok(entity);
-		}
+            var entity = requestProcessor.GetData(Request, routeInfo.Entity.EntityType);
+            var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
+            var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
 
-		[HttpDelete]
-		public IActionResult Delete()
-		{
-			var routeInfo = requestProcessor.GetRoutInfo(this.RouteData);
+            if (!requestProcessor.Validate(this, entity))
+                return BadRequest(ModelState);
 
-			if (routeInfo.Entity == null)
-				return NotFound();
+            if (!objectId.Equals(routeId))
+                return BadRequest();
 
-			object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
 
-			if (entity == null)
-			{
-				return NotFound();
-			}
-			context.Remove(entity);
-			context.SaveChanges();
-			return Ok();
-		}
-	}
+            return Ok(entity);
+        }
+
+        [HttpDelete]
+        public IActionResult Delete()
+        {
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData);
+
+            if (routeInfo.Entity == null || routeInfo.Id == null)
+                return NotFound();
+
+            if(!requestProcessor.Authorize(User, routeInfo.Entity.DELETEPolicy, authorizationService))
+                return Unauthorized();
+
+            object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            context.Remove(entity);
+            context.SaveChanges();
+
+            return Ok();
+        }
+    }
 }
