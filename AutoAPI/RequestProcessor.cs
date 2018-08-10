@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -9,156 +10,167 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AutoAPI
 {
-    public class RequestProcessor : IRequestProcessor
-    {
-        private const string FILTERPREFIX = "filter";
-        private const string SORTPREFIX = "sort";
-        private const string PAGINGPREFIX = "page";
+	public class RequestProcessor : IRequestProcessor
+	{
 
-        public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null)
-        {
-            var result = new RouteInfo();
+		private const string FILTERPREFIX = "filter";
+		private const string SORTPREFIX = "sort";
+		private const string PAGINGPREFIX = "page";
 
-            var route = routeData.Values["query"].ToString().Split("/", StringSplitOptions.RemoveEmptyEntries);
+		public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null, IAuthorizationService authorizationService = null, ClaimsPrincipal user = null)
+		{
+			var result = new RouteInfo();
 
-            if (route.Length == 0)
-                return result;
+			var route = routeData.Values["query"].ToString().Split("/", StringSplitOptions.RemoveEmptyEntries);
 
-            var apiEntity = APIConfiguration.AutoAPIEntityCache.Where(x => x.Route == route[0]).FirstOrDefault();
+			if (route.Length == 0)
+				return result;
 
-            if (apiEntity == null)
-                return result;
-            else
-                result.Entity = apiEntity;
+			var apiEntity = APIConfiguration.AutoAPIEntityCache.Where(x => x.Route == route[0]).FirstOrDefault();
 
-            if (route.Length > 1)
-            {
-                result.Id = route[1];
-            }
+			if (apiEntity == null)
+				return result;
+			else
+				result.Entity = apiEntity;
 
-            if (request.Query?.Keys.Count > 0)
-            {
-                var filterResult = GetFilter(apiEntity, request.Query);
-                result.FilterExpression = filterResult.Expression;
-                result.FilterValues = filterResult.Values;
+			if (route.Length > 1)
+			{
+				result.Id = route[1];
+			}
 
-                result.SortExpression = GetSort(apiEntity, request.Query);
+			if (request.Query?.Keys.Count > 0)
+			{
+				var filterResult = GetFilter(apiEntity, request.Query);
+				result.FilterExpression = filterResult.Expression;
+				result.FilterValues = filterResult.Values;
 
-                var pageResult = GetPaging(request.Query);
-                result.Take = pageResult.Take;
-                result.Skip = pageResult.Skip;
+				result.SortExpression = GetSort(apiEntity, request.Query);
 
-                if (result.FilterExpression != null || result.SortExpression != null || result.Take != 0)
-                    result.HasModifiers = true;
+				var pageResult = GetPaging(request.Query);
+				result.Take = pageResult.Take;
+				result.Skip = pageResult.Skip;
 
-            }
+				if (result.FilterExpression != null || result.SortExpression != null || result.Take != 0)
+					result.HasModifiers = true;
 
-            return result;
-        }
+			}
 
-        public object GetData(HttpRequest request, Type type)
-        {
-            var serializer = new JsonSerializer();
+			return result;
+		}
 
-            using (var sr = new StreamReader(request.Body))
-            using (var jsonTextReader = new JsonTextReader(sr))
-            {
-                return serializer.Deserialize(jsonTextReader, type);
-            }
-        }
+		public object GetData(HttpRequest request, Type type)
+		{
+			var serializer = new JsonSerializer();
 
-        public (string Expression, object[] Values) GetFilter(APIEntity entity, IQueryCollection queryString)
-        {
-            var filters = GetOperationData(entity, queryString, FILTERPREFIX, (input, type) => Convert.ChangeType(input, type));
+			using (var sr = new StreamReader(request.Body))
+			using (var jsonTextReader = new JsonTextReader(sr))
+			{
+				return serializer.Deserialize(jsonTextReader, type);
+			}
+		}
 
-            if (filters.Count > 0)
-            {
-                return (String.Join(" && ", filters.Keys.Select((x, i) => $"{x} == @{i}").ToArray()), filters.Values.ToArray());
-            }
-            else
-            {
-                return (null, null);
-            }
-        }
+		public (string Expression, object[] Values) GetFilter(APIEntity entity, IQueryCollection queryString)
+		{
+			var filters = GetOperationData(entity, queryString, FILTERPREFIX, (input, type) => Convert.ChangeType(input, type));
 
-        public (int Take, int Skip) GetPaging(IQueryCollection queryString)
-        {
-            var pageSize = 0U;
-            var page = 1U;
+			if (filters.Count > 0)
+			{
+				return (String.Join(" && ", filters.Keys.Select((x, i) => $"{x} == @{i}").ToArray()), filters.Values.ToArray());
+			}
+			else
+			{
+				return (null, null);
+			}
+		}
 
-            foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith("page")))
-            {
-                if (key.ToLower() == "pagesize")
-                {
-                    uint.TryParse(queryString[key].ToString(), out pageSize);
-                }
+		public (int Take, int Skip) GetPaging(IQueryCollection queryString)
+		{
+			var pageSize = 0U;
+			var page = 1U;
 
-                if (key.ToLower() == "page")
-                {
-                    uint.TryParse(queryString[key].ToString(), out page);
-                }
-            }
+			foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith("page")))
+			{
+				if (key.ToLower() == "pagesize")
+				{
+					uint.TryParse(queryString[key].ToString(), out pageSize);
+				}
 
-            return ((int)pageSize, (int)((page - 1U) * pageSize));
+				if (key.ToLower() == "page")
+				{
+					uint.TryParse(queryString[key].ToString(), out page);
+				}
+			}
 
-        }
+			return ((int)pageSize, (int)((page - 1U) * pageSize));
 
-        public string GetSort(APIEntity entity, IQueryCollection queryString)
-        {
-            var sorts = GetOperationData(entity, queryString, SORTPREFIX, (input, type) =>
-            {
-                switch (input.ToLower())
-                {
-                    case "desc":
-                    case "1":
-                    case "descending":
-                        return "desc";
-                    default:
-                        return "asc";
-                }
-            });
+		}
 
-            if (sorts.Count > 0)
-            {
-                return string.Join(", ", sorts.Select(x => $"{x.Key} {(string)x.Value}").ToArray());
-            }
-            else
-            {
-                return null;
-            }
-        }
+		public string GetSort(APIEntity entity, IQueryCollection queryString)
+		{
+			var sorts = GetOperationData(entity, queryString, SORTPREFIX, (input, type) =>
+			{
+				switch (input.ToLower())
+				{
+					case "desc":
+					case "1":
+					case "descending":
+						return "desc";
+					default:
+						return "asc";
+				}
+			});
 
-        public bool Validate(ControllerBase controllerBase, object entity)
-        {
-            return controllerBase.TryValidateModel(entity);
-        }
+			if (sorts.Count > 0)
+			{
+				return string.Join(", ", sorts.Select(x => $"{x.Key} {(string)x.Value}").ToArray());
+			}
+			else
+			{
+				return null;
+			}
+		}
 
-        private string GetFilterProperty(string key)
-        {
-            return key.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1];
-        }
+		public bool Validate(ControllerBase controllerBase, object entity)
+		{
+			return controllerBase.TryValidateModel(entity);
+		}
 
-        private Dictionary<string, object> GetOperationData(APIEntity entity, IQueryCollection queryString, string prefix, Func<string, Type, Object> valueConverter)
-        {
-            var result = new Dictionary<string, object>();
+		private string GetFilterProperty(string key)
+		{
+			return key.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1];
+		}
 
-            foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(prefix)))
-            {
-                var filterName = GetFilterProperty(key);
-                var property = entity.Properties.Where(x => x.Name.ToLower() == filterName.ToLower()).FirstOrDefault();
+		private Dictionary<string, object> GetOperationData(APIEntity entity, IQueryCollection queryString, string prefix, Func<string, Type, Object> valueConverter)
+		{
+			var result = new Dictionary<string, object>();
 
-                if (property != null)
-                {
-                    result.Add(property.Name, valueConverter(queryString[key].ToString(), property.PropertyType));
-                }
-            }
+			foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(prefix)))
+			{
+				var filterName = GetFilterProperty(key);
+				var property = entity.Properties.Where(x => x.Name.ToLower() == filterName.ToLower()).FirstOrDefault();
 
-            return result;
-        }
+				if (property != null)
+				{
+					result.Add(property.Name, valueConverter(queryString[key].ToString(), property.PropertyType));
+				}
+			}
 
-    }
+			return result;
+		}
+
+		private bool Authorize(ClaimsPrincipal claimsPrincipal, string policy, IAuthorizationService authorizationService)
+		{
+			if (!String.IsNullOrWhiteSpace(policy))
+			{
+				return false;
+			}
+
+			return true;
+		}
+	}
 }

@@ -9,5 +9,14 @@ namespace AutoAPI
     public class AutoAPIEntity : Attribute
     {
         public string Route { get; set; }
-    }
+
+		public string GETPolicy { get; set; }
+
+		public string POSTtPolicy { get; set; }
+
+		public string PUTPolicy { get; set; }
+
+		public string DELETEPolicy { get; set; }
+
+	}
 }

@@ -11,23 +11,35 @@ using System.Threading.Tasks;
 
 namespace AutoAPI
 {
-    public static class APIConfiguration
-    {
-        public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
+	public static class APIConfiguration
+	{
+		public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
-        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
-        {
-            AutoAPIEntityCache = Init<T>();
-        }
+		public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
+		{
+			AutoAPIEntityCache = Init<T>();
+		}
 
-        public static List<APIEntity> Init<T>()
-        {
-            return (from p in typeof(T).GetProperties()
-                    let g = p.PropertyType.GetGenericArguments()
-                    where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
-                    select new APIEntity() { Route = p.GetCustomAttribute<AutoAPIEntity>().Route, DbSet = p, EntityType = g.First(), Properties = g.First().GetProperties().ToList(), Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault() }).ToList();
-        }
+		public static List<APIEntity> Init<T>()
+		{
+			return (from p in typeof(T).GetProperties()
+					let g = p.PropertyType.GetGenericArguments()
+					let a = p.GetCustomAttribute<AutoAPIEntity>()
+					where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
+					select new APIEntity()
+					{
+						Route = a.Route,
+						GETPolicy = a.GETPolicy,
+						POSTtPolicy = a.POSTtPolicy,
+						PUTPolicy = a.PUTPolicy,
+						DELETEPolicy = a.DELETEPolicy,
+						DbSet = p,
+						EntityType = g.First(),
+						Properties = g.First().GetProperties().ToList(),
+						Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault()
+					}).ToList();
+		}
 
 
-    }
+	}
 }
