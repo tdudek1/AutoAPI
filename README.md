@@ -43,7 +43,7 @@ public DbSet<Author> Authors { get; set; }
 
 Annotate Data Context with policy authorization
 ```c#
-[AutoAPIEntity(Route = "authors",[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")] )]
+[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
 public DbSet<Author> Authors { get; set; }
 ```
 
