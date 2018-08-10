@@ -22,7 +22,7 @@ namespace AutoAPI
         private const string SORTPREFIX = "sort";
         private const string PAGINGPREFIX = "page";
 
-        public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null)
+        public RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request)
         {
             var result = new RouteInfo();
 

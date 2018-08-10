@@ -30,7 +30,7 @@ namespace AutoAPI
 					{
 						Route = a.Route,
 						GETPolicy = a.GETPolicy,
-						POSTtPolicy = a.POSTtPolicy,
+						POSTtPolicy = a.POSTPolicy,
 						PUTPolicy = a.PUTPolicy,
 						DELETEPolicy = a.DELETEPolicy,
 						DbSet = p,

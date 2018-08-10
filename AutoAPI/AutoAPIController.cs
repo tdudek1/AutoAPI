@@ -78,7 +78,7 @@ namespace AutoAPI
         [HttpPost]
         public IActionResult Post()
         {
-            var routeInfo = requestProcessor.GetRoutInfo(RouteData);
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData, Request);
 
             if (routeInfo.Entity == null)
                 return NotFound();
@@ -100,7 +100,7 @@ namespace AutoAPI
         [HttpPut]
         public IActionResult Put()
         {
-            var routeInfo = requestProcessor.GetRoutInfo(RouteData);
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData, Request);
 
             if (routeInfo.Entity == null || routeInfo.Id == null)
                 return NotFound();
@@ -127,12 +127,12 @@ namespace AutoAPI
         [HttpDelete]
         public IActionResult Delete()
         {
-            var routeInfo = requestProcessor.GetRoutInfo(RouteData);
+            var routeInfo = requestProcessor.GetRoutInfo(RouteData, Request);
 
             if (routeInfo.Entity == null || routeInfo.Id == null)
                 return NotFound();
 
-            if(!requestProcessor.Authorize(User, routeInfo.Entity.DELETEPolicy, authorizationService))
+            if (!requestProcessor.Authorize(User, routeInfo.Entity.DELETEPolicy, authorizationService))
                 return Unauthorized();
 
             object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));

@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace AutoAPI
 {
-	public interface IRequestProcessor
-	{
-		RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request = null);
+    public interface IRequestProcessor
+    {
+        RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request);
 
-		object GetData(HttpRequest request, Type type);
+        object GetData(HttpRequest request, Type type);
 
-		bool Validate(ControllerBase controllerBase, object entity);
+        bool Validate(ControllerBase controllerBase, object entity);
 
         bool Authorize(ClaimsPrincipal user, string policy, IAuthorizationService authorizationService);
-	}
+    }
 }

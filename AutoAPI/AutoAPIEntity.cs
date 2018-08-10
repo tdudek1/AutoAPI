@@ -12,7 +12,7 @@ namespace AutoAPI
 
 		public string GETPolicy { get; set; }
 
-		public string POSTtPolicy { get; set; }
+		public string POSTPolicy { get; set; }
 
 		public string PUTPolicy { get; set; }
 
