@@ -20,9 +20,30 @@ public class DataController : AutoAPI.AutoAPIController
 }
 ```
 
+If you want to use policy authorizaton derive like this
+
+```c#
+[Route("/api/authdata/{*query}")]
+public class AuthorizedDataController : AutoAPI.AutoAPIController
+{
+    public AuthorizedDataController(DbContext context, IAuthorizationService authorizationService) : base(context, authorizationService)
+    {
+
+    }
+}
+
+```
+
 Annotate Data Context
 ```c#
 [AutoAPIEntity(Route = "authors")]
+public DbSet<Author> Authors { get; set; }
+```
+
+
+Annotate Data Context with policy authorization
+```c#
+[AutoAPIEntity(Route = "authors",[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")] )]
 public DbSet<Author> Authors { get; set; }
 ```
 
