@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -23,4 +22,7 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <Compile Remove="Migrations\20180726203644_InitialCreate.cs" />
+  </ItemGroup>
 </Project>

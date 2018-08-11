@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
+using AutoAPI.Web.Entity;
+using AutoAPI.Web;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AutoAPI.Tests
 {
@@ -16,7 +20,7 @@ namespace AutoAPI.Tests
 
         public DataControllerTests()
         {
-            entityList = APIConfiguration.Init<TestContext>();
+            entityList = APIConfiguration.Init<DataContext>();
         }
 
         [Fact]
@@ -24,9 +28,11 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
+
             //act
-            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
             var result = (OkObjectResult)controller.Get();
 
             //assert
@@ -38,14 +44,15 @@ namespace AutoAPI.Tests
         }
 
         [Fact]
-        public void Get_WithIdID_ReturnOne()
+        public void Get_WithId_ReturnOne()
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
 
             //act
-            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
             var result = (OkObjectResult)controller.Get();
 
             //assert
@@ -56,14 +63,31 @@ namespace AutoAPI.Tests
         }
 
         [Fact]
+        public void Get_WithInvalidId_ReturnNotFound()
+        {
+            //arrange
+            var requestProcessorMock = new Mock<IRequestProcessor>();
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "10" });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
+
+            //act
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
+            var result = (NotFoundResult)controller.Get();
+
+            //assert
+            Assert.Equal(404, result.StatusCode);
+
+        }
+
+        [Fact]
         public void Get_WithInvalidRoute_ReturnNotFound()
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
 
             //act
-            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
             var result = (NotFoundResult)controller.Get();
 
             //assert
@@ -76,11 +100,12 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
             var testContext = SetupHelper.BuildTestContext();
 
             //act
-            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object, null);
             var result = (OkResult)controller.Delete();
 
             //assert
@@ -94,10 +119,11 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "5" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "5" });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
 
             //act
-            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
             var result = (NotFoundResult)controller.Delete();
 
             //assert
@@ -110,10 +136,10 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
 
             //act
-            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
             var result = (NotFoundResult)controller.Delete();
 
             //assert
@@ -128,13 +154,14 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First() });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
             requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.Is<Type>(t => t.FullName == typeof(Author).FullName))).Returns(new Author { Id = 3, Name = "J.R.R.Tolkien" });
             requestProcessorMock.Setup(x => x.Validate(It.IsAny<ControllerBase>(), It.IsNotNull<object>())).Returns(true);
             var testContext = SetupHelper.BuildTestContext();
 
             //act
-            var controller = new AutoAPI.AutoAPIController(testContext,requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object, null);
             var result = (CreatedResult)controller.Post();
 
             //assert
@@ -149,10 +176,11 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
 
             //act
-            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
             var result = (NotFoundResult)controller.Post();
 
             //assert
@@ -165,13 +193,14 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "1" });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
             requestProcessorMock.Setup(x => x.GetData(It.IsAny<HttpRequest>(), It.Is<Type>(t => t.FullName == typeof(Author).FullName))).Returns(new Author { Id = 1, Name = "J.R.R.Tolkien" });
             requestProcessorMock.Setup(x => x.Validate(It.IsAny<ControllerBase>(), It.IsNotNull<object>())).Returns(true);
             var testContext = SetupHelper.BuildTestContext();
 
             //act
-            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object, null);
             var result = (OkObjectResult)controller.Put();
 
             //assert
@@ -186,11 +215,11 @@ namespace AutoAPI.Tests
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<IQueryCollection>())).Returns(new RouteInfo() { Entity = null });
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = null });
             var testContext = SetupHelper.BuildTestContext();
 
             //act
-            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object);
+            var controller = new AutoAPI.AutoAPIController(testContext, requestProcessorMock.Object, null);
             var result = (NotFoundResult)controller.Put();
 
             //assert

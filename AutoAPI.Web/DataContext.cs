@@ -7,57 +7,49 @@ using System.Threading.Tasks;
 
 namespace AutoAPI.Web
 {
-	public class DataContext : DbContext
-	{
-		public DataContext(DbContextOptions options) : base(options)
-		{
+    public class DataContext : DbContext
+    {
+        public DataContext(DbContextOptions options) : base(options)
+        {
 
-		}
+        }
 
-		[AutoAPIEntity(Route = "persons")]
-		public DbSet<Person> Persons { get; set; }
-		[AutoAPIEntity(Route = "addresses")]
-		public DbSet<Address> Addresses { get; set; }
-
-
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
-		{
-			modelBuilder.Entity<Person>().HasData(
-				new Person
-				{
-					Id = 1,
-					FirstName = "William",
-					LastName = "Shakespeare"
-				},
-				new Person()
-				{
-					Id = 2,
-					FirstName = "John",
-					LastName = "Adams"
-				}
-			);
+        [AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
+        public DbSet<Author> Authors { get; set; }
+        [AutoAPIEntity(Route = "Books")]
+        public DbSet<Book> Books { get; set; }
 
 
-			modelBuilder.Entity<Address>().HasData(
-				new Address()
-				{
-					Id = 2,
-					Street = "123 Maple Ave",
-					City = "New York",
-					State = "NY",
-					Zip = "10001",
-					PersonId = 1
-				},
-				new Address
-				{
-					Id = 1,
-					Street = "123 Main ST",
-					City = "Chicago",
-					State = "IL",
-					Zip = "60606",
-					PersonId = 2
-				});
-		}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Author>().HasData(new Author[] {
+                new Author()
+                {
+                    Id = 1,
+                    Name = "Ernest Hemingway",
+                    DateOfBirth = new DateTime(1899, 7, 21)
+                },
+               new Author()
+                {
+                    Id = 2,
+                    Name = "Stephen King",
+                    DateOfBirth = new DateTime(1947, 9, 21)
+                }
+            });
 
-	}
+
+            modelBuilder.Entity<Book>().HasData(new Book[] {
+                new Book() { AuthorId = 1, ISBN = "1234 5", Title = "For Whom the Bell Tolls" },
+                new Book() { AuthorId = 1, ISBN = "5678", Title = "A Farewell to Arms" }
+            });
+
+            modelBuilder.Entity<Book>().HasData(new Book[] {
+                new Book() { AuthorId = 2, ISBN = "99999", Title = "IT" },
+                new Book() { AuthorId = 2, ISBN = "324423423", Title = "The Shining" }
+            });
+        }
+
+    }
+
 }
+

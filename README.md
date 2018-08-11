@@ -13,16 +13,39 @@ Create controller deriving from AutoAPIController for all entities
 [Route("/api/data/{*query}")]
 public class DataController : AutoAPI.AutoAPIController
 {
-	public DataController(DbContext context) : base(context)
+	public DataController(DbContext context) 
+			: base(context)
 	{
 
 	}
 }
 ```
 
+If you want to use policy authorization derive like this
+
+```c#
+[Route("/api/authdata/{*query}")]
+public class AuthorizedDataController : AutoAPI.AutoAPIController
+{
+    public AuthorizedDataController(DbContext context, IAuthorizationService authorizationService) 
+			: base(context, authorizationService)
+    {
+
+    }
+}
+
+```
+
 Annotate Data Context
 ```c#
 [AutoAPIEntity(Route = "authors")]
+public DbSet<Author> Authors { get; set; }
+```
+
+
+Annotate Data Context with policy authorization
+```c#
+[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
 public DbSet<Author> Authors { get; set; }
 ```
 
@@ -49,8 +72,8 @@ Delete			DELETE /api/data/authors/1
 
 #### To Dos
 
-- Authentication
-- Filtering (operators and expresssions)
+- Logging 
+- Filtering (operators and expressions)
 - Include related entities in results
 - Improve routing/registration
 
