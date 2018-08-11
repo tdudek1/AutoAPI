@@ -44,7 +44,7 @@ namespace AutoAPI.Tests
         }
 
         [Fact]
-        public void Get_WithIdID_ReturnOne()
+        public void Get_WithId_ReturnOne()
         {
             //arrange
             var requestProcessorMock = new Mock<IRequestProcessor>();
@@ -59,6 +59,23 @@ namespace AutoAPI.Tests
             Assert.Equal(200, result.StatusCode.Value);
             Assert.Equal(1, ((Author)result.Value).Id);
             Assert.Equal("Ernest Hemingway", ((Author)result.Value).Name);
+
+        }
+
+        [Fact]
+        public void Get_WithInvalidId_ReturnNotFound()
+        {
+            //arrange
+            var requestProcessorMock = new Mock<IRequestProcessor>();
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "authors").First(), Id = "10" });
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
+
+            //act
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
+            var result = (NotFoundResult)controller.Get();
+
+            //assert
+            Assert.Equal(404, result.StatusCode);
 
         }
 
