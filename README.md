@@ -21,7 +21,7 @@ public class DataController : AutoAPI.AutoAPIController
 }
 ```
 
-If you want to use policy authorizaton derive like this
+If you want to use policy authorization derive like this
 
 ```c#
 [Route("/api/authdata/{*query}")]
@@ -73,7 +73,7 @@ Delete			DELETE /api/data/authors/1
 #### To Dos
 
 - Logging 
-- Filtering (operators and expresssions)
+- Filtering (operators and expressions)
 - Include related entities in results
 - Improve routing/registration
 
