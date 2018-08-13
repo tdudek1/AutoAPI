@@ -3,16 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoAPI.Tests", "AutoAPI.Tests\AutoAPI.Tests.csproj", "{4E01FE7F-A1D0-45D1-9D61-5AC190438D67}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoAPI.Tests", "AutoAPI.Tests\AutoAPI.Tests.csproj", "{4E01FE7F-A1D0-45D1-9D61-5AC190438D67}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoAPI.Web", "AutoAPI.Web\AutoAPI.Web.csproj", "{DB1B87E5-FFDC-46C2-BEE8-4EF686085752}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoAPI.Web", "AutoAPI.Web\AutoAPI.Web.csproj", "{DB1B87E5-FFDC-46C2-BEE8-4EF686085752}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoAPI", "AutoAPI\AutoAPI.csproj", "{352A0CAE-E24B-46D6-BFE5-7D506DC5E2E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoAPI", "AutoAPI\AutoAPI.csproj", "{352A0CAE-E24B-46D6-BFE5-7D506DC5E2E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{23C17063-8F30-4BF2-9F34-103670C148D4}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		README.md = README.md
+		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Global
