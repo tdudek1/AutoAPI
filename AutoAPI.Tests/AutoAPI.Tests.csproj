@@ -22,4 +22,7 @@
     <ProjectReference Include="..\AutoAPI.Web\AutoAPI.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="IntegrationTest.cs" />
+  </ItemGroup>
 </Project>

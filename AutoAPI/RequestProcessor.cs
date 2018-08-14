@@ -81,7 +81,7 @@ namespace AutoAPI
 
             if (filters.Count > 0)
             {
-                return (String.Join(" && ", filters.Keys.Select((x, i) => $"{x} == @{i}").ToArray()), filters.Values.ToArray());
+                return (String.Join(" && ", filters.Select((x, i) => $"{x.PropertyName} == @{i}").ToArray()), filters.Select(y=>y.Value).ToArray());
             }
             else
             {
@@ -128,7 +128,7 @@ namespace AutoAPI
 
             if (sorts.Count > 0)
             {
-                return string.Join(", ", sorts.Select(x => $"{x.Key} {(string)x.Value}").ToArray());
+                return string.Join(", ", sorts.Select(x => $"{x.PropertyName} {(string)x.Value}").ToArray());
             }
             else
             {
@@ -146,9 +146,9 @@ namespace AutoAPI
             return key.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1];
         }
 
-        private Dictionary<string, object> GetOperationData(APIEntity entity, IQueryCollection queryString, string prefix, Func<string, Type, Object> valueConverter)
+        private List<ExpressionInfo> GetOperationData(APIEntity entity, IQueryCollection queryString, string prefix, Func<string, Type, Object> valueConverter)
         {
-            var result = new Dictionary<string, object>();
+            var result = new List<ExpressionInfo>();
 
             foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(prefix)))
             {
@@ -157,7 +157,7 @@ namespace AutoAPI
 
                 if (property != null)
                 {
-                    result.Add(property.Name, valueConverter(queryString[key].ToString(), property.PropertyType));
+                    result.Add(new ExpressionInfo() { PropertyName = property.Name, Value = valueConverter(queryString[key].ToString(), property.PropertyType) });
                 }
             }
 
