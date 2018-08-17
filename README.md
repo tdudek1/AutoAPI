@@ -7,7 +7,7 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 ### Getting Started
 
-Create controller deriving from AutoAPIController for all entities
+Create controller deriving from AutoAPIController for all entities (route must end with {*query} wild card)
 
 ```c#
 [Route("/api/data/{*query}")]

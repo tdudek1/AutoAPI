@@ -64,13 +64,13 @@ namespace AutoAPI
             {
                 IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(context));
 
-                if (routeInfo.FilterExpression != null)
+                if (!string.IsNullOrWhiteSpace(routeInfo.FilterExpression))
                     dbSet = dbSet.Where(routeInfo.FilterExpression, routeInfo.FilterValues);
 
                 if (routeInfo.Take != 0)
                     dbSet = dbSet.Skip(routeInfo.Skip).Take(routeInfo.Take);
 
-                if (routeInfo.SortExpression != null)
+                if (!string.IsNullOrWhiteSpace(routeInfo.SortExpression))
                 {
                     dbSet = dbSet.OrderBy(routeInfo.SortExpression);
                 }

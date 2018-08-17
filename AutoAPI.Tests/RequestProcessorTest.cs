@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using System;
@@ -20,128 +21,7 @@ namespace AutoAPI.Tests
 
         public RequestProcessorTest()
         {
-            entityList = APIConfiguration.Init<DataContext>();
-        }
-
-        [Fact]
-        public void BuildFilter_WhenOneProperty_ThenFilter()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-            queryString.Add("filter[Name]", "Ernest Hemingway");
-
-            //act
-            var result = (new RequestProcessor()).GetFilter(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
-
-            //assert
-            Assert.Equal("Name == @0", result.Expression);
-            Assert.Single(result.Values);
-            Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
-
-        }
-
-        [Fact]
-        public void BuildFilter_WhenTwoProperties_ThenFilter()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-            queryString.Add("filter[Name]", "Ernest Hemingway");
-            queryString.Add("filter[DateOfBirth]", "7/21/1899");
-
-            //act
-            var result = (new RequestProcessor()).GetFilter(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
-
-            //assert
-            Assert.Equal("Name == @0 && DateOfBirth == @1", result.Expression);
-            Assert.Equal(2, result.Values.Count());
-            Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
-            Assert.Equal(new DateTime(1899, 7, 21), (DateTime)result.Values[1]);
-
-        }
-
-
-        [Fact]
-        public void BuildFilter_NoFilters_ThenNull()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-
-            //act
-            var result = (new RequestProcessor()).GetFilter(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
-
-            Assert.Null(result.Expression);
-        }
-
-        [Fact]
-        public void BuildSort_WhenTwoProperties_ThenFilter()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-            queryString.Add("sort[Name]", "desc");
-            queryString.Add("sort[DateOfBirth]", "asc");
-
-            //act
-            var result = (new RequestProcessor()).GetSort(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
-
-            //assert
-            Assert.Equal("Name desc, DateOfBirth asc", result);
-
-        }
-
-        [Fact]
-        public void BuildSort_NoSorts_ThenNull()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-
-            //act
-            var result = (new RequestProcessor()).GetSort(entityList.Where(x => x.Route == "authors").First(), new QueryCollection(queryString));
-
-            //assert
-            Assert.Null(result);
-        }
-
-        [Fact]
-        public void BuildPaging_NoPaging_ThenZerot()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-
-            //act
-            var result = (new RequestProcessor()).GetPaging(new QueryCollection(queryString));
-
-            Assert.Equal(0, result.Take);
-        }
-
-        [Fact]
-        public void BuildPaging_PageSize10_ThenTakeTen()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-            queryString.Add("pageSize", "10");
-
-            //act
-            var result = (new RequestProcessor()).GetPaging(new QueryCollection(queryString));
-
-            //assert
-            Assert.Equal(10, result.Take);
-            Assert.Equal(0, result.Skip);
-        }
-
-        [Fact]
-        public void BuildPaging_PageSize10AndPage3_ThenTakeTenSkip3()
-        {
-            //arrange
-            var queryString = new Dictionary<string, StringValues>();
-            queryString.Add("pageSize", "10");
-            queryString.Add("page", "3");
-
-            //act
-            var result = (new RequestProcessor()).GetPaging(new QueryCollection(queryString));
-
-            //assert
-            Assert.Equal(10, result.Take);
-            Assert.Equal(20, result.Skip);
+            APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>());
         }
 
 
@@ -182,6 +62,98 @@ namespace AutoAPI.Tests
 
             //assert
             Assert.True(result);
+        }
+
+        [Fact]
+        public void GetRequestInfo_WhenNoQuery_ThenEntityNull()
+        {
+            //arrange
+            var routeData = new RouteData();
+
+            //act
+            var result = (new RequestProcessor()).GetRoutInfo(routeData, null);
+
+            //assert
+            Assert.Null(result.Entity);
+
+        }
+
+        [Fact]
+        public void GetRequestInfo_WhenQueryAndEntityNotFound_ThenEntityNull()
+        {
+            //arrange
+            var routeData = new RouteData();
+            routeData.Values.Add("query", "notauthors");
+
+            //act
+            var result = (new RequestProcessor()).GetRoutInfo(routeData, null);
+
+            //assert
+            Assert.Null(result.Entity);
+
+        }
+
+        [Fact]
+        public void GetRequestInfo_WhenQueryAndEntityFound_ThenEntityNull()
+        {
+            //arrange
+            var routeData = new RouteData();
+            routeData.Values.Add("query", "notauthors");
+
+            //act
+            var result = (new RequestProcessor()).GetRoutInfo(routeData, null);
+
+            //assert
+            Assert.Null(result.Entity);
+
+        }
+
+
+        [Fact]
+        public void GetRequestInfo_WhenQueryAndEntity_ThenEntity()
+        {
+            //arrange
+            var routeData = new RouteData();
+            routeData.Values.Add("query", "authors");
+            var httpRequestMock = new Mock<HttpRequest>();
+            httpRequestMock.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>()));
+
+
+            //act
+            var result = (new RequestProcessor()).GetRoutInfo(routeData, httpRequestMock.Object);
+
+            //assert
+            Assert.Equal("authors", result.Entity.Route.ToLower());
+
+        }
+
+
+        [Fact]
+        public void GetRequestInfo_WhenQueryAndEntityAndQueryString_ThenEntity()
+        {
+            //arrange
+            var routeData = new RouteData();
+            routeData.Values.Add("query", "authors");
+            var httpRequestMock = new Mock<HttpRequest>();
+            var queryString = new Dictionary<string, StringValues>();
+            queryString.Add("sort[Name]", "desc");
+            queryString.Add("filter[Name]", "Ernest Hemingway");
+            queryString.Add("pageSize", "10");
+            queryString.Add("page", "2");
+
+
+            httpRequestMock.Setup(x => x.Query).Returns(new QueryCollection(queryString));
+
+
+            //act
+            var result = (new RequestProcessor()).GetRoutInfo(routeData, httpRequestMock.Object);
+
+            //assert
+            Assert.Equal("authors", result.Entity.Route.ToLower());
+            Assert.Equal("Name desc", result.SortExpression);
+            Assert.Equal("Name == @0", result.FilterExpression);
+            Assert.Equal(10, result.Skip);
+            Assert.Equal(10, result.Take);
         }
     }
 }
