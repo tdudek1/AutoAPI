@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace AutoAPI.Expressions
 {
@@ -23,7 +21,8 @@ namespace AutoAPI.Expressions
             return new FilterResult()
             {
                 Filter = $"{property.Name} == @{index}",
-                Values = new [] { Convert.ChangeType(value, property.PropertyType) }
+                Values = new[] { Convert.ChangeType(value, property.PropertyType) },
+                NextIndex = this.index + 1
             };
         }
     }

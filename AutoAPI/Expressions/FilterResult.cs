@@ -9,5 +9,7 @@ namespace AutoAPI.Expressions
         public string Filter { get; set; }
 
         public object [] Values { get; set; }
+
+        public int NextIndex { get; set; }
     }
 }

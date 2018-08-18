@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
-using Xunit;
-using AutoAPI;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Moq;
-using Microsoft.AspNetCore.Routing;
-using System.Collections.Generic;
+﻿using AutoAPI.Web;
 using AutoAPI.Web.Entity;
-using AutoAPI.Web;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using Xunit;
 
 namespace AutoAPI.Tests
 {
@@ -60,6 +59,33 @@ namespace AutoAPI.Tests
             Assert.Equal(1, ((Author)result.Value).Id);
             Assert.Equal("Ernest Hemingway", ((Author)result.Value).Name);
 
+        }
+
+        [Fact]
+        public void Get_WithFilterPagingAndSort_ReturnOne()
+        {
+            //arrange
+            var requestProcessorMock = new Mock<IRequestProcessor>();
+            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<RouteData>(), It.IsAny<HttpRequest>())).Returns(
+                new RouteInfo()
+                {
+                    Entity = entityList.Where(x => x.Route == "authors").First(),
+                    FilterExpression = "Id == @0",
+                    FilterValues = new object[] { 1 },
+                    SortExpression = "Name desc",
+                    Skip = 0,
+                    Take = 1
+                });
+
+            requestProcessorMock.Setup(x => x.Authorize(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>(), It.IsAny<IAuthorizationService>())).Returns(true);
+
+            //act
+            var controller = new AutoAPI.AutoAPIController(SetupHelper.BuildTestContext(), requestProcessorMock.Object, null);
+            var result = (OkObjectResult)controller.Get();
+
+            //assert
+            Assert.Equal(200, result.StatusCode.Value);
+            Assert.Equal(1, ((Author)((List<object>)result.Value).First()).Id);
         }
 
         [Fact]

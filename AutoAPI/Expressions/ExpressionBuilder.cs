@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace AutoAPI.Expressions
 {
@@ -55,16 +54,20 @@ namespace AutoAPI.Expressions
         public FilterResult BuildFilterResult()
         {
             var expressionList = new List<FilterResult>();
-
-            var index = 0;
             foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(FILTERPREFIX)))
             {
                 var parts = GetQueryStringParts(key);
 
                 if (parts.property != null)
                 {
-                    expressionList.Add(new FilterExpression(parts.property, queryString[key], index).Build());
-                    index++;
+                    if (parts.queryStringParts.Count == 0)
+                    {
+                        expressionList.Add(new FilterExpression(parts.property, queryString[key], expressionList.LastOrDefault()?.NextIndex ?? 0).Build());
+                    }
+                    else
+                    {
+                        expressionList.Add(new FilterExpression(parts.property, queryString[key], expressionList.LastOrDefault()?.NextIndex ?? 0).Build());
+                    }
                 }
             }
 
