@@ -1,4 +1,5 @@
 ﻿using AutoAPI.Web;
+using AutoAPI.Web.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -23,7 +25,6 @@ namespace AutoAPI.Tests
         {
             APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>());
         }
-
 
         [Fact]
         public void Authorize_WhenNoPolicyORAuthService_ThenReturnTrue()
@@ -108,7 +109,6 @@ namespace AutoAPI.Tests
 
         }
 
-
         [Fact]
         public void GetRequestInfo_WhenQueryAndEntity_ThenEntity()
         {
@@ -126,7 +126,6 @@ namespace AutoAPI.Tests
             Assert.Equal("authors", result.Entity.Route.ToLower());
 
         }
-
 
         [Fact]
         public void GetRequestInfo_WhenQueryAndEntityAndQueryString_ThenEntity()
@@ -155,5 +154,29 @@ namespace AutoAPI.Tests
             Assert.Equal(10, result.Skip);
             Assert.Equal(10, result.Take);
         }
+
+        [Fact]
+        public void GetData_WhenData_ThenEntity()
+        {
+            //arrange
+            var input = @"{""id"": 1,""name"": ""Ernest Hemingway""}";
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(input);
+            writer.Flush();
+            stream.Position = 0;
+            var httpRequestMock = new Mock<HttpRequest>();
+            
+
+            httpRequestMock.Setup(x => x.Body).Returns(stream);
+
+            //act
+            var result = (new RequestProcessor()).GetData(httpRequestMock.Object,typeof(Author));
+
+            //assert
+            Assert.Equal(1, ((Author)result).Id);
+            Assert.Equal("Ernest Hemingway", ((Author)result).Name);
+        }
+
     }
 }
