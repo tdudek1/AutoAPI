@@ -11,7 +11,7 @@ namespace AutoAPI.Expressions
         private int index;
         private string comparisonOperator;
         private readonly List<string> stringOperators = new List<string> { "eq", "neq", "like", "nlike" };
-        private readonly List<string> valueTypeOperators = new List<string> { "eq", "neq" };
+        private readonly List<string> valueTypeOperators = new List<string> { "eq", "neq","lt","gt","gteq","lteq" };
 
         public FilterOperatorExpression(PropertyInfo property, string value, int index, string comparisonOperator)
         {
@@ -24,9 +24,15 @@ namespace AutoAPI.Expressions
         public FilterResult Build()
         {
 
-            if (property.PropertyType == typeof(string) && !stringOperators.Contains(comparisonOperator))
+            if ((property.PropertyType == typeof(string) || property.PropertyType == typeof(Guid)) && !stringOperators.Contains(comparisonOperator))
             {
-                throw new NotSupportedException($"Properties of type string only support {string.Join(",", stringOperators)}");
+                throw new NotSupportedException($"String properties only support {string.Join(",", stringOperators)}");
+            }
+
+
+            if ((property.PropertyType == typeof(DateTime) || property.PropertyType.IsValueType) && !valueTypeOperators.Contains(comparisonOperator))
+            {
+                throw new NotSupportedException($"Value type and DateTime properties only support {string.Join(",", stringOperators)}");
             }
 
             return new FilterResult()
@@ -49,6 +55,14 @@ namespace AutoAPI.Expressions
                     return $"@{index}.Contains({propertyName})";
                 case "nlike":
                     return $"!@{index}.Contains({propertyName})";
+                case "gt":
+                    return $"{propertyName} > @{index}";
+                case "lt":
+                    return $"{propertyName} < @{index}";
+                case "gteq":
+                    return $"{propertyName} >= @{index}";
+                case "lteq":
+                    return $"{propertyName} <= @{index}";
             }
 
             return null;
