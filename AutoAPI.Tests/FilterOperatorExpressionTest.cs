@@ -25,7 +25,17 @@ namespace AutoAPI.Tests
             var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
 
             //act
-            var ex = Assert.Throws<NotSupportedException>(() => (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "gt")).Build());
+            var ex = Assert.Throws<NotSupportedException>(() => (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "abc")).Build());
+        }
+
+        [Fact]
+        public void Build_WhenDateTimeAndNotSupported_ThenException()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
+
+            //act
+            var ex = Assert.Throws<NotSupportedException>(() => (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "like")).Build());
         }
 
         [Fact]
@@ -71,20 +81,89 @@ namespace AutoAPI.Tests
             Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
         }
 
-
         [Fact]
-        public void Build_WhenStringAndNotLike_ThenExpression()
+        public void Build_WhenIntAndEq_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
 
             //act
-            var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "nlike")).Build();
+            var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "eq")).Build();
 
             //assert
-            Assert.Equal("!@0.Contains(Name)", result.Filter);
-            Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
+            Assert.Equal("Id == @0", result.Filter);
+            Assert.Equal(1, (int)result.Values[0]);
         }
 
+        [Fact]
+        public void Build_WhenIntAndGt_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "gt")).Build();
+
+            //assert
+            Assert.Equal("Id > @0", result.Filter);
+            Assert.Equal(1, (int)result.Values[0]);
+        }
+
+        [Fact]
+        public void Build_WhenIntAndLt_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "lt")).Build();
+
+            //assert
+            Assert.Equal("Id < @0", result.Filter);
+            Assert.Equal(1, (int)result.Values[0]);
+        }
+
+        [Fact]
+        public void Build_WhenIntAndGtEq_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "gteq")).Build();
+
+            //assert
+            Assert.Equal("Id >= @0", result.Filter);
+            Assert.Equal(1, (int)result.Values[0]);
+        }
+
+        [Fact]
+        public void Build_WhenIntAndLtEq_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "lteq")).Build();
+
+            //assert
+            Assert.Equal("Id <= @0", result.Filter);
+            Assert.Equal(1, (int)result.Values[0]);
+        }
+
+
+        [Fact]
+        public void Build_WhenDateAndLtEq_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "9/21/1947", 0, "lteq")).Build();
+
+            //assert
+            Assert.Equal("DateOfBirth <= @0", result.Filter);
+            Assert.Equal(new DateTime(1947,9,21), (DateTime)result.Values[0]);
+        }
     }
 }

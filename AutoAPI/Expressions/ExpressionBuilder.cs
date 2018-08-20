@@ -11,6 +11,7 @@ namespace AutoAPI.Expressions
         private const string PAGINGPREFIX = "page";
         private const string FILTERPREFIX = "filter";
         private const string SORTPREFIX = "sort";
+        private const string OPERATORPREFIX = "operator";
 
         private IQueryCollection queryString;
         private APIEntity apiEntity;
@@ -53,6 +54,19 @@ namespace AutoAPI.Expressions
 
         public FilterResult BuildFilterResult()
         {
+
+            var joinOperator = " && ";
+
+            foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(OPERATORPREFIX)))
+            {
+                switch (((string)queryString[key])?.ToLower())
+                {
+                    case "or":
+                        joinOperator = " || ";
+                        break;
+                }
+            }
+
             var expressionList = new List<FilterResult>();
             foreach (var key in queryString.Keys.Where(x => x.ToLower().StartsWith(FILTERPREFIX)))
             {
@@ -64,9 +78,9 @@ namespace AutoAPI.Expressions
                     {
                         expressionList.Add(new FilterExpression(parts.property, queryString[key], expressionList.LastOrDefault()?.NextIndex ?? 0).Build());
                     }
-                    else
+                    else if (parts.queryStringParts.Count == 1)
                     {
-                        expressionList.Add(new FilterExpression(parts.property, queryString[key], expressionList.LastOrDefault()?.NextIndex ?? 0).Build());
+                        expressionList.Add(new FilterOperatorExpression(parts.property, queryString[key], expressionList.LastOrDefault()?.NextIndex ?? 0, parts.queryStringParts.First()).Build());
                     }
                 }
             }
@@ -77,7 +91,7 @@ namespace AutoAPI.Expressions
             }
             else
             {
-                return new FilterResult() { Filter = string.Join(" && ", expressionList.Select(x => x.Filter)), Values = expressionList.SelectMany(x => x.Values).ToArray() };
+                return new FilterResult() { Filter = string.Join(joinOperator, expressionList.Select(x => x.Filter)), Values = expressionList.SelectMany(x => x.Values).ToArray() };
             }
         }
 
