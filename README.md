@@ -70,10 +70,28 @@ Update			PUT /api/data/authors/1
 Delete			DELETE /api/data/authors/1
 ```
 
+More filters
+
+You can specify comparison operators in query string like this
+
+````
+?filter[propertyName][operator] = value
+````
+
+Supported operators are 
+
+ - String Properties 
+   - eq (Equal) neq (Not Equal) like (Like) nlike (Not Like)
+ - Guid Properties 
+   - eq (Equal) neq (Not Equal)
+ - Value Types and DateTime Properties
+	- eq (Equal) neq (Not Equal) gt (Greater Than) lt (Less than) gteq (Greater Than or Equal) lteq (Less Than or Equal) 
+
+By default multiple filters are joined with an AND operator to use OR use ?operator=or 
+
 #### To Dos
 
-- Logging 
-- Filtering (operators and expressions)
+- Logging
 - Include related entities in results
 - Improve routing/registration
 
