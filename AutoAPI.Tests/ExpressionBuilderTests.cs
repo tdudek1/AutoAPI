@@ -150,6 +150,23 @@ namespace AutoAPI.Tests
             Assert.Null(result.Filter);
         }
 
+        [Fact]
+        public void BuildFilter_TwoFilterAndOr_ThenExpression()
+        {
+            //arrange
+            var queryString = new Dictionary<string, StringValues>();
+            queryString.Add("filter[Name]", "Ernest Hemingway");
+            queryString.Add("filter[DateOfBirth]", "7/21/1899");
+            queryString.Add("operator", "or");
+
+            //act
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildFilterResult();
+
+            //assert
+            Assert.Equal("Name == @0 || DateOfBirth == @1", result.Filter);
+            Assert.Equal(2, result.Values.Count());
+        }
+
         #endregion
     }
 }
