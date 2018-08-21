@@ -15,6 +15,12 @@ namespace AutoAPI
         public int Skip { get; set; }
         public int Take { get; set; }
         public string SortExpression { get; set; }
-        public bool HasModifiers { get; set; }
+        public bool HasModifiers
+        {
+            get
+            {
+                return FilterExpression != null || SortExpression != null || Take != 0;
+            }
+        }
     }
 }

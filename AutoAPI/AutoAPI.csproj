@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -6,15 +6,16 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Thomas Dudek</Authors>
     <Company />
-    <Description>Automatic REST api library for EF entities in .Net Core
+    <Description>
+      Automatic REST api library for EF entities in .Net Core
 
-This library automatically generates RESTful API for DbSets in DbContext. This is very much a work in progress right now so feel free to create issues on GitHub.
+      This library automatically generates RESTful API for DbSets in DbContext. This is very much a work in progress right now so feel free to create issues on GitHub.
 
-Latest version includes fixes and policy based authorization support.
+      Latest version includes fixes and policy based authorization support.
 
-https://github.com/tdudek1/AutoAPI
+      https://github.com/tdudek1/AutoAPI
 
-</Description>
+    </Description>
     <Copyright>Copyright ©2016 Thomas Dudek</Copyright>
     <PackageLicenseUrl>https://opensource.org/licenses/GPL-3.0</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
@@ -23,6 +24,9 @@ https://github.com/tdudek1/AutoAPI
     <Version>1.1.2</Version>
     <AssemblyVersion>1.1.2.0</AssemblyVersion>
     <FileVersion>1.1.2.0</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+    <DebugType>Full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
