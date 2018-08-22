@@ -34,17 +34,19 @@ namespace AutoAPI.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddTransient<DbContext>(x =>
-            {
-                return new DataContext(new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(databaseName: "Data").Options);
-            });
-            services.AddAutoAPI<DataContext>();
-
-
+            
             services.AddDbContext<IdentityContext>(options =>
             {
                 options.UseInMemoryDatabase(databaseName: "Identity");
             });
+
+            services.AddDbContext<DataContext>(options =>
+            {
+                options.UseInMemoryDatabase(databaseName: "Data");
+            });
+
+            services.AddAutoAPI<DataContext>();
+
 
             services
                 .AddIdentity<IdentityUser, IdentityRole>()
@@ -92,7 +94,7 @@ namespace AutoAPI.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
         {
             if (env.IsDevelopment())
             {

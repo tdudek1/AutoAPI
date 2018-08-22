@@ -17,12 +17,10 @@ namespace AutoAPI.Web.Controllers
     [Route("/login")]
     public class LoginController : ControllerBase
     {
-        DataContext context;
         UserManager<IdentityUser> userManager;
 
-        public LoginController(DbContext context, UserManager<IdentityUser> userManager)
+        public LoginController(UserManager<IdentityUser> userManager)
         {
-            this.context = (DataContext)context;
             this.userManager = userManager;
         }
 

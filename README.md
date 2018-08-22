@@ -13,7 +13,7 @@ Create controller deriving from AutoAPIController for all entities (route must e
 [Route("/api/data/{*query}")]
 public class DataController : AutoAPI.AutoAPIController
 {
-	public DataController(DbContext context) 
+	public DataController(DataContext context) 
 			: base(context)
 	{
 
@@ -27,7 +27,7 @@ If you want to use policy authorization derive like this
 [Route("/api/authdata/{*query}")]
 public class AuthorizedDataController : AutoAPI.AutoAPIController
 {
-    public AuthorizedDataController(DbContext context, IAuthorizationService authorizationService) 
+    public AuthorizedDataController(DataContext context, IAuthorizationService authorizationService) 
 			: base(context, authorizationService)
     {
 
@@ -51,11 +51,7 @@ public DbSet<Author> Authors { get; set; }
 
 Register in ConfigureServices
 ```c#
-services.AddTransient<DbContext>(x =>
-{
-	return new DataContext(new DbContextOptionsBuilder<DataContext>()
-              .UseSqlServer(Configuration.GetConnectionString("DataContext"));
-});
+services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Data")));
 services.AddAutoAPI<DataContext>();
 ```
 
