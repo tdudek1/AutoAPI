@@ -77,7 +77,22 @@ namespace AutoAPI.Tests
             var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "like")).Build();
 
             //assert
-            Assert.Equal("@0.Contains(Name)", result.Filter);
+            Assert.Equal("Name.Contains(@0)", result.Filter);
+            Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
+        }
+
+
+        [Fact]
+        public void Build_WhenStringAndNLike_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "nlike")).Build();
+
+            //assert
+            Assert.Equal("!Name.Contains(@0)", result.Filter);
             Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
         }
 
