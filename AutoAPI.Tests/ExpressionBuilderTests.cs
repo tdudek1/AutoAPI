@@ -163,7 +163,7 @@ namespace AutoAPI.Tests
             var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildFilterResult();
 
             //assert
-            Assert.Equal("Name == @0 || DateOfBirth == @1", result.Filter);
+            Assert.Equal("Name == @0 || DateOfBirth == @21", result.Filter);
             Assert.Equal(2, result.Values.Count());
         }
 
