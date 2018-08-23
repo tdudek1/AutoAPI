@@ -14,6 +14,8 @@ build_script:
 - ps: dotnet build -c Release
 before_test:
 - ps: dotnet publish -c Release -o out ; docker build -t autoapi . ; docker run -d -p 5000:5000 autoapi ; Start-Sleep -Seconds 20 
+test_script:
+- ps: dotnet test .\AutoAPI.Tests\AutoAPI.Tests.csproj ; dotnet test .\AutoAPI.IntegrationTests\AutoAPI.IntegrationTests.csproj
 deploy_script:
 - ps: >-
     if($env:appveyor_repo_branch -eq 'master') {
