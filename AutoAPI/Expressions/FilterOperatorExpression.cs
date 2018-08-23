@@ -58,9 +58,9 @@ namespace AutoAPI.Expressions
                 case "neq":
                     return $"{propertyName} != @{index}"; ;
                 case "like":
-                    return $"@{index}.Contains({propertyName})";
+                    return $"{propertyName}.Contains(@{index})";
                 case "nlike":
-                    return $"!@{index}.Contains({propertyName})";
+                    return $"!{propertyName}.Contains(@{index})";
                 case "gt":
                     return $"{propertyName} > @{index}";
                 case "lt":
