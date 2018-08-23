@@ -11,7 +11,7 @@ namespace AutoAPI.Web.Controllers
     [Route("/api/authdata/{*query}")]
     public class AuthorizedDataController : AutoAPI.AutoAPIController
     {
-        public AuthorizedDataController(DbContext context, IAuthorizationService authorizationService) : base(context, authorizationService)
+        public AuthorizedDataController(DataContext context, IAuthorizationService authorizationService) : base(context, authorizationService)
         {
 
         }

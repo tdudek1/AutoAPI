@@ -11,7 +11,7 @@ namespace AutoAPI.Web.Controllers
 	[Route("/api/data/{*query}")]
 	public class DataController : AutoAPI.AutoAPIController
 	{
-		public DataController(DbContext context) : base(context)
+		public DataController(DataContext context) : base(context)
 		{
 
 		}
