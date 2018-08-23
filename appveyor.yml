@@ -10,9 +10,10 @@ environment:
     secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
 before_build:
 - ps: nuget restore
-build:
-  project: AutoAPI.sln
-  verbosity: normal
+build_script:
+- ps: dotnet build -c Release
+before_test:
+- ps: dotnet publish -c Release -o out ; docker build -t autoapi:latest ; docker run -d -p 5000:5000 autoapi ; Start-Sleep -Seconds 20 
 deploy_script:
 - ps: >-
     if($env:appveyor_repo_branch -eq 'master') {
