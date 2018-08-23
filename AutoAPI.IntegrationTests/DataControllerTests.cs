@@ -61,8 +61,6 @@ namespace AutoAPI.IntegrationTests
 
 
         [Theory]
-        [InlineData("filter[name][like]=Ernest", 1, 1, "Ernest Hemingway")]
-        [InlineData("filter[name][nlike]=Ernest", 1, 2, "Stephen King")]
         [InlineData("filter[name]=Ernest Hemingway", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[name][neq]=Ernest Hemingway", 1, 2, "Stephen King")]
         [InlineData("filter[id][gt]=1", 1, 2, "Stephen King")]
