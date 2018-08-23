@@ -13,7 +13,7 @@ before_build:
 build_script:
 - ps: dotnet build -c Release
 before_test:
-- ps: dotnet publish -c Release -o out ; docker build -t autoapi:latest ; docker run -d -p 5000:5000 autoapi ; Start-Sleep -Seconds 20 
+- ps: dotnet publish -c Release -o out ; docker build -t autoapi . ; docker run -d -p 5000:5000 autoapi ; Start-Sleep -Seconds 20 
 deploy_script:
 - ps: >-
     if($env:appveyor_repo_branch -eq 'master') {
