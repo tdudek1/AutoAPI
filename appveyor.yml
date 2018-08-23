@@ -17,10 +17,10 @@ before_test:
     dotnet publish -c Release -o out  
     docker build -t autoapi . 
     docker run -d -p 5000:5000 autoapi
-test_script:
-- ps: | 
-    dotnet test .\AutoAPI.Tests\AutoAPI.Tests.csproj 
-    dotnet test .\AutoAPI.IntegrationTests\AutoAPI.IntegrationTests.csproj
+test:
+  assemblies:
+    - '**\*tests.dll'
+
 deploy_script:
 - ps: >-
     if($env:appveyor_repo_branch -eq 'master') {
