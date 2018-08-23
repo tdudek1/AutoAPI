@@ -19,7 +19,7 @@ before_test:
     docker run -d -p 5000:5000 autoapi
 test:
   assemblies:
-    - '**\*tests.dll'
+    - '**\*Test.dll'
 
 deploy_script:
 - ps: >-
