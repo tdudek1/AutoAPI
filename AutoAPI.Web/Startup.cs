@@ -103,6 +103,10 @@ namespace AutoAPI.Web
 
             app.UseAuthentication();
             app.UseMvc();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/api/data/swagger.json", "My API V1");
+            });
 
 
             context.Database.EnsureCreated();

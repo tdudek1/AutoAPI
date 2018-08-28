@@ -31,6 +31,7 @@ https://github.com/tdudek1/AutoAPI
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="3.0.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.13" />
   </ItemGroup>
 

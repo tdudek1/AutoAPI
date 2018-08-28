@@ -80,7 +80,7 @@ Supported operators are
    - eq (Equal) neq (Not Equal) like (Like) nlike (Not Like)
  - Guid Properties 
    - eq (Equal) neq (Not Equal)
- - Value Type and DateTime Properties
+ - Value Type Properties
 	- eq (Equal) neq (Not Equal) gt (Greater Than) lt (Less than) gteq (Greater Than or Equal) lteq (Less Than or Equal) 
 
 By default multiple filters are joined with an AND operator to use OR use ?operator=or 

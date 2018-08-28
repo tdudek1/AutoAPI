@@ -13,7 +13,11 @@ namespace AutoAPI
 {
 	public static class APIConfiguration
 	{
-		public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
+        private static readonly List<string> stringOperators = new List<string> { "eq", "neq", "like", "nlike" };
+        private static readonly List<string> valueTypeOperators = new List<string> { "eq", "neq", "lt", "gt", "gteq", "lteq" };
+        private static readonly List<string> guidOperators = new List<string> { "eq", "neq" };
+
+        public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
 		public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
 		{
@@ -35,11 +39,47 @@ namespace AutoAPI
 						DELETEPolicy = a.DELETEPolicy,
 						DbSet = p,
 						EntityType = g.First(),
-						Properties = g.First().GetProperties().ToList(),
+						Properties = g.First().GetProperties().Where(x=>x.PropertyType.IsTypeSupported()).ToList(),
 						Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault()
 					}).ToList();
 		}
 
+        public static bool IsOperatorSuported(this Type type,string comparisonOperator)
+        {
 
+            if (type == typeof(string) && stringOperators.Contains(comparisonOperator))
+            {
+                return true;
+            }
+
+            if (type.IsValueType && valueTypeOperators.Contains(comparisonOperator))
+            {
+                return true;
+            }
+
+            if (type == typeof(Guid) && valueTypeOperators.Contains(comparisonOperator))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsTypeSupported(this Type type)
+        {
+            if(type.IsValueType)
+            {
+                return true;
+            }
+
+            if(type == typeof(string)|| type == typeof(Guid))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        
 	}
 }
