@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Reflection;
 
 namespace AutoAPI
 {
@@ -197,10 +196,12 @@ namespace AutoAPI
             doc.Info = new Info() { Version = "v1", Description = "AutoAPI" };
             doc.Paths = new Dictionary<string, PathItem>();
             doc.Definitions = new Dictionary<string, Schema>();
-            
+
             foreach (var entity in APIConfiguration.AutoAPIEntityCache)
             {
+                var idschema = SchemaTypeMap[entity.Id.PropertyType]();
 
+                //get,post
                 doc.Paths.Add($"{this.Request.Path.Value.Replace("swagger.json", "")}{entity.Route.ToLower()}", new PathItem
                 {
                     Get = new Operation
@@ -221,16 +222,60 @@ namespace AutoAPI
                                     }
                                 }
                             } }
-                        }
-
+                        },
+                        Tags = new List<string>() { entity.EntityType.Name }
+                    },
+                    Post = new Operation
+                    {
+                        OperationId = $"post{entity.Route.ToLower()}",
+                        Consumes = new List<string>() { "application/json" },
+                        Parameters = new List<IParameter>()
+                        {
+                            new BodyParameter()
+                            {
+                                Name = entity.EntityType.Name.ToLower(),
+                                Schema = new Schema()
+                                {
+                                    Type="object",
+                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+                                }
+                            }
+                        },
+                        Produces = new List<string>() { "application/json" },
+                        Responses = new Dictionary<string, Response>()
+                        {
+                            {"201", new Response()
+                                    {
+                                        Description = "Created",
+                                        Schema = new Schema()
+                                        {
+                                            Type="object",
+                                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+                                        }
+                                    }
+                            }
+                        },
+                        Tags = new List<string>() { entity.EntityType.Name }
                     }
                 });
 
+                //get,put,delet by id
                 doc.Paths.Add($"{this.Request.Path.Value.Replace("swagger.json", "")}{entity.Route.ToLower()}/{{id}}", new PathItem
                 {
                     Get = new Operation
                     {
-                        OperationId = $"get{entity.Route.ToLower()}",
+                        OperationId = $"get{entity.Route.ToLower()}byid",
+                        Parameters = new List<IParameter>()
+                        {
+                            new NonBodyParameter()
+                            {
+                                Name = "id",
+                                In = "path",
+                                Type = idschema.Type,
+                                Format = idschema.Format,
+                                Required = true
+                            }
+                        },
                         Produces = new List<string>() { "application/json" },
                         Responses = new Dictionary<string, Response>()
                         {
@@ -243,10 +288,78 @@ namespace AutoAPI
                                     Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
                                 }
                             } }
-                        }
-
+                        },
+                        Tags = new List<string>() { entity.EntityType.Name }
+                    },
+                    Put = new Operation
+                    {
+                        OperationId = $"put{entity.Route.ToLower()}",
+                        Consumes = new List<string>() { "application/json" },
+                        Parameters = new List<IParameter>()
+                        {
+                            new NonBodyParameter()
+                            {
+                                Name = "id",
+                                In = "path",
+                                Type = idschema.Type,
+                                Format = idschema.Format,
+                                Required = true
+                            },
+                            new BodyParameter()
+                            {
+                                Name = entity.EntityType.Name.ToLower(),
+                                Schema = new Schema()
+                                {
+                                    Type="object",
+                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+                                }
+                            }
+                        },
+                        Produces = new List<string>() { "application/json" },
+                        Responses = new Dictionary<string, Response>()
+                        {
+                            {"200", new Response()
+                                    {
+                                        Description = "Success",
+                                        Schema = new Schema()
+                                        {
+                                            Type="object",
+                                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+                                        }
+                                    }
+                            }
+                        },
+                        Tags = new List<string>() { entity.EntityType.Name }
+                    },
+                    Delete = new Operation
+                    {
+                        OperationId = $"delete{entity.Route.ToLower()}",
+                        Consumes = new List<string>() { "application/json" },
+                        Parameters = new List<IParameter>()
+                        {
+                            new NonBodyParameter()
+                            {
+                                Name = "id",
+                                In = "path",
+                                Type = idschema.Type,
+                                Format = idschema.Format,
+                                Required = true
+                            }
+                        },
+                        Produces = new List<string>() { "application/json" },
+                        Responses = new Dictionary<string, Response>()
+                        {
+                            {"200", new Response()
+                                    {
+                                        Description = "Success"
+                                    }
+                            }
+                        },
+                        Tags = new List<string>() { entity.EntityType.Name }
                     }
+
                 });
+
 
                 doc.Definitions.Add(entity.EntityType.Name, new Schema()
                 {
