@@ -11,6 +11,7 @@ using System.Linq.Dynamic.Core;
 
 namespace AutoAPI
 {
+	[ApiExplorerSettings(IgnoreApi =true)]
     public class AutoAPIController : ControllerBase
     {
         private readonly DbContext context;
@@ -40,11 +41,7 @@ namespace AutoAPI
 
         [HttpGet]
         public IActionResult Get()
-        {
-            if (RouteData != null && RouteData.Values["query"]?.ToString() == "swagger.json")
-            {
-                return GetSwaggerDocument();
-            }
+		{
 
             var routeInfo = requestProcessor.GetRoutInfo(RouteData, Request);
 
@@ -189,219 +186,219 @@ namespace AutoAPI
         }
 
 
-        public JsonResult GetSwaggerDocument()
-        {
-            var doc = new SwaggerDocument();
+        //public JsonResult GetSwaggerDocument()
+        //{
+        //    var doc = new SwaggerDocument();
 
-            doc.Info = new Info() { Version = "v1", Description = "AutoAPI" };
-            doc.Paths = new Dictionary<string, PathItem>();
-            doc.Definitions = new Dictionary<string, Schema>();
+        //    doc.Info = new Info() { Version = "v1", Description = "AutoAPI" };
+        //    doc.Paths = new Dictionary<string, PathItem>();
+        //    doc.Definitions = new Dictionary<string, Schema>();
 
-            foreach (var entity in APIConfiguration.AutoAPIEntityCache)
-            {
-                var idschema = SchemaTypeMap[entity.Id.PropertyType]();
+        //    foreach (var entity in APIConfiguration.AutoAPIEntityCache)
+        //    {
+        //        var idschema = SchemaTypeMap[entity.Id.PropertyType]();
 
-                //get,post
-                doc.Paths.Add($"{this.Request.Path.Value.Replace("swagger.json", "")}{entity.Route.ToLower()}", new PathItem
-                {
-                    Get = new Operation
-                    {
-                        OperationId = $"get{entity.Route.ToLower()}",
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                        {
-                            {"200", new Response()
-                            {
-                                Description = "Success",
-                                Schema = new Schema()
-                                {
-                                    Type="array",
-                                    Items = new Schema()
-                                    {
-                                        Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                    }
-                                }
-                            } }
-                        },
-                        Tags = new List<string>() { entity.EntityType.Name }
-                    },
-                    Post = new Operation
-                    {
-                        OperationId = $"post{entity.Route.ToLower()}",
-                        Consumes = new List<string>() { "application/json" },
-                        Parameters = new List<IParameter>()
-                        {
-                            new BodyParameter()
-                            {
-                                Name = entity.EntityType.Name.ToLower(),
-                                Schema = new Schema()
-                                {
-                                    Type="object",
-                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                }
-                            }
-                        },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                        {
-                            {"201", new Response()
-                                    {
-                                        Description = "Created",
-                                        Schema = new Schema()
-                                        {
-                                            Type="object",
-                                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                        }
-                                    }
-                            }
-                        },
-                        Tags = new List<string>() { entity.EntityType.Name }
-                    }
-                });
+        //        //get,post
+        //        doc.Paths.Add($"{this.Request.Path.Value.Replace("swagger.json", "")}{entity.Route.ToLower()}", new PathItem
+        //        {
+        //            Get = new Operation
+        //            {
+        //                OperationId = $"get{entity.Route.ToLower()}",
+        //                Produces = new List<string>() { "application/json" },
+        //                Responses = new Dictionary<string, Response>()
+        //                {
+        //                    {"200", new Response()
+        //                    {
+        //                        Description = "Success",
+        //                        Schema = new Schema()
+        //                        {
+        //                            Type="array",
+        //                            Items = new Schema()
+        //                            {
+        //                                Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+        //                            }
+        //                        }
+        //                    } }
+        //                },
+        //                Tags = new List<string>() { entity.EntityType.Name }
+        //            },
+        //            Post = new Operation
+        //            {
+        //                OperationId = $"post{entity.Route.ToLower()}",
+        //                Consumes = new List<string>() { "application/json" },
+        //                Parameters = new List<IParameter>()
+        //                {
+        //                    new BodyParameter()
+        //                    {
+        //                        Name = entity.EntityType.Name.ToLower(),
+        //                        Schema = new Schema()
+        //                        {
+        //                            Type="object",
+        //                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+        //                        }
+        //                    }
+        //                },
+        //                Produces = new List<string>() { "application/json" },
+        //                Responses = new Dictionary<string, Response>()
+        //                {
+        //                    {"201", new Response()
+        //                            {
+        //                                Description = "Created",
+        //                                Schema = new Schema()
+        //                                {
+        //                                    Type="object",
+        //                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+        //                                }
+        //                            }
+        //                    }
+        //                },
+        //                Tags = new List<string>() { entity.EntityType.Name }
+        //            }
+        //        });
 
-                //get,put,delet by id
-                doc.Paths.Add($"{this.Request.Path.Value.Replace("swagger.json", "")}{entity.Route.ToLower()}/{{id}}", new PathItem
-                {
-                    Get = new Operation
-                    {
-                        OperationId = $"get{entity.Route.ToLower()}byid",
-                        Parameters = new List<IParameter>()
-                        {
-                            new NonBodyParameter()
-                            {
-                                Name = "id",
-                                In = "path",
-                                Type = idschema.Type,
-                                Format = idschema.Format,
-                                Required = true
-                            }
-                        },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                        {
-                            {"200", new Response()
-                            {
-                                Description = "Success",
-                                Schema = new Schema()
-                                {
-                                    Type="object",
-                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                }
-                            } }
-                        },
-                        Tags = new List<string>() { entity.EntityType.Name }
-                    },
-                    Put = new Operation
-                    {
-                        OperationId = $"put{entity.Route.ToLower()}",
-                        Consumes = new List<string>() { "application/json" },
-                        Parameters = new List<IParameter>()
-                        {
-                            new NonBodyParameter()
-                            {
-                                Name = "id",
-                                In = "path",
-                                Type = idschema.Type,
-                                Format = idschema.Format,
-                                Required = true
-                            },
-                            new BodyParameter()
-                            {
-                                Name = entity.EntityType.Name.ToLower(),
-                                Schema = new Schema()
-                                {
-                                    Type="object",
-                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                }
-                            }
-                        },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                        {
-                            {"200", new Response()
-                                    {
-                                        Description = "Success",
-                                        Schema = new Schema()
-                                        {
-                                            Type="object",
-                                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                        }
-                                    }
-                            }
-                        },
-                        Tags = new List<string>() { entity.EntityType.Name }
-                    },
-                    Delete = new Operation
-                    {
-                        OperationId = $"delete{entity.Route.ToLower()}",
-                        Consumes = new List<string>() { "application/json" },
-                        Parameters = new List<IParameter>()
-                        {
-                            new NonBodyParameter()
-                            {
-                                Name = "id",
-                                In = "path",
-                                Type = idschema.Type,
-                                Format = idschema.Format,
-                                Required = true
-                            }
-                        },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                        {
-                            {"200", new Response()
-                                    {
-                                        Description = "Success"
-                                    }
-                            }
-                        },
-                        Tags = new List<string>() { entity.EntityType.Name }
-                    }
+        //        //get,put,delet by id
+        //        doc.Paths.Add($"{this.Request.Path.Value.Replace("swagger.json", "")}{entity.Route.ToLower()}/{{id}}", new PathItem
+        //        {
+        //            Get = new Operation
+        //            {
+        //                OperationId = $"get{entity.Route.ToLower()}byid",
+        //                Parameters = new List<IParameter>()
+        //                {
+        //                    new NonBodyParameter()
+        //                    {
+        //                        Name = "id",
+        //                        In = "path",
+        //                        Type = idschema.Type,
+        //                        Format = idschema.Format,
+        //                        Required = true
+        //                    }
+        //                },
+        //                Produces = new List<string>() { "application/json" },
+        //                Responses = new Dictionary<string, Response>()
+        //                {
+        //                    {"200", new Response()
+        //                    {
+        //                        Description = "Success",
+        //                        Schema = new Schema()
+        //                        {
+        //                            Type="object",
+        //                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+        //                        }
+        //                    } }
+        //                },
+        //                Tags = new List<string>() { entity.EntityType.Name }
+        //            },
+        //            Put = new Operation
+        //            {
+        //                OperationId = $"put{entity.Route.ToLower()}",
+        //                Consumes = new List<string>() { "application/json" },
+        //                Parameters = new List<IParameter>()
+        //                {
+        //                    new NonBodyParameter()
+        //                    {
+        //                        Name = "id",
+        //                        In = "path",
+        //                        Type = idschema.Type,
+        //                        Format = idschema.Format,
+        //                        Required = true
+        //                    },
+        //                    new BodyParameter()
+        //                    {
+        //                        Name = entity.EntityType.Name.ToLower(),
+        //                        Schema = new Schema()
+        //                        {
+        //                            Type="object",
+        //                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+        //                        }
+        //                    }
+        //                },
+        //                Produces = new List<string>() { "application/json" },
+        //                Responses = new Dictionary<string, Response>()
+        //                {
+        //                    {"200", new Response()
+        //                            {
+        //                                Description = "Success",
+        //                                Schema = new Schema()
+        //                                {
+        //                                    Type="object",
+        //                                    Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
+        //                                }
+        //                            }
+        //                    }
+        //                },
+        //                Tags = new List<string>() { entity.EntityType.Name }
+        //            },
+        //            Delete = new Operation
+        //            {
+        //                OperationId = $"delete{entity.Route.ToLower()}",
+        //                Consumes = new List<string>() { "application/json" },
+        //                Parameters = new List<IParameter>()
+        //                {
+        //                    new NonBodyParameter()
+        //                    {
+        //                        Name = "id",
+        //                        In = "path",
+        //                        Type = idschema.Type,
+        //                        Format = idschema.Format,
+        //                        Required = true
+        //                    }
+        //                },
+        //                Produces = new List<string>() { "application/json" },
+        //                Responses = new Dictionary<string, Response>()
+        //                {
+        //                    {"200", new Response()
+        //                            {
+        //                                Description = "Success"
+        //                            }
+        //                    }
+        //                },
+        //                Tags = new List<string>() { entity.EntityType.Name }
+        //            }
 
-                });
+        //        });
 
 
-                doc.Definitions.Add(entity.EntityType.Name, new Schema()
-                {
-                    Type = "object",
-                    Properties = new Dictionary<string, Schema>()
+        //        doc.Definitions.Add(entity.EntityType.Name, new Schema()
+        //        {
+        //            Type = "object",
+        //            Properties = new Dictionary<string, Schema>()
 
-                });
+        //        });
 
-                foreach (var prop in entity.Properties)
-                {
-                    doc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[prop.PropertyType]());
-                }
-            }
+        //        foreach (var prop in entity.Properties)
+        //        {
+        //            doc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[prop.PropertyType]());
+        //        }
+        //    }
 
-            return new JsonResult(doc, new JsonSerializerSettings()
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            });
-        }
+        //    return new JsonResult(doc, new JsonSerializerSettings()
+        //    {
+        //        NullValueHandling = NullValueHandling.Ignore,
+        //        ContractResolver = new CamelCasePropertyNamesContractResolver()
+        //    });
+        //}
 
-        private static readonly Dictionary<Type, Func<Schema>> SchemaTypeMap = new Dictionary<Type, Func<Schema>>
-        {
-            { typeof(short), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(ushort), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(int), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(uint), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(long), () => new Schema { Type = "integer", Format = "int64" } },
-            { typeof(ulong), () => new Schema { Type = "integer", Format = "int64" } },
-            { typeof(float), () => new Schema { Type = "number", Format = "float" } },
-            { typeof(double), () => new Schema { Type = "number", Format = "double" } },
-            { typeof(decimal), () => new Schema { Type = "number", Format = "double" } },
-            { typeof(byte), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(sbyte), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(byte[]), () => new Schema { Type = "string", Format = "byte" } },
-            { typeof(sbyte[]), () => new Schema { Type = "string", Format = "byte" } },
-            { typeof(bool), () => new Schema { Type = "boolean" } },
-            { typeof(DateTime), () => new Schema { Type = "string", Format = "date-time" } },
-            { typeof(DateTimeOffset), () => new Schema { Type = "string", Format = "date-time" } },
-            { typeof(Guid), () => new Schema { Type = "string", Format = "uuid" } },
-            { typeof(string), () => new Schema { Type = "string", Format = "string" } }
-        };
+        //private static readonly Dictionary<Type, Func<Schema>> SchemaTypeMap = new Dictionary<Type, Func<Schema>>
+        //{
+        //    { typeof(short), () => new Schema { Type = "integer", Format = "int32" } },
+        //    { typeof(ushort), () => new Schema { Type = "integer", Format = "int32" } },
+        //    { typeof(int), () => new Schema { Type = "integer", Format = "int32" } },
+        //    { typeof(uint), () => new Schema { Type = "integer", Format = "int32" } },
+        //    { typeof(long), () => new Schema { Type = "integer", Format = "int64" } },
+        //    { typeof(ulong), () => new Schema { Type = "integer", Format = "int64" } },
+        //    { typeof(float), () => new Schema { Type = "number", Format = "float" } },
+        //    { typeof(double), () => new Schema { Type = "number", Format = "double" } },
+        //    { typeof(decimal), () => new Schema { Type = "number", Format = "double" } },
+        //    { typeof(byte), () => new Schema { Type = "integer", Format = "int32" } },
+        //    { typeof(sbyte), () => new Schema { Type = "integer", Format = "int32" } },
+        //    { typeof(byte[]), () => new Schema { Type = "string", Format = "byte" } },
+        //    { typeof(sbyte[]), () => new Schema { Type = "string", Format = "byte" } },
+        //    { typeof(bool), () => new Schema { Type = "boolean" } },
+        //    { typeof(DateTime), () => new Schema { Type = "string", Format = "date-time" } },
+        //    { typeof(DateTimeOffset), () => new Schema { Type = "string", Format = "date-time" } },
+        //    { typeof(Guid), () => new Schema { Type = "string", Format = "uuid" } },
+        //    { typeof(string), () => new Schema { Type = "string", Format = "string" } }
+        //};
     }
 }
 
