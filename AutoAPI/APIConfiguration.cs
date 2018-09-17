@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,12 +16,12 @@ namespace AutoAPI
 
         public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
-        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection)
-        {
+        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection) where T : DbContext
+		{
             AutoAPIEntityCache = Init<T>();
         }
 
-        public static List<APIEntity> Init<T>()
+        public static List<APIEntity> Init<T>() where T : DbContext
         {
             return (from p in typeof(T).GetProperties()
                     let g = p.PropertyType.GetGenericArguments()
