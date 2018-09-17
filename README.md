@@ -4,6 +4,10 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nuls4kut9jv1wjsn/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
+### Nuget
+
+https://www.nuget.org/packages/Auto.Rest.API/
+
 
 ### Getting Started
 
@@ -36,17 +40,22 @@ public class AuthorizedDataController : AutoAPI.AutoAPIController
 
 ```
 
-Annotate Data Context
-```c#
-[AutoAPIEntity(Route = "authors")]
-public DbSet<Author> Authors { get; set; }
-```
+Annotate Data Context (use Policy properties for authorization per HTTP verb)
 
 
-Annotate Data Context with policy authorization
 ```c#
-[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
-public DbSet<Author> Authors { get; set; }
+public class DataContext : DbContext
+{
+    public DataContext(DbContextOptions<DataContext> options) : base(options)
+    {
+
+    }
+    
+    [AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
+    public DbSet<Author> Authors { get; set; }
+    [AutoAPIEntity(Route = "Books")]
+    public DbSet<Book> Books { get; set; }
+}
 ```
 
 Register in ConfigureServices
@@ -55,12 +64,23 @@ services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnecti
 services.AddAutoAPI<DataContext>();
 ```
 
+Add AutoApi routes to swagger document with DocumentFilter using **Swashbuckle.AspNetCore** (https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
+```c#
+
+services.AddSwaggerGen(c =>
+{
+    c.DocumentFilter<AutoAPISwaggerDocumentFilter>(new List<string> { "/api/data/", "/api/authdata/" });
+});
+
+```
+
+
 Access at
 
 ```
 Read all		GET /api/data/authors 
 Read by id		GET /api/data/authors/1 
-Filter/Sort/Paging	GET /api/data/authors?filter[Name]=J.R.R.Tolkien&sort[Id]=desc&pageSize=10&page=2
+Filter/Sort/Paging	GET /api/data/authors?filter[Name][like]=J.R.R.Tolkien&sort[Id]=desc&pageSize=10&page=2
 Create			POST /api/data/authors
 Update			PUT /api/data/authors/1
 Delete			DELETE /api/data/authors/1
@@ -80,16 +100,15 @@ Supported operators are
    - eq (Equal) neq (Not Equal) like (Like) nlike (Not Like)
  - Guid Properties 
    - eq (Equal) neq (Not Equal)
- - Value Type and DateTime Properties
+ - Value Type Properties
 	- eq (Equal) neq (Not Equal) gt (Greater Than) lt (Less than) gteq (Greater Than or Equal) lteq (Less Than or Equal) 
 
 By default multiple filters are joined with an AND operator to use OR use ?operator=or 
 
 #### To Dos
-
-- Logging
+- Convert to use Middleware (this will break compatibility)
 - Include related entities in results
-- Improve routing/registration
+
 
 #### License
 

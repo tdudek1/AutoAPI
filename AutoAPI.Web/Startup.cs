@@ -16,110 +16,122 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace AutoAPI.Web
 {
-    public class Startup
-    {
-        public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
+	public class Startup
+	{
+		public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
-            services.AddDbContext<IdentityContext>(options =>
-            {
-                options.UseInMemoryDatabase(databaseName: "Identity");
-            });
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddDbContext<DataContext>(options =>
-            {
-                options.UseInMemoryDatabase(databaseName: "Data");
-            });
+			services.AddDbContext<IdentityContext>(options =>
+			{
+				options.UseInMemoryDatabase(databaseName: "Identity");
+			});
 
-            services.AddAutoAPI<DataContext>();
+			services.AddDbContext<DataContext>(options =>
+			{
+				options.UseInMemoryDatabase(databaseName: "Data");
+			});
 
-
-            services
-                .AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<IdentityContext>()
-                .AddDefaultTokenProviders();
+			services.AddAutoAPI<DataContext>();
 
 
-            services
-                .AddAuthentication(o =>
-                {
-                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = "test.com",
-                        ValidAudience = "test.com",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"))
-                    };
-                });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("IsAdmin", policy =>
-                {
-                    policy.RequireRole("Admin");
-                });
-            });
-
-            services.AddMvc();
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                // User settings
-                options.User.RequireUniqueEmail = true;
-            });
+			services
+				.AddIdentity<IdentityUser, IdentityRole>()
+				.AddEntityFrameworkStores<IdentityContext>()
+				.AddDefaultTokenProviders();
 
 
-        }
+			services
+				.AddAuthentication(o =>
+				{
+					o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+					o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				})
+				.AddJwtBearer(options =>
+				{
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = "test.com",
+						ValidAudience = "test.com",
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"))
+					};
+				});
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy("IsAdmin", policy =>
+				{
+					policy.RequireRole("Admin");
+				});
+			});
 
-            app.UseAuthentication();
-            app.UseMvc();
+			services.AddMvc();
+
+			services.Configure<IdentityOptions>(options =>
+			{
+				// User settings
+				options.User.RequireUniqueEmail = true;
+			});
+
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+				c.DocumentFilter<AutoAPISwaggerDocumentFilter>(new List<string> { "/api/data/", "/api/authdata/" });
+			});
 
 
-            context.Database.EnsureCreated();
-            identityContext.Database.EnsureCreated();
+		}
 
-            userManager.CreateAsync(new IdentityUser()
-            {
-                UserName = "test@test.com",
-                Email = "test@test.com"
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
+		{
+			if (env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+			}
 
-            }, "Password1234!");
+			app.UseAuthentication();
+			app.UseMvc();
+			app.UseSwagger();
+			app.UseSwaggerUI(c =>
+			{
+				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+			});
 
-            var user = userManager.FindByNameAsync("test@test.com").Result;
 
-            userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
-            userManager.AddClaimAsync(user, new Claim(ClaimTypes.NameIdentifier, user.Id));
-            userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, user.UserName));
-        }
-    }
+			context.Database.EnsureCreated();
+			identityContext.Database.EnsureCreated();
+
+			userManager.CreateAsync(new IdentityUser()
+			{
+				UserName = "test@test.com",
+				Email = "test@test.com"
+
+			}, "Password1234!");
+
+			var user = userManager.FindByNameAsync("test@test.com").Result;
+
+			userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+			userManager.AddClaimAsync(user, new Claim(ClaimTypes.NameIdentifier, user.Id));
+			userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, user.UserName));
+		}
+	}
 }
