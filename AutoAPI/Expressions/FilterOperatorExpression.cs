@@ -10,9 +10,6 @@ namespace AutoAPI.Expressions
         private string value;
         private int index;
         private string comparisonOperator;
-        private readonly List<string> stringOperators = new List<string> { "eq", "neq", "like", "nlike" };
-        private readonly List<string> valueTypeOperators = new List<string> { "eq", "neq", "lt", "gt", "gteq", "lteq" };
-        private readonly List<string> guidOperators = new List<string> { "eq", "neq" };
 
 
         public FilterOperatorExpression(PropertyInfo property, string value, int index, string comparisonOperator)
@@ -25,20 +22,9 @@ namespace AutoAPI.Expressions
 
         public FilterResult Build()
         {
-
-            if (property.PropertyType == typeof(string) && !stringOperators.Contains(comparisonOperator))
+            if(!property.PropertyType.IsOperatorSuported(comparisonOperator))
             {
-                throw new NotSupportedException($"String properties only support {string.Join(",", stringOperators)}");
-            }
-
-            if ((property.PropertyType == typeof(DateTime) || property.PropertyType.IsValueType) && !valueTypeOperators.Contains(comparisonOperator))
-            {
-                throw new NotSupportedException($"Value type and DateTime properties only support {string.Join(",", stringOperators)}");
-            }
-
-            if (property.PropertyType == typeof(Guid) && !valueTypeOperators.Contains(comparisonOperator))
-            {
-                throw new NotSupportedException($"Guid properties only support {string.Join(",", guidOperators)}");
+                throw new NotSupportedException($"Operator {comparisonOperator} is not suported for {property.PropertyType.Name}");
             }
 
             return new FilterResult()
