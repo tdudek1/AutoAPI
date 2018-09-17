@@ -19,7 +19,8 @@
     },
     "AutoAPI": {
       "commandName": "Project",
-      "launchUrl": "api/test",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
