@@ -4,6 +4,10 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nuls4kut9jv1wjsn/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
+### Nuget
+
+https://www.nuget.org/packages/Auto.Rest.API/
+
 
 ### Getting Started
 
@@ -87,7 +91,7 @@ By default multiple filters are joined with an AND operator to use OR use ?opera
 
 #### To Dos
 
-- Logging
+- Swagger Support
 - Include related entities in results
 - Improve routing/registration
 
