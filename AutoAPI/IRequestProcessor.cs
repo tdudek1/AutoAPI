@@ -20,5 +20,7 @@ namespace AutoAPI
         bool Validate(ControllerBase controllerBase, object entity);
 
         bool Authorize(ClaimsPrincipal user, string policy, IAuthorizationService authorizationService);
+
+        RouteInfo GetRoutInfo(HttpRequest request);
     }
 }

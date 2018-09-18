@@ -46,8 +46,7 @@ namespace AutoAPI.Web
 				options.UseInMemoryDatabase(databaseName: "Data");
 			});
 
-			services.AddAutoAPI<DataContext>();
-
+			services.AddAutoAPI<DataContext>("/api/data");
 
 			services
 				.AddIdentity<IdentityUser, IdentityRole>()
@@ -83,8 +82,6 @@ namespace AutoAPI.Web
 				});
 			});
 
-			services.AddMvc();
-
 			services.Configure<IdentityOptions>(options =>
 			{
 				// User settings
@@ -94,7 +91,7 @@ namespace AutoAPI.Web
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-				c.DocumentFilter<AutoAPISwaggerDocumentFilter>(new List<string> { "/api/data/", "/api/authdata/" });
+				c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
 			});
 
 
@@ -108,15 +105,15 @@ namespace AutoAPI.Web
 				app.UseDeveloperExceptionPage();
 			}
 
-			app.UseAuthentication();
+            app.UseAuthentication();
 			app.UseMvc();
-			app.UseSwagger();
+            app.UseAutoAPI();
+            app.UseSwagger();
 			app.UseSwaggerUI(c =>
 			{
 				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 			});
-
-
+            
 			context.Database.EnsureCreated();
 			identityContext.Database.EnsureCreated();
 

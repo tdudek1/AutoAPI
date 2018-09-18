@@ -29,7 +29,7 @@ namespace AutoAPI
             if (route == null || route.Length == 0)
                 return result;
 
-            var apiEntity = APIConfiguration.AutoAPIEntityCache.Where(x => x.Route?.ToLower() == route[0]?.ToLower()).FirstOrDefault();
+            var apiEntity = APIConfiguration.AutoAPIEntityCache.SelectMany(x=>x.Value).Where(x => x.Route?.ToLower() == route[0]?.ToLower()).FirstOrDefault();
 
             if (apiEntity == null)
                 return result;

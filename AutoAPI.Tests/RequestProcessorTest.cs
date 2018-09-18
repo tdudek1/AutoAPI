@@ -23,7 +23,7 @@ namespace AutoAPI.Tests
 
         public RequestProcessorTest()
         {
-            APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>());
+            APIConfiguration.AutoAPIEntityCache.Add("/api/data",APIConfiguration.Init<DataContext>());
         }
 
         [Fact]

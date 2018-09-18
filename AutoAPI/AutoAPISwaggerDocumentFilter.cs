@@ -8,27 +8,21 @@ namespace AutoAPI
 {
     public class AutoAPISwaggerDocumentFilter : IDocumentFilter
     {
-        private List<string> basePaths;
-
-        public AutoAPISwaggerDocumentFilter(List<string> basePaths)
-        {
-            this.basePaths = basePaths;
-        }
 
         public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
         {
-            foreach (var basePath in basePaths)
+            foreach (var entry in APIConfiguration.AutoAPIEntityCache)
             {
-                foreach (var entity in APIConfiguration.AutoAPIEntityCache)
+                foreach (var entity in entry.Value)
                 {
                     var idschema = SchemaTypeMap[entity.Id.PropertyType]();
-                    var tag = basePaths.Count == 1 ? entity.EntityType.Name : $"{entity.EntityType.Name} - {basePath}";
+                    var tag = entity.EntityType.Name;
                     //get,post
-                    swaggerDoc.Paths.Add($"{basePath}{entity.Route.ToLower()}", new PathItem
+                    swaggerDoc.Paths.Add($"{entry.Key}{entity.Route.ToLower()}", new PathItem
                     {
                         Get = new Operation
                         {
-                            OperationId = $"get{basePath}{entity.Route.ToLower()}",
+                            OperationId = $"get{entry.Key}{entity.Route.ToLower()}",
                             Produces = new List<string>() { "application/json" },
                             Responses = new Dictionary<string, Response>()
                             {
@@ -49,7 +43,7 @@ namespace AutoAPI
                         },
                         Post = new Operation
                         {
-                            OperationId = $"post{basePath}{entity.Route.ToLower()}",
+                            OperationId = $"post{entry.Key}{entity.Route.ToLower()}",
                             Consumes = new List<string>() { "application/json" },
                             Parameters = new List<IParameter>()
                             {
@@ -82,11 +76,11 @@ namespace AutoAPI
                     });
 
                     //get,put,delete by id
-                    swaggerDoc.Paths.Add($"{basePath}{entity.Route.ToLower()}/{{id}}", new PathItem
+                    swaggerDoc.Paths.Add($"{entry.Key}{entity.Route.ToLower()}/{{id}}", new PathItem
                     {
                         Get = new Operation
                         {
-                            OperationId = $"get{basePath}{entity.Route.ToLower()}byid",
+                            OperationId = $"get{entry.Key}{entity.Route.ToLower()}byid",
                             Parameters = new List<IParameter>()
                             {
                                 new NonBodyParameter()
@@ -116,7 +110,7 @@ namespace AutoAPI
 
                         Put = new Operation
                         {
-                            OperationId = $"put{basePath}{entity.Route.ToLower()}",
+                            OperationId = $"put{entry.Key}{entity.Route.ToLower()}",
                             Consumes = new List<string>() { "application/json" },
                             Parameters = new List<IParameter>()
                             {
@@ -157,7 +151,7 @@ namespace AutoAPI
 
                         Delete = new Operation
                         {
-                            OperationId = $"delete{basePath}{entity.Route.ToLower()}",
+                            OperationId = $"delete{entry.Key}{entity.Route.ToLower()}",
                             Consumes = new List<string>() { "application/json" },
                             Parameters = new List<IParameter>()
                             {
@@ -187,7 +181,7 @@ namespace AutoAPI
                 }
             }
 
-            foreach (var entity in APIConfiguration.AutoAPIEntityCache)
+            foreach (var entity in APIConfiguration.AutoAPIEntityCache.SelectMany(x=>x.Value))
             {
                 if (!swaggerDoc.Definitions.ContainsKey(entity.EntityType.Name.ToLower()))
                 {

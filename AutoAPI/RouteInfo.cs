@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -22,5 +23,7 @@ namespace AutoAPI
                 return FilterExpression != null || SortExpression != null || Take != 0;
             }
         }
+        public string HttpVerb { get; set; }
+        public DbContext DbContext { get; set; }
     }
 }

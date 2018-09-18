@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,17 @@ namespace AutoAPI
         private static readonly List<string> valueTypeOperators = new List<string> { "eq", "neq", "lt", "gt", "gteq", "lteq" };
         private static readonly List<string> guidOperators = new List<string> { "eq", "neq" };
 
-        public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
+        public static Dictionary<string, List<APIEntity>> AutoAPIEntityCache = new Dictionary<string, List<APIEntity>>();
 
-        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection) where T : DbContext
-		{
-            AutoAPIEntityCache = Init<T>();
+        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection, string route) where T : DbContext
+        {
+            if(!route.EndsWith("/"))
+            {
+                route += "/";
+            }
+
+            AutoAPIEntityCache.Add(route, Init<T>());
+            serviceCollection.AddTransient<IRequestProcessor, RequestProcessor>();
         }
 
         public static List<APIEntity> Init<T>() where T : DbContext
@@ -77,6 +84,9 @@ namespace AutoAPI
             return false;
         }
 
-
+        public static IApplicationBuilder UseAutoAPI(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<AutoAPIMiddleware>();
+        }
     }
 }
