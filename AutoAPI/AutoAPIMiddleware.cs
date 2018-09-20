@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,19 +26,31 @@ namespace AutoAPI
             var routeInfo = requestProcessor.GetRoutInfo(context.Request);
             var result = new ObjectResult(null);
 
-            if (routeInfo.Entity != null)
+			//var validator = serviceProvider.GetRequiredService<IObjectModelValidator>();
+
+			if (routeInfo.Entity != null)
             {
                 DbContext dbContext = (DbContext)serviceProvider.GetService(routeInfo.Entity.DbContextType);
-                var controller = new AutoAPIController(dbContext, requestProcessor);
+                var controller = new AutoAPIController(dbContext);
                 switch (context.Request.Method)
                 {
                     case "GET":
                         result = controller.Get(routeInfo);
                         break;
+					case "POST":
+						result = controller.Post(routeInfo, requestProcessor.GetData(context.Request,routeInfo.Entity.EntityType));
+						break;
+					case "PUT":
+						result = controller.Put(routeInfo, requestProcessor.GetData(context.Request, routeInfo.Entity.EntityType));
+						break;
+					case "DELETE":
+						result = controller.Delete(routeInfo);
+						break;
+					default:
+						throw new NotSupportedException("Http Method not supported");
+				}
 
-                }
-
-                var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
+				var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
                 var executor = serviceProvider.GetRequiredService<IActionResultExecutor<ObjectResult>>();
                 await executor.ExecuteAsync(actionContext, result);
             }
