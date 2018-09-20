@@ -23,7 +23,5 @@ namespace AutoAPI
                 return FilterExpression != null || SortExpression != null || Take != 0;
             }
         }
-        public string HttpVerb { get; set; }
-        public DbContext DbContext { get; set; }
     }
 }

@@ -23,7 +23,7 @@ namespace AutoAPI.Tests
 
         public RequestProcessorTest()
         {
-            APIConfiguration.AutoAPIEntityCache.Add("/api/data",APIConfiguration.Init<DataContext>());
+            APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
         }
 
         [Fact]
@@ -69,91 +69,32 @@ namespace AutoAPI.Tests
         public void GetRequestInfo_WhenNoQuery_ThenEntityNull()
         {
             //arrange
-            var routeData = new RouteData();
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString(""));
 
             //act
-            var result = (new RequestProcessor()).GetRoutInfo(routeData, null);
+            var requestProcessor = new RequestProcessor();
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
 
             //assert
             Assert.Null(result.Entity);
-
-        }
-
-        [Fact]
-        public void GetRequestInfo_WhenQueryAndEntityNotFound_ThenEntityNull()
-        {
-            //arrange
-            var routeData = new RouteData();
-            routeData.Values.Add("query", "notauthors");
-
-            //act
-            var result = (new RequestProcessor()).GetRoutInfo(routeData, null);
-
-            //assert
-            Assert.Null(result.Entity);
-
         }
 
         [Fact]
         public void GetRequestInfo_WhenQueryAndEntityFound_ThenEntityNull()
         {
             //arrange
-            var routeData = new RouteData();
-            routeData.Values.Add("query", "notauthors");
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString("/api/data/authors1"));
 
             //act
-            var result = (new RequestProcessor()).GetRoutInfo(routeData, null);
+            var requestProcessor = new RequestProcessor();
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
 
             //assert
             Assert.Null(result.Entity);
-
         }
 
-        [Fact]
-        public void GetRequestInfo_WhenQueryAndEntity_ThenEntity()
-        {
-            //arrange
-            var routeData = new RouteData();
-            routeData.Values.Add("query", "authors");
-            var httpRequestMock = new Mock<HttpRequest>();
-            httpRequestMock.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>()));
-
-
-            //act
-            var result = (new RequestProcessor()).GetRoutInfo(routeData, httpRequestMock.Object);
-
-            //assert
-            Assert.Equal("authors", result.Entity.Route.ToLower());
-
-        }
-
-        [Fact]
-        public void GetRequestInfo_WhenQueryAndEntityAndQueryString_ThenEntity()
-        {
-            //arrange
-            var routeData = new RouteData();
-            routeData.Values.Add("query", "authors");
-            var httpRequestMock = new Mock<HttpRequest>();
-            var queryString = new Dictionary<string, StringValues>();
-            queryString.Add("sort[Name]", "desc");
-            queryString.Add("filter[Name]", "Ernest Hemingway");
-            queryString.Add("pageSize", "10");
-            queryString.Add("page", "2");
-
-
-            httpRequestMock.Setup(x => x.Query).Returns(new QueryCollection(queryString));
-
-
-            //act
-            var result = (new RequestProcessor()).GetRoutInfo(routeData, httpRequestMock.Object);
-
-            //assert
-            Assert.Equal("authors", result.Entity.Route.ToLower());
-            Assert.Equal("Name desc", result.SortExpression);
-            Assert.Equal("Name == @0", result.FilterExpression);
-            Assert.Equal(10, result.Skip);
-            Assert.Equal(10, result.Take);
-        }
 
         [Fact]
         public void GetData_WhenData_ThenEntity()
@@ -177,6 +118,73 @@ namespace AutoAPI.Tests
             Assert.Equal(1, ((Author)result).Id);
             Assert.Equal("Ernest Hemingway", ((Author)result).Name);
         }
+
+        [Fact]
+        public void GetData_WhenPath_ThenEntity()
+        {
+            //arrange
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString("/api/data/authors"));
+
+            //act
+            var requestProcessor = new RequestProcessor();
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
+
+            //assert
+            Assert.Equal(APIConfiguration.AutoAPIEntityCache.Where(x => x.Route.Equals("/api/data/authors")).First(), result.Entity);
+
+        }
+
+        [Fact]
+        public void GetData_WhenPathMixedCase_ThenEntity()
+        {
+            //arrange
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString("/api/Data/auThors"));
+
+            //act
+            var requestProcessor = new RequestProcessor();
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
+
+            //assert
+            Assert.Equal(APIConfiguration.AutoAPIEntityCache.Where(x => x.Route.Equals("/api/data/authors")).First(), result.Entity);
+
+        }
+
+        [Fact]
+        public void GetData_WhenPathEndsInSlash_ThenEntity()
+        {
+            //arrange
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString("/api/data/authors/"));
+
+            //act
+            var requestProcessor = new RequestProcessor();
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
+
+            //assert
+            Assert.Equal(APIConfiguration.AutoAPIEntityCache.Where(x => x.Route.Equals("/api/data/authors")).First(), result.Entity);
+
+        }
+
+
+        [Fact]
+        public void GetData_WhenPathAndId_ThenEntityAndId()
+        {
+            //arrange
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString("/api/data/authors/1"));
+
+            //act
+            var requestProcessor = new RequestProcessor();
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
+
+            //assert
+            Assert.Equal(APIConfiguration.AutoAPIEntityCache.Where(x => x.Route.Equals("/api/data/authors")).First(), result.Entity);
+            Assert.Equal("1", result.Id);
+        }
+
+
 
     }
 }

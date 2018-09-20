@@ -13,8 +13,6 @@ namespace AutoAPI
 {
     public interface IRequestProcessor
     {
-        RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request);
-
         object GetData(HttpRequest request, Type type);
 
         bool Validate(ControllerBase controllerBase, object entity);

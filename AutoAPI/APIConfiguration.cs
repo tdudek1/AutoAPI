@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,20 +16,16 @@ namespace AutoAPI
         private static readonly List<string> valueTypeOperators = new List<string> { "eq", "neq", "lt", "gt", "gteq", "lteq" };
         private static readonly List<string> guidOperators = new List<string> { "eq", "neq" };
 
-        public static Dictionary<string, List<APIEntity>> AutoAPIEntityCache = new Dictionary<string, List<APIEntity>>();
+        public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
-        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection, string route) where T : DbContext
+        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection, string path) where T : DbContext
         {
-            if(!route.EndsWith("/"))
-            {
-                route += "/";
-            }
 
-            AutoAPIEntityCache.Add(route, Init<T>());
+            AutoAPIEntityCache.AddRange(Init<T>(path));
             serviceCollection.AddTransient<IRequestProcessor, RequestProcessor>();
         }
 
-        public static List<APIEntity> Init<T>() where T : DbContext
+        public static List<APIEntity> Init<T>(string path) where T : DbContext
         {
             return (from p in typeof(T).GetProperties()
                     let g = p.PropertyType.GetGenericArguments()
@@ -36,7 +33,7 @@ namespace AutoAPI
                     where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
                     select new APIEntity()
                     {
-                        Route = a.Route,
+                        Route = (new PathString(path)).Add(a.Route.StartsWith("/") ? a.Route : $"/{a.Route}"),
                         GETPolicy = a.GETPolicy,
                         POSTtPolicy = a.POSTPolicy,
                         PUTPolicy = a.PUTPolicy,
@@ -44,7 +41,8 @@ namespace AutoAPI
                         DbSet = p,
                         EntityType = g.First(),
                         Properties = g.First().GetProperties().Where(x => x.PropertyType.IsTypeSupported()).ToList(),
-                        Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault()
+                        Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault(),
+                        DbContextType = typeof(T)
                     }).ToList();
         }
 

@@ -25,5 +25,7 @@ namespace AutoAPI
         public List<PropertyInfo> Properties { get; set; }
 
         public PropertyInfo Id { get; set; }
+
+        public Type DbContextType { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace AutoAPI.Tests
 		[Fact]
 		public void Apply_WhenEntity_AddDefinitions()
 		{
-			APIConfiguration.AutoAPIEntityCache.Add("/api/data", APIConfiguration.Init<DataContext>());
+			APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
 			var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>() };
 			var filter = new AutoAPISwaggerDocumentFilter();
 
@@ -26,7 +26,7 @@ namespace AutoAPI.Tests
 		[Fact]
 		public void Apply_WhenEntityExists_DontAddDefinitions()
 		{
-            APIConfiguration.AutoAPIEntityCache.Add("/api/data", APIConfiguration.Init<DataContext>());
+            APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
             var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>() { { "author", new Schema() } } };
 			var filter = new AutoAPISwaggerDocumentFilter();
 
@@ -39,7 +39,7 @@ namespace AutoAPI.Tests
 		[Fact]
 		public void Apply_WhenEntity_AddPaths()
 		{
-            APIConfiguration.AutoAPIEntityCache.Add("/api/data", APIConfiguration.Init<DataContext>());
+            APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
             var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>(), Paths = new Dictionary<string, PathItem>() };
 			var filter = new AutoAPISwaggerDocumentFilter();
 
