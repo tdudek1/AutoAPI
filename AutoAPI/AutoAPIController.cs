@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -12,20 +13,24 @@ using System.Linq.Dynamic.Core;
 
 namespace AutoAPI
 {
-    public class AutoAPIController
+    public class AutoAPIController : IAutoAPIController
     {
-        private readonly DbContext context;
+        private readonly DbContext dbContext;
+        private readonly ActionContext actionContext;
+        private readonly IObjectModelValidator objectModelValidator;
         
-        public AutoAPIController(DbContext context)
+        public AutoAPIController(DbContext dbContext,ActionContext actionContext,IObjectModelValidator objectModelValidator)
         {
-            this.context = context;
+            this.dbContext = dbContext;
+            this.actionContext = actionContext;
+            this.objectModelValidator = objectModelValidator;
         }
 
         public ObjectResult Get(RouteInfo routeInfo)
         {
             if (routeInfo.Id != null)
             {
-                var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+                var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
                 if (result != null)
                 {
                     return new  OkObjectResult(result);
@@ -37,7 +42,7 @@ namespace AutoAPI
             }
             else if (routeInfo.HasModifiers)
             {
-                IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(context));
+                IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext));
 
                 if (!string.IsNullOrWhiteSpace(routeInfo.FilterExpression))
                 {
@@ -58,14 +63,20 @@ namespace AutoAPI
             }
             else
             {
-                return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(context));
+                return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
             }
         }
 
 		public ObjectResult Post(RouteInfo routeInfo, object entity)
 		{
-			context.Add(entity);
-			context.SaveChanges();
+            objectModelValidator.Validate(this.actionContext, null, "", entity);
+            if (!this.actionContext.ModelState.IsValid)
+            {
+                return new BadRequestObjectResult(this.actionContext.ModelState);
+            }
+
+			dbContext.Add(entity);
+			dbContext.SaveChanges();
 
 			return new  CreatedResult(routeInfo.Entity.Route, entity);
 		}
@@ -81,23 +92,29 @@ namespace AutoAPI
 				return new BadRequestObjectResult(null);
 			}
 
-			context.Entry(entity).State = EntityState.Modified;
-			context.SaveChanges();
+            objectModelValidator.Validate(this.actionContext, null, "", entity);
+            if (!this.actionContext.ModelState.IsValid)
+            {
+                return new BadRequestObjectResult(this.actionContext.ModelState);
+            }
+
+            dbContext.Entry(entity).State = EntityState.Modified;
+			dbContext.SaveChanges();
 
 			return new OkObjectResult(entity);
 		}
 
 		public ObjectResult Delete(RouteInfo routeInfo)
 		{
-			object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(context)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+			object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
 
 			if (entity == null)
 			{
 				return new NotFoundObjectResult(null);
 			}
 
-			context.Remove(entity);
-			context.SaveChanges();
+			dbContext.Remove(entity);
+			dbContext.SaveChanges();
 
 			return new OkObjectResult(null);
 		}

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -21,7 +22,7 @@ namespace AutoAPI
             this.next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, IServiceProvider serviceProvider, IRequestProcessor requestProcessor)
+        public async Task InvokeAsync(HttpContext context, IRequestProcessor requestProcessor, IAuthorizationService authorizationService)
         {
             var routeInfo = requestProcessor.GetRoutInfo(context.Request);
             var result = new ObjectResult(null);
@@ -30,8 +31,11 @@ namespace AutoAPI
 
 			if (routeInfo.Entity != null)
             {
-                DbContext dbContext = (DbContext)serviceProvider.GetService(routeInfo.Entity.DbContextType);
-                var controller = new AutoAPIController(dbContext);
+                var executor = requestProcessor.GetActionExecutor();
+
+                var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
+                var controller = requestProcessor.GetController(actionContext, routeInfo.Entity.DbContextType);
+
                 switch (context.Request.Method)
                 {
                     case "GET":
@@ -50,8 +54,7 @@ namespace AutoAPI
 						throw new NotSupportedException("Http Method not supported");
 				}
 
-				var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
-                var executor = serviceProvider.GetRequiredService<IActionResultExecutor<ObjectResult>>();
+                
                 await executor.ExecuteAsync(actionContext, result);
             }
             else

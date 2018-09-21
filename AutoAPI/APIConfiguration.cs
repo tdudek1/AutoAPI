@@ -35,7 +35,7 @@ namespace AutoAPI
                     {
                         Route = (new PathString(path)).Add(a.Route.StartsWith("/") ? a.Route : $"/{a.Route}"),
                         GETPolicy = a.GETPolicy,
-                        POSTtPolicy = a.POSTPolicy,
+                        POSTPolicy = a.POSTPolicy,
                         PUTPolicy = a.PUTPolicy,
                         DELETEPolicy = a.DELETEPolicy,
                         DbSet = p,

@@ -2,7 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -13,6 +18,14 @@ namespace AutoAPI
 {
     public class RequestProcessor : IRequestProcessor
     {
+        private readonly IServiceProvider serviceProvider;
+        private readonly IObjectModelValidator objectModelValidator;
+        public RequestProcessor(IServiceProvider serviceProvider,IObjectModelValidator objectModelValidator)
+        {
+            this.serviceProvider = serviceProvider;
+            this.objectModelValidator = objectModelValidator;
+        }
+
         public object GetData(HttpRequest request, Type type)
         {
             var serializer = new JsonSerializer();
@@ -24,23 +37,6 @@ namespace AutoAPI
             }
         }
 
-        public bool Validate(ControllerBase controllerBase, object entity)
-        {
-            return controllerBase.TryValidateModel(entity);
-        }
-
-        public bool Authorize(ClaimsPrincipal claimsPrincipal, string policy, IAuthorizationService authorizationService)
-        {
-            if (string.IsNullOrWhiteSpace(policy) || authorizationService == null)
-            {
-                return true;
-            }
-            else
-            {
-                var result = authorizationService.AuthorizeAsync(claimsPrincipal, policy).Result;
-                return result.Succeeded;
-            }
-        }
 
         public RouteInfo GetRoutInfo(HttpRequest request)
         {
@@ -73,6 +69,17 @@ namespace AutoAPI
 
             return result;
 
+        }
+
+        public IAutoAPIController GetController(ActionContext actionContext,Type dbContextType)
+        {
+            var dbContext = (DbContext)serviceProvider.GetService(dbContextType);
+            return new AutoAPIController(dbContext, actionContext, this.objectModelValidator);
+        }
+
+        public IActionResultExecutor<ObjectResult> GetActionExecutor()
+        {
+            return serviceProvider.GetRequiredService<IActionResultExecutor<ObjectResult>>();
         }
     }
 }
