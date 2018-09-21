@@ -86,5 +86,10 @@ namespace AutoAPI
         {
             return builder.UseMiddleware<AutoAPIMiddleware>();
         }
+
+		public static string ToOperationID(this string path)
+		{
+			return string.Join("", path.Split("/",StringSplitOptions.RemoveEmptyEntries).Select(x => x.First().ToString().ToUpper() + x.Substring(1)));
+		}
     }
 }

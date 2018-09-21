@@ -22,7 +22,7 @@ namespace AutoAPI.Tests
         public void Build_WhenStringAndNotSupported_ThenException()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Name").First();
 
             //act
             var ex = Assert.Throws<NotSupportedException>(() => (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "abc")).Build());
@@ -32,7 +32,7 @@ namespace AutoAPI.Tests
         public void Build_WhenDateTimeAndNotSupported_ThenException()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
 
             //act
             var ex = Assert.Throws<NotSupportedException>(() => (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "like")).Build());
@@ -42,7 +42,7 @@ namespace AutoAPI.Tests
         public void Build_WhenStringAndEquals_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Name").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "eq")).Build();
@@ -56,7 +56,7 @@ namespace AutoAPI.Tests
         public void Build_WhenStringAndNotEquals_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Name").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "neq")).Build();
@@ -71,7 +71,7 @@ namespace AutoAPI.Tests
         public void Build_WhenStringAndLike_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Name").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "like")).Build();
@@ -86,7 +86,7 @@ namespace AutoAPI.Tests
         public void Build_WhenStringAndNLike_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Name").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Name").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "nlike")).Build();
@@ -100,7 +100,7 @@ namespace AutoAPI.Tests
         public void Build_WhenIntAndEq_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Id").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "eq")).Build();
@@ -114,7 +114,7 @@ namespace AutoAPI.Tests
         public void Build_WhenIntAndGt_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Id").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "gt")).Build();
@@ -128,7 +128,7 @@ namespace AutoAPI.Tests
         public void Build_WhenIntAndLt_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Id").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "lt")).Build();
@@ -142,7 +142,7 @@ namespace AutoAPI.Tests
         public void Build_WhenIntAndGtEq_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Id").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "gteq")).Build();
@@ -156,7 +156,7 @@ namespace AutoAPI.Tests
         public void Build_WhenIntAndLtEq_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "Id").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Id").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "1", 0, "lteq")).Build();
@@ -171,7 +171,7 @@ namespace AutoAPI.Tests
         public void Build_WhenDateAndLtEq_ThenExpression()
         {
             //arrange
-            var propertyInfo = entityList.Where(x => x.Route == "authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
 
             //act
             var result = (new FilterOperatorExpression(propertyInfo, "9/21/1947", 0, "lteq")).Build();
