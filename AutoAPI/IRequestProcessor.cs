@@ -18,7 +18,7 @@ namespace AutoAPI
 
         object GetData(HttpRequest request, Type type);
 
-        IAutoAPIController GetController(ActionContext actionContext, Type dbContextType);
+        IRestAPIController GetController(ActionContext actionContext, Type dbContextType);
 
         IActionResultExecutor<ObjectResult> GetActionExecutor();
 

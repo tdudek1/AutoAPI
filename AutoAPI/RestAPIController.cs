@@ -1,25 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 
 namespace AutoAPI
 {
-    public class AutoAPIController : IAutoAPIController
+
+    public class RESTAPIController : IRestAPIController
     {
         private readonly DbContext dbContext;
         private readonly ActionContext actionContext;
         private readonly IObjectModelValidator objectModelValidator;
-        
-        public AutoAPIController(DbContext dbContext,ActionContext actionContext,IObjectModelValidator objectModelValidator)
+
+        public RESTAPIController(DbContext dbContext, ActionContext actionContext, IObjectModelValidator objectModelValidator)
         {
             this.dbContext = dbContext;
             this.actionContext = actionContext;
@@ -33,7 +28,7 @@ namespace AutoAPI
                 var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
                 if (result != null)
                 {
-                    return new  OkObjectResult(result);
+                    return new OkObjectResult(result);
                 }
                 else
                 {
@@ -67,57 +62,61 @@ namespace AutoAPI
             }
         }
 
-		public ObjectResult Post(RouteInfo routeInfo, object entity)
-		{
-            objectModelValidator.Validate(this.actionContext, null, "", entity);
-            if (!this.actionContext.ModelState.IsValid)
+        public ObjectResult Post(RouteInfo routeInfo, object entity)
+        {
+            if (!IsValid(entity))
             {
                 return new BadRequestObjectResult(this.actionContext.ModelState);
             }
 
-			dbContext.Add(entity);
-			dbContext.SaveChanges();
+            dbContext.Add(entity);
+            dbContext.SaveChanges();
 
-			return new  CreatedResult(routeInfo.Entity.Route, entity);
-		}
+            return new CreatedResult(routeInfo.Entity.Route, entity);
+        }
 
-		public ObjectResult Put(RouteInfo routeInfo,object entity)
-		{
-			
-			var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
-			var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
+        public ObjectResult Put(RouteInfo routeInfo, object entity)
+        {
 
-			if (!objectId.Equals(routeId))
-			{
-				return new BadRequestObjectResult(null);
-			}
+            var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
+            var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
 
-            objectModelValidator.Validate(this.actionContext, null, "", entity);
-            if (!this.actionContext.ModelState.IsValid)
+            if (!objectId.Equals(routeId))
+            {
+                return new BadRequestObjectResult(null);
+            }
+
+            if(!IsValid(entity))
             {
                 return new BadRequestObjectResult(this.actionContext.ModelState);
             }
 
             dbContext.Entry(entity).State = EntityState.Modified;
-			dbContext.SaveChanges();
+            dbContext.SaveChanges();
 
-			return new OkObjectResult(entity);
-		}
+            return new OkObjectResult(entity);
+        }
 
-		public ObjectResult Delete(RouteInfo routeInfo)
-		{
-			object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+        public ObjectResult Delete(RouteInfo routeInfo)
+        {
+            object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
 
-			if (entity == null)
-			{
-				return new NotFoundObjectResult(null);
-			}
+            if (entity == null)
+            {
+                return new NotFoundObjectResult(null);
+            }
 
-			dbContext.Remove(entity);
-			dbContext.SaveChanges();
+            dbContext.Remove(entity);
+            dbContext.SaveChanges();
 
-			return new OkObjectResult(null);
-		}
-	}
+            return new OkObjectResult(null);
+        }
+
+        protected virtual bool IsValid(object entity)
+        {
+            objectModelValidator.Validate(this.actionContext, null, "", entity);
+            return this.actionContext.ModelState.IsValid;
+        }
+    }
 }
 

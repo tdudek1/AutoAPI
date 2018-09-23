@@ -71,10 +71,10 @@ namespace AutoAPI
 
         }
 
-        public IAutoAPIController GetController(ActionContext actionContext,Type dbContextType)
+        public IRestAPIController GetController(ActionContext actionContext,Type dbContextType)
         {
             var dbContext = (DbContext)serviceProvider.GetService(dbContextType);
-            return new AutoAPIController(dbContext, actionContext, this.objectModelValidator);
+            return new RESTAPIController(dbContext, actionContext, this.objectModelValidator);
         }
 
         public IActionResultExecutor<ObjectResult> GetActionExecutor()

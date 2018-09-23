@@ -10,19 +10,23 @@ namespace AutoAPI.Tests
 {
 	public class AutoAPISwaggerDocumentFilterTests
 	{
+        private static readonly Object obj = new Object();
 
-		public AutoAPISwaggerDocumentFilterTests()
+        public AutoAPISwaggerDocumentFilterTests()
 		{
-			if (APIConfiguration.AutoAPIEntityCache.Count == 0)
-			{
-				APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
-			}
+            lock (obj)
+            {
+                if (APIConfiguration.AutoAPIEntityCache.Count == 0)
+                {
+                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
+                }
+            }
 		}
 
 		[Fact]
 		public void Apply_WhenEntity_AddDefinitions()
 		{
-            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>() { { "author", new Schema() } }, Paths = new Dictionary<string, PathItem>() };
+            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>(), Paths = new Dictionary<string, PathItem>() };
 			var filter = new AutoAPISwaggerDocumentFilter();
 
 			filter.Apply(swaggerDoc, null);
@@ -34,7 +38,7 @@ namespace AutoAPI.Tests
 		[Fact]
 		public void Apply_WhenEntityExists_DontAddDefinitions()
 		{
-            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>() { { "author", new Schema() } }, Paths = new Dictionary<string, PathItem>() };
+            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>(), Paths = new Dictionary<string, PathItem>() };
 			var filter = new AutoAPISwaggerDocumentFilter();
 
 			filter.Apply(swaggerDoc, null);

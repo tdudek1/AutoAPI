@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace AutoAPI
 {
-    public interface IAutoAPIController
+    public interface IRestAPIController
     {
         ObjectResult Delete(RouteInfo routeInfo);
         ObjectResult Get(RouteInfo routeInfo);
