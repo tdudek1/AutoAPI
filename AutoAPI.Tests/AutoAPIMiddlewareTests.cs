@@ -132,30 +132,4 @@ namespace AutoAPI.Tests
 			nextMock.Verify(x => x(It.IsAny<HttpContext>()), Times.Once);
 		}
 
-
-		[Fact]
-		public async void InvokeAsync_RequestMatchesAndAuthorized_Then401()
-		{
-			//arrange
-			var nextMock = new Mock<RequestDelegate>();
-
-			var requestProcessorMock = new Mock<IRequestProcessor>();
-			requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/data/authors").First(), });
-
-			var responseMock = new Mock<HttpResponse>();
-
-			var contextMock = new Mock<HttpContext>();
-			contextMock.Setup(x => x.Response).Returns(responseMock.Object);
-
-			var middlewareMock = new Mock<AutoAPIMiddleware>(nextMock.Object);
-			middlewareMock.Setup(x => x.IsAuthorized(It.IsAny<IAuthorizationService>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<APIEntity>(), It.IsAny<string>())).Returns(false);
-
-			//act
-			await middlewareMock.Object.InvokeAsync(contextMock.Object, requestProcessorMock.Object, null);
-
-			//assert
-			nextMock.Verify(x => x(It.IsAny<HttpContext>()), Times.Once);
-			Assert.Equal(401, responseMock.Object.StatusCode);
-		}
-	}
 }
