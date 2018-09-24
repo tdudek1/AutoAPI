@@ -23,8 +23,14 @@ namespace AutoAPI.Tests
 
 		public RequestProcessorTest()
 		{
-			APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
-		}
+            lock (APIConfiguration.AutoAPIEntityCache)
+            {
+                if (APIConfiguration.AutoAPIEntityCache.Count == 0)
+                {
+                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
+                }
+            }
+        }
 
 		[Fact]
 		public void GetData_WhenData_ThenEntity()
