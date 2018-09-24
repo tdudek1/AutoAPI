@@ -69,10 +69,10 @@ namespace AutoAPI
 
 		public bool IsAuthorized(IAuthorizationService authorizationService, ClaimsPrincipal claimsPrincipal, APIEntity aPIEntity, String method)
 		{
-			if (claimsPrincipal.Identity.IsAuthenticated && aPIEntity.Authorize)
+			if (!claimsPrincipal.Identity.IsAuthenticated && aPIEntity.Authorize)
 				return false;
 
-			if (!String.IsNullOrWhiteSpace(aPIEntity.EntityPolicy) && !authorizationService.AuthorizeAsync(claimsPrincipal, aPIEntity.EntityPolicy).Result.Succeeded)
+			if (!String.IsNullOrWhiteSpace(aPIEntity.EntityPolicy) && !Authorize(authorizationService, claimsPrincipal, aPIEntity.EntityPolicy))
 				return false;
 
 			var methodPolicy = "";
@@ -93,10 +93,16 @@ namespace AutoAPI
 					break;
 			}
 
-			if (!String.IsNullOrWhiteSpace(methodPolicy) && !authorizationService.AuthorizeAsync(claimsPrincipal, methodPolicy).Result.Succeeded)
+			if (!String.IsNullOrWhiteSpace(methodPolicy) && !Authorize(authorizationService, claimsPrincipal, methodPolicy))
 				return false;
 
 			return true;
 		}
+
+		protected virtual bool Authorize(IAuthorizationService authorizationService, ClaimsPrincipal claimsPrincipal, string policy)
+		{
+			return authorizationService.AuthorizeAsync(claimsPrincipal, policy).Result.Succeeded;
+		}
+
     }
 }
