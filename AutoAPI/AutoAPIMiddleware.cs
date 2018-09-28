@@ -30,16 +30,16 @@ namespace AutoAPI
 
 			if (routeInfo.Entity != null)
             {
-                var executor = requestProcessor.GetActionExecutor();
-
-                var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
-                var controller = requestProcessor.GetController(actionContext, routeInfo.Entity.DbContextType);
-
 				if (!IsAuthorized(authorizationService, context.User, routeInfo.Entity, context.Request.Method))
 				{
 					context.Response.StatusCode = 401;
 					return;
 				}
+
+                var executor = requestProcessor.GetActionExecutor();
+
+                var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
+                var controller = requestProcessor.GetController(actionContext, routeInfo.Entity.DbContextType);
 
                 switch (context.Request.Method)
                 {
