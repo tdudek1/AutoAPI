@@ -155,6 +155,8 @@ namespace AutoAPI.IntegrationTests
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
 
+            output.WriteLine($"Url {request.RequestUri}");
+
             //act
             var result = await Helper.Response(request);
 
