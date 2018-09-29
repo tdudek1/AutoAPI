@@ -38,6 +38,8 @@ namespace AutoAPI
                         POSTPolicy = a.POSTPolicy,
                         PUTPolicy = a.PUTPolicy,
                         DELETEPolicy = a.DELETEPolicy,
+                        EntityPolicy = a.EntityPolicy,
+                        Authorize = a.Authorize,
                         DbSet = p,
                         EntityType = g.First(),
                         Properties = g.First().GetProperties().Where(x => x.PropertyType.IsTypeSupported()).ToList(),

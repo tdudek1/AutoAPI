@@ -104,7 +104,6 @@ namespace AutoAPI.Web
 			{
 				app.UseDeveloperExceptionPage();
 			}
-
             app.UseAuthentication();
 			app.UseMvc();
             app.UseAutoAPI();

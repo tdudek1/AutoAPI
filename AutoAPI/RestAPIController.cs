@@ -109,7 +109,7 @@ namespace AutoAPI
             dbContext.Remove(entity);
             dbContext.SaveChanges();
 
-            return new OkObjectResult(null);
+            return new OkObjectResult("");
         }
 
         protected virtual bool IsValid(object entity)

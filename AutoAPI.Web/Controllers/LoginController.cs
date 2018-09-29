@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -40,7 +37,7 @@ namespace AutoAPI.Web.Controllers
                     claims: userManager.GetClaimsAsync(user).Result,
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);
-                
+
                 return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token)
@@ -58,7 +55,7 @@ namespace AutoAPI.Web.Controllers
         public async Task<ActionResult> Test()
         {
             var user = await userManager.FindByNameAsync(User.Claims.Where(x => x.Type == ClaimTypes.Name).FirstOrDefault()?.Value);
-            return Ok(user);
+            return Ok(new { User = user, Claims = this.User.Claims.Select(x => new { x.Type, x.Value })});
         }
 
     }
