@@ -6,14 +6,21 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace AutoAPI.IntegrationTests
 {
     [TestCaseOrderer("AutoAPI.IntegrationTests.PriorityOrderer", "AutoAPI.IntegrationTests")]
     public class DataControllerTests
     {
+        private ITestOutputHelper output;
+
+        public DataControllerTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
         private readonly Uri baseUrl = new Uri("http://localhost:5000/api/data/");
-        private  string token;
+        private string token;
 
         [Fact, TestPriority(1)]
         public async void DateController_WhenGetAll_ReturnList()
@@ -108,22 +115,26 @@ namespace AutoAPI.IntegrationTests
         [Fact, TestPriority(6)]
         public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
         {
+
             //arrange
-            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/5678"));
+            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/99999"));
             request.Headers.Add("Authorization", await Login());
             //act
-            var result = await Helper.Json<Book>(request, new Book() { ISBN = "5678", AuthorId = 1, Title = "The Sun Also Rises" });
+
+            var result = await Helper.Json<Book>(request, new Book() { ISBN = "99999", AuthorId = 1, Title = "The Sun Also Rises" });
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(1, result.Object.AuthorId);
+            Assert.Equal(2, result.Object.AuthorId);
             Assert.Equal("The Sun Also Rises", result.Object.Title);
+
         }
 
 
         [Fact, TestPriority(7)]
         public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
         {
+
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/5678"));
             request.Headers.Add("Authorization", await Login());
@@ -133,6 +144,7 @@ namespace AutoAPI.IntegrationTests
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+
         }
 
 
