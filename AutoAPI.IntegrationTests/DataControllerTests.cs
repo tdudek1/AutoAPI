@@ -136,7 +136,7 @@ namespace AutoAPI.IntegrationTests
         {
 
             //arrange
-            var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/5678"));
+            var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/99999"));
             request.Headers.Add("Authorization", await Login());
 
             //act
