@@ -134,6 +134,8 @@ namespace AutoAPI.IntegrationTests
         [Fact, TestPriority(7)]
         public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
         {
+            System.Threading.Thread.Sleep(1000);
+
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/99999"));
             request.Headers.Add("Authorization", await Login());
