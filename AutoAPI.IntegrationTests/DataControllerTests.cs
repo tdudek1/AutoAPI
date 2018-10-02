@@ -102,9 +102,11 @@ namespace AutoAPI.IntegrationTests
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
             request.Headers.Add("Authorization", await Login());
+            
             //act
             var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
 
+            //assert
             Assert.Equal(HttpStatusCode.Created, result.StatusCode);
             Assert.Equal(1, result.Object.AuthorId);
             Assert.Equal("The Sun Also Rises", result.Object.Title);
@@ -133,16 +135,6 @@ namespace AutoAPI.IntegrationTests
         [Fact, TestPriority(7)]
         public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
         {
-            var request1 = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
-            request1.Headers.Add("Authorization", await Login());
-
-            var result1 = await Helper.Json<List<Book>>(request1);
-
-            foreach(var book in result1.Object)
-            {
-                this.output.WriteLine($"Book id {book.ISBN}");
-            }
-
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/99999"));
             request.Headers.Add("Authorization", await Login());
@@ -155,25 +147,18 @@ namespace AutoAPI.IntegrationTests
 
         }
 
-
-
         [Fact, TestPriority(8)]
         public async void DateController_WhenGetToBooksAndNoToken_ReturnUnauthorized()
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
-
-            output.WriteLine($"Url {request.RequestUri}");
-
+        
             //act
             var result = await Helper.Response(request);
 
             //Assert
             Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
         }
-
-
-
 
         private async Task<string> Login()
         {
