@@ -114,6 +114,21 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(6)]
+        public async void DateController_WhenPostToBooksAndInvalid_ReturnBadRequest()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
+            request.Headers.Add("Authorization", await Login());
+
+            //act
+            var result = await Helper.Response(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "" });
+
+            //assert
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+
+        [Fact, TestPriority(7)]
         public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
         {
 
@@ -132,7 +147,7 @@ namespace AutoAPI.IntegrationTests
         }
 
 
-        [Fact, TestPriority(7)]
+        [Fact, TestPriority(8)]
         public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
         {
             //arrange
@@ -147,7 +162,7 @@ namespace AutoAPI.IntegrationTests
 
         }
 
-        [Fact, TestPriority(8)]
+        [Fact, TestPriority(9)]
         public async void DateController_WhenGetToBooksAndNoToken_ReturnUnauthorized()
         {
             //arrange
