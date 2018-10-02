@@ -96,39 +96,39 @@ namespace AutoAPI.IntegrationTests
         }
 
 
-        //[Fact, TestPriority(5)]
-        //public async void DateController_WhenPostToBooks_ReturnNewBook()
-        //{
-        //    arrange
-        //    var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
-        //    request.Headers.Add("Authorization", await Login());
-        //    act
-        //    var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
+        [Fact, TestPriority(5)]
+        public async void DateController_WhenPostToBooks_ReturnNewBook()
+        {
+            arrange
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
+            request.Headers.Add("Authorization", await Login());
+            act
+            var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
 
-        //    Assert
-        //    Assert.Equal(HttpStatusCode.Created, result.StatusCode);
-        //    Assert.Equal(1, result.Object.AuthorId);
-        //    Assert.Equal("The Sun Also Rises", result.Object.Title);
-        //}
+            Assert
+            Assert.Equal(HttpStatusCode.Created, result.StatusCode);
+            Assert.Equal(1, result.Object.AuthorId);
+            Assert.Equal("The Sun Also Rises", result.Object.Title);
+        }
 
 
-        //[Fact, TestPriority(6)]
-        //public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
-        //{
+        [Fact, TestPriority(6)]
+        public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
+        {
 
-        //    //arrange
-        //    var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/99999"));
-        //    request.Headers.Add("Authorization", await Login());
-        //    //act
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/99999"));
+            request.Headers.Add("Authorization", await Login());
+            //act
 
-        //    var result = await Helper.Json<Book>(request, new Book() { ISBN = "99999", AuthorId = 1, Title = "The Sun Also Rises" });
+            var result = await Helper.Json<Book>(request, new Book() { ISBN = "99999", AuthorId = 1, Title = "The Sun Also Rises" });
 
-        //    //Assert
-        //    Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-        //    Assert.Equal(2, result.Object.AuthorId);
-        //    Assert.Equal("The Sun Also Rises", result.Object.Title);
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(2, result.Object.AuthorId);
+            Assert.Equal("The Sun Also Rises", result.Object.Title);
 
-        //}
+        }
 
 
         [Fact, TestPriority(7)]
