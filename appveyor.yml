@@ -1,4 +1,4 @@
-version: 1.2.{build}
+version: 2.0.{build}
 image: Visual Studio 2017
 configuration: Release
 dotnet_csproj:
@@ -18,7 +18,8 @@ before_test:
     docker build -t autoapi . 
     docker run -d -p 5000:5000 autoapi
 test_script:
-- ps:  dotnet vstest (Get-ChildItem -recurse -File *Tests.dll | ? { $_.FullName -notmatch "\\obj\\?" })
+- ps: dotnet vstest (Get-ChildItem -recurse -File *Tests.dll | ? { ($_.FullName -notmatch "\\obj\\?") -and $_.FullName -notmatch "\\out\\?" }) /logger:"console;verbosity=detailed"
+    
 
 deploy_script:
 - ps: >-

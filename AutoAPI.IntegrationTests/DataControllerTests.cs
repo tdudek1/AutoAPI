@@ -4,15 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace AutoAPI.IntegrationTests
 {
+    [TestCaseOrderer("AutoAPI.IntegrationTests.PriorityOrderer", "AutoAPI.IntegrationTests")]
     public class DataControllerTests
     {
-        private readonly Uri baseUrl = new Uri("http://localhost:5000/api/data/");
+        private ITestOutputHelper output;
 
-        [Fact]
+        public DataControllerTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+        private readonly Uri baseUrl = new Uri("http://localhost:5000/api/data/");
+        private string token;
+
+        [Fact, TestPriority(1)]
         public async void DateController_WhenGetAll_ReturnList()
         {
             //arrange
@@ -28,7 +38,7 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal("Ernest Hemingway", result.Object.First().Name);
         }
 
-        [Fact]
+        [Fact, TestPriority(2)]
         public async void DateController_WhenGetById_ReturnOne()
         {
             //arrange
@@ -43,7 +53,7 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal("Ernest Hemingway", result.Object.Name);
         }
 
-        [Fact]
+        [Fact, TestPriority(3)]
         public async void DateController_WhenGetAllOrderDesc_ReturnListDesc()
         {
             //arrange
@@ -60,7 +70,7 @@ namespace AutoAPI.IntegrationTests
         }
 
 
-        [Theory]
+        [Theory, TestPriority(4)]
         [InlineData("filter[name][like]=Ernest", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[name][nlike]=Ernest", 1, 2, "Stephen King")]
         [InlineData("filter[name]=Ernest Hemingway", 1, 1, "Ernest Hemingway")]
@@ -84,5 +94,108 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal(id, result.Object.First().Id);
             Assert.Equal(name, result.Object.First().Name);
         }
+
+
+        [Fact, TestPriority(5)]
+        public async void DateController_WhenPostToBooks_ReturnNewBook()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
+            request.Headers.Add("Authorization", await Login());
+            
+            //act
+            var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
+
+            //assert
+            Assert.Equal(HttpStatusCode.Created, result.StatusCode);
+            Assert.Equal(1, result.Object.AuthorId);
+            Assert.Equal("The Sun Also Rises", result.Object.Title);
+        }
+
+
+        [Fact, TestPriority(6)]
+        public async void DateController_WhenPostToBooksAndInvalid_ReturnBadRequest()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
+            request.Headers.Add("Authorization", await Login());
+
+            //act
+            var result = await Helper.Response(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "" });
+
+            //assert
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+
+        [Fact, TestPriority(7)]
+        public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
+        {
+
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/5678"));
+            request.Headers.Add("Authorization", await Login());
+            //act
+
+            var result = await Helper.Json<Book>(request, new Book() { ISBN = "5678", AuthorId = 1, Title = "The Sun Also Rises" });
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(1, result.Object.AuthorId);
+            Assert.Equal("The Sun Also Rises", result.Object.Title);
+
+        }
+
+
+        [Fact, TestPriority(8)]
+        public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/99999"));
+            request.Headers.Add("Authorization", await Login());
+
+            //act
+            var result = await Helper.Response(request);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+
+        }
+
+        [Fact, TestPriority(9)]
+        public async void DateController_WhenGetToBooksAndNoToken_ReturnUnauthorized()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
+        
+            //act
+            var result = await Helper.Response(request);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
+        }
+
+        private async Task<string> Login()
+        {
+            if (string.IsNullOrEmpty(this.token))
+            {
+                var result = await Helper.Json<Token>(new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri("http://localhost:5000/login"),
+                    Content = new FormUrlEncodedContent(new Dictionary<string, string>() { { "UserName", "test@test.com" }, { "Password", "Password1234!" } })
+                });
+
+                this.token = result.Object.token;
+            }
+
+            return "Bearer " + this.token;
+        }
+
+        private class Token
+        {
+            public string token { get; set; }
+        }
+
     }
 }

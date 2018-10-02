@@ -1,9 +1,6 @@
 ﻿using AutoAPI.Web.Entity;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AutoAPI.Web
 {
@@ -14,11 +11,10 @@ namespace AutoAPI.Web
 
         }
 
-        [AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
+        [AutoAPIEntity(Route = "authors")]
         public DbSet<Author> Authors { get; set; }
-        [AutoAPIEntity(Route = "Books")]
+        [AutoAPIEntity(Route = "Books", Authorize = true, POSTPolicy = "IsAdmin")]
         public DbSet<Book> Books { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

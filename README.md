@@ -4,6 +4,8 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nuls4kut9jv1wjsn/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
+**Version 2 breaks compatilbity as it uses a middleware instead of controller to handle requests**
+
 ### Nuget
 
 https://www.nuget.org/packages/Auto.Rest.API/
@@ -11,36 +13,32 @@ https://www.nuget.org/packages/Auto.Rest.API/
 
 ### Getting Started
 
-Create controller deriving from AutoAPIController for all entities (route must end with {*query} wild card)
+Configure Auto API Service 
+
+In Startup.cs ConfigureServices (path indicates base bath for context)
 
 ```c#
-[Route("/api/data/{*query}")]
-public class DataController : AutoAPI.AutoAPIController
-{
-	public DataController(DataContext context) 
-			: base(context)
-	{
 
-	}
-}
-```
+    services.AddAutoAPI<DataContext>("/api/data")
 
-If you want to use policy authorization derive like this
-
-```c#
-[Route("/api/authdata/{*query}")]
-public class AuthorizedDataController : AutoAPI.AutoAPIController
-{
-    public AuthorizedDataController(DataContext context, IAuthorizationService authorizationService) 
-			: base(context, authorizationService)
-    {
-
-    }
-}
+    //register db context
+    services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Data")));
 
 ```
 
-Annotate Data Context (use Policy properties for authorization per HTTP verb)
+
+Register Middleware
+
+In Startup.cs Configure
+
+```c#
+    
+    app.UseAutoAPI();
+
+```
+
+
+Annotate Data Context
 
 
 ```c#
@@ -51,25 +49,25 @@ public class DataContext : DbContext
 
     }
     
-    [AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin")]
+    [AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin", Authorize = true)]
     public DbSet<Author> Authors { get; set; }
     [AutoAPIEntity(Route = "Books")]
     public DbSet<Book> Books { get; set; }
 }
 ```
 
-Register in ConfigureServices
-```c#
-services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Data")));
-services.AddAutoAPI<DataContext>();
-```
+Authentication
+
+To require user be authenticated set Authorize property of the AutoAPIEntity to true.
+
+Policy based authorization can be confgured by setting policy name property for entity or per http verb.
 
 Add AutoApi routes to swagger document with DocumentFilter using **Swashbuckle.AspNetCore** (https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
 ```c#
 
 services.AddSwaggerGen(c =>
 {
-    c.DocumentFilter<AutoAPISwaggerDocumentFilter>(new List<string> { "/api/data/", "/api/authdata/" });
+    c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
 });
 
 ```
@@ -106,7 +104,6 @@ Supported operators are
 By default multiple filters are joined with an AND operator to use OR use ?operator=or 
 
 #### To Dos
-- Convert to use Middleware (this will break compatibility)
 - Include related entities in results
 
 
