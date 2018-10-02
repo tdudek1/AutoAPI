@@ -23,6 +23,6 @@ test_script:
 
 deploy_script:
 - ps: >-
-    if($env:appveyor_repo_branch -eq 'master') {
+    if($env:appveyor_repo_branch -eq 'master' -and $env:appveyor_repo_tag -eq "true") {
        dotnet nuget push ".\AutoAPI\bin\Release\Auto.Rest.API.$Env:APPVEYOR_BUILD_VERSION.nupkg" -s nuget.org -k $Env:key
     }
