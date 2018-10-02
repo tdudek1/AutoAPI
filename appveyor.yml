@@ -18,7 +18,8 @@ before_test:
     docker build -t autoapi . 
     docker run -d -p 5000:5000 autoapi
 test_script:
-- ps: dotnet vstest (Get-ChildItem -recurse -File *Tests.dll | ? { (($_.FullName -notmatch "\\obj\\?") -and ($_.FullName -notmatch "\\publish\\?")) }) /logger:"console;verbosity=detailed"
+- ps: (Get-ChildItem -recurse -File *Tests.dll | ? { (($_.FullName -notmatch "\\obj\\?") -and ($_.FullName -notmatch "\\publish\\?")) })
+    
 
 deploy_script:
 - ps: >-
