@@ -11,6 +11,7 @@ namespace AutoAPI.Web.Entity
     {
         [Key]
         public string ISBN { get; set; }
+        [Required]
         public string Title { get; set; }
         public int AuthorId { get; set; }
     }

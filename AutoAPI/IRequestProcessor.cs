@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using System;
@@ -13,12 +14,13 @@ namespace AutoAPI
 {
     public interface IRequestProcessor
     {
-        RouteInfo GetRoutInfo(RouteData routeData, HttpRequest request);
+        RouteInfo GetRoutInfo(HttpRequest request);
 
         object GetData(HttpRequest request, Type type);
 
-        bool Validate(ControllerBase controllerBase, object entity);
+        IRestAPIController GetController(ActionContext actionContext, Type dbContextType);
 
-        bool Authorize(ClaimsPrincipal user, string policy, IAuthorizationService authorizationService);
+        IActionResultExecutor<ObjectResult> GetActionExecutor();
+
     }
 }

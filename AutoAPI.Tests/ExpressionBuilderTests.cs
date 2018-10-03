@@ -16,7 +16,7 @@ namespace AutoAPI.Tests
 
         public ExpressionBuilderTests()
         {
-            entityList = APIConfiguration.Init<DataContext>();
+            entityList = APIConfiguration.Init<DataContext>("/api/data");
         }
 
         #region Paging
@@ -77,7 +77,7 @@ namespace AutoAPI.Tests
             queryString.Add("sort[DateOfBirth]", "asc");
 
             //act
-            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildSortResult();
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "/api/data/authors").First())).BuildSortResult();
 
             //assert
             Assert.Equal("Name desc, DateOfBirth asc", result);
@@ -91,7 +91,7 @@ namespace AutoAPI.Tests
             var queryString = new Dictionary<string, StringValues>();
 
             //act
-            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildSortResult();
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "/api/data/authors").First())).BuildSortResult();
 
             //assert
             Assert.Null(result);
@@ -109,7 +109,7 @@ namespace AutoAPI.Tests
             queryString.Add("filter[Name]", "Ernest Hemingway");
 
             //act
-            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildFilterResult();
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "/api/data/authors").First())).BuildFilterResult();
 
             //assert
             Assert.Equal("Name == @0", result.Filter);
@@ -127,7 +127,7 @@ namespace AutoAPI.Tests
             queryString.Add("filter[DateOfBirth]", "7/21/1899");
 
             //act
-            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildFilterResult();
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "/api/data/authors").First())).BuildFilterResult();
 
             //assert
             Assert.Equal("Name == @0 && DateOfBirth == @1", result.Filter);
@@ -145,7 +145,7 @@ namespace AutoAPI.Tests
             var queryString = new Dictionary<string, StringValues>();
 
             //act
-            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildFilterResult();
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "/api/data/authors").First())).BuildFilterResult();
 
             Assert.Null(result.Filter);
         }
@@ -160,7 +160,7 @@ namespace AutoAPI.Tests
             queryString.Add("operator", "or");
 
             //act
-            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "authors").First())).BuildFilterResult();
+            var result = (new Expressions.ExpressionBuilder(new QueryCollection(queryString), entityList.Where(x => x.Route == "/api/data/authors").First())).BuildFilterResult();
 
             //assert
             Assert.Equal("Name == @0 || DateOfBirth == @1", result.Filter);

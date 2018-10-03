@@ -10,19 +10,17 @@
 
 This library automatically generates RESTful API for DbSets in DbContext. This is very much a work in progress right now so feel free to create issues on GitHub.
 
-Latest version includes fixes and policy based authorization support.
+Version 2 breaks compatilbity as it uses a middleware instead of controller to handle requests
 
-https://github.com/tdudek1/AutoAPI
-
-</Description>
-    <Copyright>Copyright ©2016 Thomas Dudek</Copyright>
+https://github.com/tdudek1/AutoAPI</Description>
+    <Copyright>Copyright ©2018 Thomas Dudek</Copyright>
     <PackageLicenseUrl>https://opensource.org/licenses/GPL-3.0</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
     <PackageTags>rest api entityframework</PackageTags>
     <PackageId>Auto.Rest.API</PackageId>
-    <Version>1.1.2</Version>
-    <AssemblyVersion>1.1.2.0</AssemblyVersion>
-    <FileVersion>1.1.2.0</FileVersion>
+    <Version>2.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
     <DebugType>Full</DebugType>

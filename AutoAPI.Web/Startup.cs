@@ -46,8 +46,7 @@ namespace AutoAPI.Web
 				options.UseInMemoryDatabase(databaseName: "Data");
 			});
 
-			services.AddAutoAPI<DataContext>();
-
+			services.AddAutoAPI<DataContext>("/api/data");
 
 			services
 				.AddIdentity<IdentityUser, IdentityRole>()
@@ -83,8 +82,6 @@ namespace AutoAPI.Web
 				});
 			});
 
-			services.AddMvc();
-
 			services.Configure<IdentityOptions>(options =>
 			{
 				// User settings
@@ -94,7 +91,7 @@ namespace AutoAPI.Web
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-				c.DocumentFilter<AutoAPISwaggerDocumentFilter>(new List<string> { "/api/data/", "/api/authdata/" });
+				c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
 			});
 
 
@@ -103,20 +100,17 @@ namespace AutoAPI.Web
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
 		{
-			if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
-
-			app.UseAuthentication();
+            app.UseDeveloperExceptionPage();
+            
+            app.UseAuthentication();
 			app.UseMvc();
-			app.UseSwagger();
+            app.UseAutoAPI();
+            app.UseSwagger();
 			app.UseSwaggerUI(c =>
 			{
 				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 			});
-
-
+            
 			context.Database.EnsureCreated();
 			identityContext.Database.EnsureCreated();
 
