@@ -4,7 +4,7 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nuls4kut9jv1wjsn/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
-**Version 2 breaks compatilbity as it uses a middleware instead of controller to handle requests**
+**Version 2 breaks compatilbity as it uses a middleware instead of a controller to handle requests**
 
 ### Nuget
 
@@ -15,10 +15,11 @@ https://www.nuget.org/packages/Auto.Rest.API/
 
 Configure Auto API Service 
 
-In Startup.cs ConfigureServices (path indicates base bath for context)
+In Startup.cs ConfigureServices (path indicates base bath for db context)
 
 ```c#
 
+    //generic argument is DbContext
     services.AddAutoAPI<DataContext>("/api/data")
 
     //register db context
@@ -56,24 +57,7 @@ public class DataContext : DbContext
 }
 ```
 
-Authentication
-
-To require user be authenticated set Authorize property of the AutoAPIEntity to true.
-
-Policy based authorization can be confgured by setting policy name property for entity or per http verb.
-
-Add AutoApi routes to swagger document with DocumentFilter using **Swashbuckle.AspNetCore** (https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
-```c#
-
-services.AddSwaggerGen(c =>
-{
-    c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
-});
-
-```
-
-
-Access at
+##### Access at
 
 ```
 Read all		GET /api/data/authors 
@@ -84,7 +68,34 @@ Update			PUT /api/data/authors/1
 Delete			DELETE /api/data/authors/1
 ```
 
-More filters
+##### Authentication and Authorization
+
+To require user to be authenticated set Authorize property of the AutoAPIEntity attribute to true.
+
+Policy based authorization can be confgured by setting policy name property for entity or per http verb.
+
+```c#
+    
+[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin", Authorize = true)]
+public DbSet<Author> Authors { get; set; }
+    
+```
+
+
+##### Swagger
+
+Add AutoApi routes to swagger document with DocumentFilter using **Swashbuckle.AspNetCore** (https://github.com/domaindrivendev/Swashbuckle.AspNetCore)
+
+```c#
+
+services.AddSwaggerGen(c =>
+{
+    c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
+});
+
+```
+
+##### More filters
 
 You can specify comparison operators in query string like this
 
