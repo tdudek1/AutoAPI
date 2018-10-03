@@ -18,13 +18,15 @@ Configure Auto API Service
 In Startup.cs ConfigureServices (path indicates base bath for db context)
 
 ```c#
-
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
     //generic argument is DbContext
     services.AddAutoAPI<DataContext>("/api/data")
 
     //register db context
     services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Data")));
-
+}
 ```
 
 
@@ -32,10 +34,12 @@ Register Middleware
 
 In Startup.cs Configure
 
-```c#
-    
+```c# 
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    ...
     app.UseAutoAPI();
-
+}
 ```
 
 
@@ -80,6 +84,7 @@ Policy based authorization can be confgured by setting policy name property for 
 public DbSet<Author> Authors { get; set; }
     
 ```
+
 
 
 ##### Swagger
