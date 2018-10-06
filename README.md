@@ -64,12 +64,13 @@ public class DataContext : DbContext
 ##### Access at
 
 ```
-Read all		GET /api/data/authors 
-Read by id		GET /api/data/authors/1 
-Filter/Sort/Paging	GET /api/data/authors?filter[Name][like]=J.R.R.Tolkien&sort[Id]=desc&pageSize=10&page=2
-Create			POST /api/data/authors
-Update			PUT /api/data/authors/1
-Delete			DELETE /api/data/authors/1
+Read all                GET     /api/data/authors 
+Read by id              GET     /api/data/authors/1 
+Count                   GET     /api/data/authors/count
+Filter/Sort/Paging      GET     /api/data/authors?filter[Name][like]=J.R.R.Tolkien&sort[Id]=desc&pageSize=10&page=2
+Create                  POST    /api/data/authors
+Update                  PUT     /api/data/authors/1
+Delete                  DELETE  /api/data/authors/1
 ```
 
 ##### Authentication and Authorization
@@ -118,6 +119,8 @@ Supported operators are
 	- eq (Equal) neq (Not Equal) gt (Greater Than) lt (Less than) gteq (Greater Than or Equal) lteq (Less Than or Equal) 
 
 By default multiple filters are joined with an AND operator to use OR use ?operator=or 
+
+Filters can also be used with the count endpoint
 
 #### To Dos
 - Include related entities in results

@@ -54,10 +54,20 @@ namespace AutoAPI
                     dbSet = dbSet.OrderBy(routeInfo.SortExpression);
                 }
 
+                if(routeInfo.IsCount)
+                {
+                    return new OkObjectResult(dbSet.Count());
+                }
+
                 return new OkObjectResult(dbSet.ToDynamicList());
             }
             else
             {
+                if (routeInfo.IsCount)
+                {
+                    return new OkObjectResult(((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext)).Count());
+                }
+
                 return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
             }
         }

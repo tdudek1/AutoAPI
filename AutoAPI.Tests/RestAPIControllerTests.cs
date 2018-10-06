@@ -81,6 +81,47 @@ namespace AutoAPI.Tests
             Assert.Equal(1, ((Author)((List<object>)result.Value).First()).Id);
         }
 
+
+        [Fact]
+        public void Get_WithCount_ReturnCount()
+        {
+            //arrange
+            var controller = new AutoAPI.RESTAPIController(SetupHelper.BuildTestContext(), null, null);
+            var routeInfo = new RouteInfo()
+            {
+                Entity = entityList.Where(x => x.Route == "/api/authors").First(),
+                IsCount = true
+            };
+
+            //act
+            var result = (OkObjectResult)controller.Get(routeInfo);
+
+            //assert
+            Assert.Equal(200, result.StatusCode.Value);
+            Assert.Equal(2, (int)result.Value);
+        }
+
+        [Fact]
+        public void Get_WithFilterAndCount_ReturnCount()
+        {
+            //arrange
+            var controller = new AutoAPI.RESTAPIController(SetupHelper.BuildTestContext(), null, null);
+            var routeInfo = new RouteInfo()
+            {
+                Entity = entityList.Where(x => x.Route == "/api/authors").First(),
+                FilterExpression = "Id == @0",
+                FilterValues = new object[] { 1 },
+                IsCount = true
+            };
+
+            //act
+            var result = (OkObjectResult)controller.Get(routeInfo);
+
+            //assert
+            Assert.Equal(200, result.StatusCode.Value);
+            Assert.Equal(1, (int)result.Value);
+        }
+
         [Fact]
         public void Get_WithInvalidId_ReturnNotFound()
         {

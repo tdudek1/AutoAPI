@@ -175,6 +175,35 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
         }
 
+        [Fact, TestPriority(10)]
+        public async void DateController_WhenGetCount_ReturnCount()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/count"));
+
+            //act
+            var result = await Helper.Json<int>(request);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(2, (int)result.Object);
+        }
+
+
+        [Fact, TestPriority(11)]
+        public async void DateController_WhenGetCountAndFilter_ReturnCount()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/count?filter[Id]=1"));
+
+            //act
+            var result = await Helper.Json<int>(request);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(1, (int)result.Object);
+        }
+
         private async Task<string> Login()
         {
             if (string.IsNullOrEmpty(this.token))
