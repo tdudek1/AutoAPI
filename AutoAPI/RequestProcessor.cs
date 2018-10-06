@@ -40,18 +40,27 @@ namespace AutoAPI
 
         public RouteInfo GetRoutInfo(HttpRequest request)
         {
-            PathString id;
+            PathString path;
             var result = new RouteInfo();
 
-            var apiEntity = APIConfiguration.AutoAPIEntityCache.Where(x => request.Path.StartsWithSegments(x.Route, out id)).FirstOrDefault();
+            var apiEntity = APIConfiguration.AutoAPIEntityCache.Where(x => request.Path.StartsWithSegments(x.Route, out path)).FirstOrDefault();
 
             result.Entity = apiEntity;
 
-            if (id.HasValue)
+            if (path.HasValue)
             {
-                result.Id = id.Value.TrimStart('/');
+                var value  = path.Value.TrimStart('/');
+                if(value.ToLower() == "count")
+                {
+                    result.IsCount = true;
+                }
+                else
+                {
+                    result.Id = value;
+                }
             }
-            else if (request.Query?.Keys.Count > 0)
+
+            if (String.IsNullOrWhiteSpace(result.Id) && request.Query?.Keys.Count > 0)
             {
                 var expressionBuilder = new ExpressionBuilder(request.Query, apiEntity);
 

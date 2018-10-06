@@ -137,5 +137,22 @@ namespace AutoAPI.Tests
 
 		}
 
-	}
+        [Fact]
+        public void GetRoutInfo_WhenPathAnd_ThenCount()
+        {
+            //arrange
+            var requestMock = new Mock<HttpRequest>();
+            requestMock.Setup(x => x.Path).Returns(new PathString("/api/data/authors/count"));
+
+            //act
+            var requestProcessor = new RequestProcessor(null, null);
+            var result = requestProcessor.GetRoutInfo(requestMock.Object);
+
+            //assert
+            Assert.Equal(APIConfiguration.AutoAPIEntityCache.Where(x => x.Route.Equals("/api/data/authors")).First(), result.Entity);
+            Assert.True(result.IsCount);
+
+        }
+
+    }
 }

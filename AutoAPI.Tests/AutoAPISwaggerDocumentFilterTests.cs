@@ -53,7 +53,7 @@ namespace AutoAPI.Tests
 
             filter.Apply(swaggerDoc, null);
 
-            Assert.Equal(4, swaggerDoc.Paths.Count);
+            Assert.Equal(6, swaggerDoc.Paths.Count);
 
         }
     }
