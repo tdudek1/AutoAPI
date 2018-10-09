@@ -82,7 +82,7 @@ Policy based authorization can be confgured by setting policy name property for 
 
 ```c#
     
-[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin", Authorize = true)]
+[AutoAPIEntity(Route = "authors", POSTPolicy = "IsAdmin", Authorize = true, ExposePagedResult = true)]
 public DbSet<Author> Authors { get; set; }
     
 ```
