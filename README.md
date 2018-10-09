@@ -67,6 +67,7 @@ public class DataContext : DbContext
 Read all                GET     /api/data/authors 
 Read by id              GET     /api/data/authors/1 
 Count                   GET     /api/data/authors/count
+PagedResult             GET     /api/data/authors/pagedresult
 Filter/Sort/Paging      GET     /api/data/authors?filter[Name][like]=J.R.R.Tolkien&sort[Id]=desc&pageSize=10&page=2
 Create                  POST    /api/data/authors
 Update                  PUT     /api/data/authors/1
@@ -121,6 +122,41 @@ Supported operators are
 By default multiple filters are joined with an AND operator to use OR use ?operator=or 
 
 Filters can also be used with the count endpoint
+
+##### Paged Result
+
+You can access paged result like this
+
+````
+/data/api/authors/pagedresult?page=1&pageSize=2
+````
+
+This will produce result like below that will include current page, page size, number of pages and total items.
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Ernest Hemingway",
+      "books": null,
+      "dateOfBirth": "1899-07-21T00:00:00"
+    },
+    {
+      "id": 2,
+      "name": "Stephen King",
+      "books": null,
+      "dateOfBirth": "1947-09-21T00:00:00"
+    }
+  ],
+  "page": 1,
+  "pageCount": 1,
+  "pageSize": 2,
+  "total": 2
+}
+```
+
+
 
 #### To Dos
 - Include related entities in results

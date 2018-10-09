@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace AutoAPI.Expressions
 {
-    public class PagingExpression : IExpression<PageResult>
+    public class PagingExpression : IExpression<PagingResult>
     {
         private IQueryCollection queryString;
         private string prefix;
@@ -16,9 +13,9 @@ namespace AutoAPI.Expressions
             this.prefix = prefix;
         }
 
-        public PageResult Build()
+        public PagingResult Build()
         {
-            var result = new PageResult();
+            var result = new PagingResult();
             var pageSize = 0U;
             var page = 1U;
 
@@ -37,6 +34,7 @@ namespace AutoAPI.Expressions
 
             result.Take = (int)pageSize;
             result.Skip = (int)((page - 1U) * pageSize);
+            result.Page = (int)page;
 
             return result;
         }

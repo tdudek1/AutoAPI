@@ -15,6 +15,7 @@ namespace AutoAPI
         public object[] FilterValues { get; set; }
         public int Skip { get; set; }
         public int Take { get; set; }
+        public int Page { get; set; }
         public string SortExpression { get; set; }
         public bool IsCount { get; set; }
         public bool HasModifiers
@@ -24,5 +25,6 @@ namespace AutoAPI
                 return FilterExpression != null || SortExpression != null || Take != 0;
             }
         }
+        public bool IsPageResult { get; set; }
     }
 }

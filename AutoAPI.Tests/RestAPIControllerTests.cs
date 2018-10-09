@@ -1,15 +1,10 @@
 ﻿using AutoAPI.Web;
 using AutoAPI.Web.Entity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Moq;
 using Moq.Protected;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using Xunit;
 
 namespace AutoAPI.Tests
@@ -122,6 +117,55 @@ namespace AutoAPI.Tests
             Assert.Equal(1, (int)result.Value);
         }
 
+
+        [Fact]
+        public void Get_WithFilterAndPagedResult_ReturnPaged()
+        {
+            //arrange
+            var controller = new AutoAPI.RESTAPIController(SetupHelper.BuildTestContext(), null, null);
+            var routeInfo = new RouteInfo()
+            {
+                Entity = entityList.Where(x => x.Route == "/api/authors").First(),
+                FilterExpression = "Id == @0",
+                FilterValues = new object[] { 1 },
+                IsPageResult = true,
+                Take = 1,
+                Skip = 0,
+                Page = 1
+            };
+
+            //act
+            var result = (OkObjectResult)controller.Get(routeInfo);
+            var pagedResult = (PagedResult)result.Value;
+            //assert
+
+            Assert.Equal(200, result.StatusCode.Value);
+            Assert.Equal(1, ((Author)pagedResult.Items.First()).Id);
+            Assert.Equal(2, pagedResult.Total);
+        }
+
+
+        [Fact]
+        public void Get_WithPagedResult_ReturnPaged()
+        {
+            //arrange
+            var controller = new AutoAPI.RESTAPIController(SetupHelper.BuildTestContext(), null, null);
+            var routeInfo = new RouteInfo()
+            {
+                Entity = entityList.Where(x => x.Route == "/api/authors").First(),
+                IsPageResult = true,
+            };
+
+            //act
+            var result = (OkObjectResult)controller.Get(routeInfo);
+
+            //assert
+            Assert.Equal(200, result.StatusCode.Value);
+            Assert.Equal(1, ((Author)((PagedResult)result.Value).Items.First()).Id);
+            Assert.Equal(2, ((PagedResult)result.Value).Items.Count);
+        }
+
+
         [Fact]
         public void Get_WithInvalidId_ReturnNotFound()
         {
@@ -176,7 +220,7 @@ namespace AutoAPI.Tests
             //arrange
             var testContext = SetupHelper.BuildTestContext();
             var controllerMock = new Mock<RESTAPIController>(testContext, null, null);
-            controllerMock.Protected().Setup<bool>("IsValid", ItExpr.Is<object>(x=> true)).Returns(true);
+            controllerMock.Protected().Setup<bool>("IsValid", ItExpr.Is<object>(x => true)).Returns(true);
 
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First() };
 
@@ -199,7 +243,7 @@ namespace AutoAPI.Tests
             var controllerMock = new Mock<RESTAPIController>(testContext, null, null);
             controllerMock.Protected().Setup<bool>("IsValid", ItExpr.Is<object>(x => true)).Returns(true);
 
-            var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(),Id = "1" };
+            var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(), Id = "1" };
 
             //act
             var result = (OkObjectResult)controllerMock.Object.Put(routeInfo, new Author() { Id = 1, Name = "J.R.R.Tolkien" });

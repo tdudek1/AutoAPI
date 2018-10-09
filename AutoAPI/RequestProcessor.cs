@@ -1,18 +1,14 @@
 ﻿using AutoAPI.Expressions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 
 namespace AutoAPI
 {
@@ -20,7 +16,7 @@ namespace AutoAPI
     {
         private readonly IServiceProvider serviceProvider;
         private readonly IObjectModelValidator objectModelValidator;
-        public RequestProcessor(IServiceProvider serviceProvider,IObjectModelValidator objectModelValidator)
+        public RequestProcessor(IServiceProvider serviceProvider, IObjectModelValidator objectModelValidator)
         {
             this.serviceProvider = serviceProvider;
             this.objectModelValidator = objectModelValidator;
@@ -49,14 +45,18 @@ namespace AutoAPI
 
             if (path.HasValue)
             {
-                var value  = path.Value.TrimStart('/');
-                if(value.ToLower() == "count")
+                var value = path.Value.TrimStart('/');
+                switch (value)
                 {
-                    result.IsCount = true;
-                }
-                else
-                {
-                    result.Id = value;
+                    case "count":
+                        result.IsCount = true;
+                        break;
+                    case "pagedresult":
+                        result.IsPageResult = apiEntity.ExposePagedResult;
+                        break;
+                    default:
+                        result.Id = value;
+                        break;
                 }
             }
 
@@ -73,6 +73,7 @@ namespace AutoAPI
                 var pageResult = expressionBuilder.BuildPagingResult();
                 result.Take = pageResult.Take;
                 result.Skip = pageResult.Skip;
+                result.Page = pageResult.Page;
 
             }
 
@@ -80,7 +81,7 @@ namespace AutoAPI
 
         }
 
-        public IRestAPIController GetController(ActionContext actionContext,Type dbContextType)
+        public IRestAPIController GetController(ActionContext actionContext, Type dbContextType)
         {
             var dbContext = (DbContext)serviceProvider.GetService(dbContextType);
             return new RESTAPIController(dbContext, actionContext, this.objectModelValidator);

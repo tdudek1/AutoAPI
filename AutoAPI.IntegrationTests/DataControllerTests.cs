@@ -102,7 +102,7 @@ namespace AutoAPI.IntegrationTests
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
             request.Headers.Add("Authorization", await Login());
-            
+
             //act
             var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
 
@@ -167,7 +167,7 @@ namespace AutoAPI.IntegrationTests
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
-        
+
             //act
             var result = await Helper.Response(request);
 
@@ -190,7 +190,45 @@ namespace AutoAPI.IntegrationTests
         }
 
 
+
         [Fact, TestPriority(11)]
+        public async void DateController_WhenGetPagedResult_ReturnPagedResult()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/pagedresult?page=1&pageSize=1"));
+
+            //act
+            var result = await Helper.Json<PagedResult>(request);
+            var pagedResult = (PagedResult)result.Object;
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(2, pagedResult.Total);
+            Assert.Single(pagedResult.Items);
+            Assert.Equal(1, pagedResult.PageSize);
+            Assert.Equal(2, pagedResult.PageCount);
+        }
+
+
+        [Fact, TestPriority(12)]
+        public async void DateController_WhenPagedResultWithNoPagfe_ReturnPagedResult()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/pagedresult"));
+
+            //act
+            var result = await Helper.Json<PagedResult>(request);
+            var pagedResult = (PagedResult)result.Object;
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(2, pagedResult.Total);
+            Assert.Equal(2, pagedResult.Items.Count());
+            Assert.Equal(2, pagedResult.PageSize);
+            Assert.Equal(1, pagedResult.PageCount);
+        }
+
+        [Fact, TestPriority(13)]
         public async void DateController_WhenGetCountAndFilter_ReturnCount()
         {
             //arrange

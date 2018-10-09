@@ -37,5 +37,9 @@ namespace AutoAPI
         ///      Set to true to require user to be logged in
         ///</summary>
         public bool Authorize { get; set; }
+        ///<summary>
+        ///      Expose PageResult GetEndpoint
+        ///</summary>
+        public bool ExposePagedResult { get; set; }
     }
 }
