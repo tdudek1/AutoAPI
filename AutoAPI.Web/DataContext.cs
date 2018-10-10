@@ -11,7 +11,7 @@ namespace AutoAPI.Web
 
         }
 
-        [AutoAPIEntity(Route = "authors")]
+        [AutoAPIEntity(Route = "authors", ExposePagedResult = true)]
         public DbSet<Author> Authors { get; set; }
         [AutoAPIEntity(Route = "Books", Authorize = true, POSTPolicy = "IsAdmin")]
         public DbSet<Book> Books { get; set; }

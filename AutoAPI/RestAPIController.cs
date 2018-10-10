@@ -54,9 +54,14 @@ namespace AutoAPI
                     dbSet = dbSet.OrderBy(routeInfo.SortExpression);
                 }
 
-                if(routeInfo.IsCount)
+                if (routeInfo.IsCount)
                 {
                     return new OkObjectResult(dbSet.Count());
+                }
+
+                if (routeInfo.IsPageResult)
+                {
+                    return new OkObjectResult(GetPagedResult(dbSet, (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), routeInfo.Page, routeInfo.Take));
                 }
 
                 return new OkObjectResult(dbSet.ToDynamicList());
@@ -67,8 +72,14 @@ namespace AutoAPI
                 {
                     return new OkObjectResult(((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext)).Count());
                 }
-
-                return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
+                else if (routeInfo.IsPageResult)
+                {
+                    return new OkObjectResult(GetPagedResult((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), 1, 0));
+                }
+                else
+                {
+                    return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
+                }
             }
         }
 
@@ -96,7 +107,7 @@ namespace AutoAPI
                 return new BadRequestObjectResult(null);
             }
 
-            if(!IsValid(entity))
+            if (!IsValid(entity))
             {
                 return new BadRequestObjectResult(this.actionContext.ModelState);
             }
@@ -126,6 +137,20 @@ namespace AutoAPI
         {
             objectModelValidator.Validate(this.actionContext, null, "", entity);
             return this.actionContext.ModelState.IsValid;
+        }
+
+        private PagedResult GetPagedResult(IQueryable dbSet, IQueryable totalDbSet, int page, int pageSize)
+        {
+            var total = totalDbSet.Count();
+
+            return new PagedResult()
+            {
+                Items = dbSet.ToDynamicList(),
+                Page = page,
+                PageSize = pageSize == 0 ? total : pageSize,
+                PageCount = pageSize == 0 ? 1 : (int)Math.Ceiling((decimal)total / (decimal)pageSize),
+                Total = total
+            };
         }
     }
 }

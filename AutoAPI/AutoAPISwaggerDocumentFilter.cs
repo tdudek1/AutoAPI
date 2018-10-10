@@ -193,6 +193,31 @@ namespace AutoAPI
                         Tags = new List<string>() { tag }
                     }
                 });
+
+                if (entity.ExposePagedResult)
+                {
+                    swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/pagedresult", new PathItem()
+                    {
+                        Get = new Operation
+                        {
+                            OperationId = $"{entity.Route.ToLower()}/pagedresult".ToOperationID(),
+                            Produces = new List<string>() { "application/json" },
+                            Responses = new Dictionary<string, Response>()
+                            {
+                                {"200", new Response()
+                                {
+                                    Description = "Success",
+                                    Schema = new Schema()
+                                    {
+                                        Type = "object",
+                                        Ref =  $"#/definitions/pagedresult"
+                                    }
+                                } }
+                            },
+                            Tags = new List<string>() { tag }
+                        }
+                    });
+                }
             }
 
             foreach (var entity in APIConfiguration.AutoAPIEntityCache)
@@ -211,6 +236,35 @@ namespace AutoAPI
                         swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[prop.PropertyType]());
                     }
                 }
+            }
+
+            if (APIConfiguration.AutoAPIEntityCache.Any(x=>x.ExposePagedResult) && !swaggerDoc.Definitions.ContainsKey("pagedresult") )
+            {
+                swaggerDoc.Definitions.Add("pagedresult", new Schema()
+                {
+                    Type = "object",
+                    Properties = new Dictionary<string, Schema>()
+                });
+
+                foreach (var prop in typeof(PagedResult).GetProperties())
+                {
+                    if (!prop.PropertyType.IsGenericType)
+                    {
+                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[prop.PropertyType]());
+                    }
+                    else
+                    {
+                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, new Schema()
+                        {
+                            Type = "array",
+                            Items = new Schema()
+                            {
+                                Type = "object"
+                            }
+                        });
+                    }
+                }
+
             }
         }
 

@@ -23,7 +23,7 @@ namespace AutoAPI.Expressions
         }
 
 
-        public PageResult BuildPagingResult()
+        public PagingResult BuildPagingResult()
         {
             return new PagingExpression(this.queryString, PAGINGPREFIX).Build();
         }

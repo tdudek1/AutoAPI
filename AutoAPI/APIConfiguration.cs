@@ -44,7 +44,8 @@ namespace AutoAPI
                         EntityType = g.First(),
                         Properties = g.First().GetProperties().Where(x => x.PropertyType.IsTypeSupported()).ToList(),
                         Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault(),
-                        DbContextType = typeof(T)
+                        DbContextType = typeof(T),
+                        ExposePagedResult = a.ExposePagedResult
                     }).ToList();
         }
 
