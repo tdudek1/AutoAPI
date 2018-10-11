@@ -255,7 +255,7 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
             Assert.Equal(1, result.Object.First().Id);
             Assert.Equal("Ernest Hemingway", result.Object.First().Name);
-            Assert.Equal(2, result.Object.First().Books.Count());
+            Assert.True(result.Object.First().Books.Count() > 0);
         }
 
         private async Task<string> Login()
