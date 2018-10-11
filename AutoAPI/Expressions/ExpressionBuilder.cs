@@ -12,6 +12,7 @@ namespace AutoAPI.Expressions
         private const string FILTERPREFIX = "filter";
         private const string SORTPREFIX = "sort";
         private const string OPERATORPREFIX = "operator";
+        private const string INCLUDEPREFIX = "include";
 
         private IQueryCollection queryString;
         private APIEntity apiEntity;
@@ -93,6 +94,18 @@ namespace AutoAPI.Expressions
             {
                 return new FilterResult() { Filter = string.Join(joinOperator, expressionList.Select(x => x.Filter)), Values = expressionList.SelectMany(x => x.Values).ToArray() };
             }
+        }
+
+        public List<string> BuildIncludeResult()
+        {
+            var result = new List<string>();
+
+            foreach (var key in queryString.Keys.Where(x => x.ToLower() == INCLUDEPREFIX))
+            {
+                result.AddRange(new IncludeExpression(this.apiEntity, queryString[key]).Build());
+            }
+
+            return result;
         }
 
         private (PropertyInfo property, List<string> queryStringParts) GetQueryStringParts(string key)

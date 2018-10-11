@@ -39,6 +39,11 @@ namespace AutoAPI
             {
                 IQueryable dbSet = ((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext));
 
+                foreach (var include in routeInfo.IncludeExpression)
+                {
+                    dbSet = (dynamic)EntityFrameworkQueryableExtensions.Include((dynamic)dbSet, include);
+                }
+
                 if (!string.IsNullOrWhiteSpace(routeInfo.FilterExpression))
                 {
                     dbSet = dbSet.Where(routeInfo.FilterExpression, routeInfo.FilterValues);

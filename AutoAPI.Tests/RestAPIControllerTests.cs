@@ -1,6 +1,7 @@
 ﻿using AutoAPI.Web;
 using AutoAPI.Web.Entity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.Protected;
 using System.Collections.Generic;
@@ -141,6 +142,39 @@ namespace AutoAPI.Tests
 
             Assert.Equal(200, result.StatusCode.Value);
             Assert.Equal(1, ((Author)pagedResult.Items.First()).Id);
+            Assert.Equal(2, pagedResult.Total);
+        }
+
+
+
+        [Fact]
+        public void Get_WithInclude_ReturnNavigationProperty()
+        {
+            var db = SetupHelper.BuildTestContext();
+            db.Authors.Include("abc");
+
+            //arrange
+            var controller = new AutoAPI.RESTAPIController(SetupHelper.BuildTestContext(), null, null);
+            var routeInfo = new RouteInfo()
+            {
+                Entity = entityList.Where(x => x.Route == "/api/authors").First(),
+                FilterExpression = "Id == @0",
+                FilterValues = new object[] { 1 },
+                IsPageResult = true,
+                IncludeExpression = new List<string>() { "Books" },
+                Take = 1,
+                Skip = 0,
+                Page = 1
+            };
+
+            //act
+            var result = (OkObjectResult)controller.Get(routeInfo);
+            var pagedResult = (PagedResult)result.Value;
+            //assert
+
+            Assert.Equal(200, result.StatusCode.Value);
+            Assert.Equal(1, ((Author)pagedResult.Items.First()).Id);
+            Assert.Equal(2, ((Author)pagedResult.Items.First()).Books.Count);
             Assert.Equal(2, pagedResult.Total);
         }
 
