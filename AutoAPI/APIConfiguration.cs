@@ -43,6 +43,7 @@ namespace AutoAPI
                         DbSet = p,
                         EntityType = g.First(),
                         Properties = g.First().GetProperties().Where(x => x.PropertyType.IsTypeSupported()).ToList(),
+                        NavigationProperties = g.First().GetProperties().Where(x => !x.PropertyType.IsTypeSupported()).ToList(),
                         Id = g.First().GetProperties().Where(x => x.IsDefined(typeof(KeyAttribute))).FirstOrDefault(),
                         DbContextType = typeof(T),
                         ExposePagedResult = a.ExposePagedResult

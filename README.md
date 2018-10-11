@@ -158,9 +158,13 @@ This will produce result like below that will include current page, page size, n
 
 
 
-#### To Dos
-- Include related entities in results
+##### Include related entities
 
+To include related entities you can use the include parameter
+
+````
+/data/api/authors?include=books
+````
 
 #### License
 

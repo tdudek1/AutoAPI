@@ -242,6 +242,22 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal(1, (int)result.Object);
         }
 
+        [Fact, TestPriority(14)]
+        public async void DateController_WhenGetAllAndInclude_ReturnList()
+        {
+            //arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors?include=Books"));
+
+            //act
+            var result = await Helper.Json<List<Author>>(request);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.Equal(1, result.Object.First().Id);
+            Assert.Equal("Ernest Hemingway", result.Object.First().Name);
+            Assert.True(result.Object.First().Books.Count() > 0);
+        }
+
         private async Task<string> Login()
         {
             if (string.IsNullOrEmpty(this.token))

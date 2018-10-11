@@ -75,6 +75,7 @@ namespace AutoAPI
                 result.Skip = pageResult.Skip;
                 result.Page = pageResult.Page;
 
+                result.IncludeExpression = expressionBuilder.BuildIncludeResult();
             }
 
             return result;
