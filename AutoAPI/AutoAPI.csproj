@@ -14,15 +14,17 @@ Version 2 breaks compatilbity as it uses a middleware instead of controller to h
 
 Version 2.1 includes count and pagedresult endoints
 
+Version 2.2 update dotnet core runtime and other packages
+
 https://github.com/tdudek1/AutoAPI</Description>
     <Copyright>Copyright ©2018 Thomas Dudek</Copyright>
     <PackageLicenseUrl>https://opensource.org/licenses/GPL-3.0</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
     <PackageTags>rest api entityframework</PackageTags>
     <PackageId>Auto.Rest.API</PackageId>
-    <Version>2.1</Version>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <Version>2.2</Version>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
     <DebugType>Full</DebugType>

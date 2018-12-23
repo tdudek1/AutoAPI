@@ -19,7 +19,6 @@ namespace AutoAPI.Tests
 {
 	public class RequestProcessorTest
 	{
-		private readonly List<APIEntity> entityList;
 
 		public RequestProcessorTest()
 		{
