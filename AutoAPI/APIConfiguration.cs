@@ -8,13 +8,23 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
+
 namespace AutoAPI
 {
     public static class APIConfiguration
     {
-        private static readonly List<string> stringOperators = new List<string> { "eq", "neq", "like", "nlike" };
-        private static readonly List<string> valueTypeOperators = new List<string> { "eq", "neq", "lt", "gt", "gteq", "lteq" };
-        private static readonly List<string> guidOperators = new List<string> { "eq", "neq" };
+        public static readonly List<Operator> Operators = new List<Operator>()
+        {
+            new Operator() { Name = "eq", SupportsString = true, SupportsValueType = true , SupportsGuid = true, Expression = "{propertyName} == @{index}"},
+            new Operator() { Name = "neq", SupportsString = true, SupportsValueType = true , SupportsGuid = true, Expression = "{propertyName} != @{index}"},
+            new Operator() { Name = "like", SupportsString = true, SupportsValueType = false , SupportsGuid = false, Expression = "{propertyName}.Contains(@{index})"},
+            new Operator() { Name = "nlike", SupportsString = true, SupportsValueType = false , SupportsGuid = false, Expression = "!{propertyName}.Contains(@{index})"},
+            new Operator() { Name = "lt", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} < @{index}"},
+            new Operator() { Name = "lteq", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} <= @{index}"},
+            new Operator() { Name = "gt", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} > @{index}"},
+            new Operator() { Name = "gteq", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} >= @{index}"},
+            new Operator() { Name = "in", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "@{index}.Contains({propertyName})"}
+        };
 
         public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
@@ -53,17 +63,17 @@ namespace AutoAPI
         public static bool IsOperatorSuported(this Type type, string comparisonOperator)
         {
 
-            if (type == typeof(string) && stringOperators.Contains(comparisonOperator))
+            if (type == typeof(string) && Operators.Any(x=>x.SupportsString && x.Name.Equals(comparisonOperator,StringComparison.InvariantCultureIgnoreCase)))
             {
                 return true;
             }
 
-            if (type.IsValueType && valueTypeOperators.Contains(comparisonOperator))
+            if (type.IsValueType && Operators.Any(x => x.SupportsValueType && x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)))
             {
                 return true;
             }
 
-            if (type == typeof(Guid) && valueTypeOperators.Contains(comparisonOperator))
+            if (type == typeof(Guid) && Operators.Any(x => x.SupportsGuid && x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)))
             {
                 return true;
             }
@@ -91,9 +101,9 @@ namespace AutoAPI
             return builder.UseMiddleware<AutoAPIMiddleware>();
         }
 
-		public static string ToOperationID(this string path)
-		{
-			return string.Join("", path.Split("/",StringSplitOptions.RemoveEmptyEntries).Select(x => x.First().ToString().ToUpper() + x.Substring(1)));
-		}
+        public static string ToOperationID(this string path)
+        {
+            return string.Join("", path.Split("/", StringSplitOptions.RemoveEmptyEntries).Select(x => x.First().ToString().ToUpper() + x.Substring(1)));
+        }
     }
 }

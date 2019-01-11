@@ -53,6 +53,20 @@ namespace AutoAPI.Tests
         }
 
         [Fact]
+        public void Build_WhenStringAndEqualsAndMixedCase_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Name").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "Ernest Hemingway", 0, "eQ")).Build();
+
+            //assert
+            Assert.Equal("Name == @0", result.Filter);
+            Assert.Equal("Ernest Hemingway", (string)result.Values[0]);
+        }
+
+        [Fact]
         public void Build_WhenStringAndNotEquals_ThenExpression()
         {
             //arrange
@@ -179,6 +193,19 @@ namespace AutoAPI.Tests
             //assert
             Assert.Equal("DateOfBirth <= @0", result.Filter);
             Assert.Equal(new DateTime(1947,9,21), (DateTime)result.Values[0]);
+        }
+
+        [Fact]
+        public void Build_WhenIntAndIn_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "Id").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "[1,2]", 0, "in")).Build();
+
+            //assert
+            Assert.Equal("abc", result.Filter);
         }
     }
 }
