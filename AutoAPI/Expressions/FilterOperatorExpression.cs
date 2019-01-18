@@ -30,26 +30,32 @@ namespace AutoAPI.Expressions
                 throw new NotSupportedException($"Operator {comparisonOperator} is not suported for {property.PropertyType.Name}");
             }
 
-            List<object> valueArray = null;
+            object list = null;
 
-            if (comparisonOperator == "in")
+            if ( (new string[] { "in", "nin" }).Contains(comparisonOperator))
             {
+                var listType = typeof(List<>).MakeGenericType(new Type[] { property.PropertyType });
+                list = Activator.CreateInstance(listType);
+
                 var jarray = (JArray)JsonConvert.DeserializeObject(value);
 
-                var temp = new List<object>();
-                foreach (var v in jarray)
-                {
-                    temp.Add(Convert.ChangeType(v, property.PropertyType));
-                }
-                valueArray = temp;
+                AddItems((dynamic)list, jarray);
             }
 
             return new FilterResult()
             {
                 Filter = APIConfiguration.Operators.Where(x => x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)).First().Expression.Replace("{propertyName}", property.Name).Replace("{index}", index.ToString()),
-                Values = new[] { new List<int> { 1 } ?? Convert.ChangeType(value, property.PropertyType) },
+                Values = new[] { list ?? Convert.ChangeType(value, property.PropertyType) },
                 NextIndex = this.index + 1
             };
+        }
+
+        void AddItems<T>(List<T> list, JArray jarray)
+        {
+            foreach (var i in jarray)
+            {
+                list.Add((T)Convert.ChangeType(i, typeof(T)));
+            }
         }
 
     }

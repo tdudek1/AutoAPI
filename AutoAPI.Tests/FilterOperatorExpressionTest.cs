@@ -205,7 +205,23 @@ namespace AutoAPI.Tests
             var result = (new FilterOperatorExpression(propertyInfo, "[1,2]", 0, "in")).Build();
 
             //assert
-            Assert.Equal("abc", result.Filter);
+            Assert.Equal("@0.Contains(Id)",result.Filter);
+            Assert.Equal(1, ((List<int>)result.Values.First()).First());
+
+        }
+
+        [Fact]
+        public void Build_WhenDateAndNin_ThenExpression()
+        {
+            //arrange
+            var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
+
+            //act
+            var result = (new FilterOperatorExpression(propertyInfo, "['9/21/1947']", 0, "nin")).Build();
+
+            //assert
+            Assert.Equal("!@0.Contains(DateOfBirth)", result.Filter);
+            Assert.Equal(new DateTime(1947, 9, 21),((List<DateTime>)result.Values.First()).First());
         }
     }
 }

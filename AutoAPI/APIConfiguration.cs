@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,7 +24,8 @@ namespace AutoAPI
             new Operator() { Name = "lteq", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} <= @{index}"},
             new Operator() { Name = "gt", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} > @{index}"},
             new Operator() { Name = "gteq", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} >= @{index}"},
-            new Operator() { Name = "in", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "@{index}.Contains({propertyName})"}
+            new Operator() { Name = "in", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "@{index}.Contains({propertyName})"},
+            new Operator() { Name = "nin", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "!@{index}.Contains({propertyName})"}
         };
 
         public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
@@ -105,5 +107,6 @@ namespace AutoAPI
         {
             return string.Join("", path.Split("/", StringSplitOptions.RemoveEmptyEntries).Select(x => x.First().ToString().ToUpper() + x.Substring(1)));
         }
+
     }
 }

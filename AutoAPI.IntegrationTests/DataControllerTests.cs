@@ -80,6 +80,8 @@ namespace AutoAPI.IntegrationTests
         [InlineData("filter[id][gt]=0&filter[id][lt]=2", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[id][gteq]=1", 2, 1, "Ernest Hemingway")]
         [InlineData("filter[id][lteq]=2", 2, 1, "Ernest Hemingway")]
+        [InlineData("filter[id][in]=[1]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[id][nin]=[2]", 1, 1, "Ernest Hemingway")]
         public async void DateController_WhenGetFilter_ReturnFiltered(string filter, int count, int id, string name)
         {
             //arrange
