@@ -82,6 +82,9 @@ namespace AutoAPI.IntegrationTests
         [InlineData("filter[id][lteq]=2", 2, 1, "Ernest Hemingway")]
         [InlineData("filter[id][in]=[1]", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[id][nin]=[2]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[dateofbirth][in]=['7/21/1899']", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[dateofbirth][nin]=['9/21/1947']", 1, 1, "Ernest Hemingway")]
+
         public async void DateController_WhenGetFilter_ReturnFiltered(string filter, int count, int id, string name)
         {
             //arrange
