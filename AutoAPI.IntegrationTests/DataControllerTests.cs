@@ -80,6 +80,16 @@ namespace AutoAPI.IntegrationTests
         [InlineData("filter[id][gt]=0&filter[id][lt]=2", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[id][gteq]=1", 2, 1, "Ernest Hemingway")]
         [InlineData("filter[id][lteq]=2", 2, 1, "Ernest Hemingway")]
+        [InlineData("filter[id][in]=[1]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[id][nin]=[2]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[dateofbirth][in]=['7/21/1899']", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[dateofbirth][nin]=['9/21/1947']", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[uniqueid][in]=['00000000-0000-0000-0000-000000000000']", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[uniqueid][nin]=['00000000-0000-0000-0000-000000000000']", 1, 2, "Stephen King")]
+        [InlineData("filter[name][in]=['Ernest Hemingway','blah']", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[name][nin]=['Ernest Hemingway']", 1, 2, "Stephen King")]
+        [InlineData("filter[uniqueid][eq]=00000000-0000-0000-0000-000000000000", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[uniqueid][neq]=00000000-0000-0000-0000-000000000000", 1, 2, "Stephen King")]
         public async void DateController_WhenGetFilter_ReturnFiltered(string filter, int count, int id, string name)
         {
             //arrange

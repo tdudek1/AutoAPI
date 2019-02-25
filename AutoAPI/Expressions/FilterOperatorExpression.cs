@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace AutoAPI.Expressions
@@ -7,9 +10,9 @@ namespace AutoAPI.Expressions
     public class FilterOperatorExpression
     {
         private PropertyInfo property;
-        private string value;
+        private readonly string value;
         private int index;
-        private string comparisonOperator;
+        private readonly string comparisonOperator;
 
 
         public FilterOperatorExpression(PropertyInfo property, string value, int index, string comparisonOperator)
@@ -22,42 +25,40 @@ namespace AutoAPI.Expressions
 
         public FilterResult Build()
         {
-            if(!property.PropertyType.IsOperatorSuported(comparisonOperator))
+            if (!property.PropertyType.IsOperatorSuported(comparisonOperator))
             {
                 throw new NotSupportedException($"Operator {comparisonOperator} is not suported for {property.PropertyType.Name}");
             }
 
+            object list = null;
+
+            if ( (new string[] { "in", "nin" }).Contains(comparisonOperator))
+            {
+                var listType = typeof(List<>).MakeGenericType(new Type[] { property.PropertyType });
+                list = Activator.CreateInstance(listType);
+
+                var jarray = (JArray)JsonConvert.DeserializeObject(value);
+
+                AddItems((dynamic)list, jarray);
+            }
+
+            var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
             return new FilterResult()
             {
-                Filter = GetExpresssion(property.Name, comparisonOperator, index),
-                Values = new[] { Convert.ChangeType(value, property.PropertyType) },
+                Filter = APIConfiguration.Operators.Where(x => x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)).First().Expression.Replace("{propertyName}", property.Name).Replace("{index}", index.ToString()),
+                Values = new[] { list ?? System.ComponentModel.TypeDescriptor.GetConverter(type).ConvertFromString(value) },
                 NextIndex = this.index + 1
             };
         }
 
-        private string GetExpresssion(string propertyName, string comparisonOperator, int index)
+        private void AddItems<T>(List<T> list, JArray jarray)
         {
-            switch (comparisonOperator)
+            foreach (var i in jarray)
             {
-                case "eq":
-                    return $"{propertyName} == @{index}";
-                case "neq":
-                    return $"{propertyName} != @{index}"; ;
-                case "like":
-                    return $"{propertyName}.Contains(@{index})";
-                case "nlike":
-                    return $"!{propertyName}.Contains(@{index})";
-                case "gt":
-                    return $"{propertyName} > @{index}";
-                case "lt":
-                    return $"{propertyName} < @{index}";
-                case "gteq":
-                    return $"{propertyName} >= @{index}";
-                case "lteq":
-                    return $"{propertyName} <= @{index}";
+                list.Add((T)Convert.ChangeType(i, typeof(T)));
             }
-
-            throw new NotSupportedException($"Operator {comparisonOperator} is not supported");
         }
+
     }
 }
