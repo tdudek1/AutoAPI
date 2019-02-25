@@ -113,11 +113,11 @@ You can specify comparison operators in query string like this
 Supported operators are 
 
  - String Properties 
-   - eq (Equal) neq (Not Equal) like (Like) nlike (Not Like)
+   - eq (Equal) neq (Not Equal) like (Like) nlike (Not Like) in (In) nin (Not In)
  - Guid Properties 
-   - eq (Equal) neq (Not Equal)
+   - eq (Equal) neq (Not Equal) in (In) nin (Not In)
  - Value Type Properties
-	- eq (Equal) neq (Not Equal) gt (Greater Than) lt (Less than) gteq (Greater Than or Equal) lteq (Less Than or Equal) 
+	- eq (Equal) neq (Not Equal) gt (Greater Than) lt (Less than) gteq (Greater Than or Equal) lteq (Less Than or Equal) in (In) nin (Not In)
 
 By default multiple filters are joined with an AND operator to use OR use ?operator=or 
 

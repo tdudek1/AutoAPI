@@ -233,7 +233,7 @@ namespace AutoAPI
 
                     foreach (var prop in entity.Properties)
                     {
-                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[prop.PropertyType]());
+                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType]());
                     }
                 }
             }
@@ -250,7 +250,7 @@ namespace AutoAPI
                 {
                     if (!prop.PropertyType.IsGenericType)
                     {
-                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[prop.PropertyType]());
+                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType]());
                     }
                     else
                     {
