@@ -16,7 +16,8 @@ Version 2.1 includes count and pagedresult endoints
 
 Version 2.2 update dotnet core runtime and other packages
 
-Version 2.3 adds support for in operator and fixes a bugs with nullable properties
+Version 2.3 adds support for in/not in operator and fixes a bugs with nullable properties
+
 https://github.com/tdudek1/AutoAPI</Description>
     <Copyright>Copyright ©2018 Thomas Dudek</Copyright>
     <PackageLicenseUrl>https://opensource.org/licenses/GPL-3.0</PackageLicenseUrl>
