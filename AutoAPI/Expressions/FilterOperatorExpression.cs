@@ -42,15 +42,17 @@ namespace AutoAPI.Expressions
                 AddItems((dynamic)list, jarray);
             }
 
+            var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
             return new FilterResult()
             {
                 Filter = APIConfiguration.Operators.Where(x => x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)).First().Expression.Replace("{propertyName}", property.Name).Replace("{index}", index.ToString()),
-                Values = new[] { list ?? Convert.ChangeType(value, property.PropertyType) },
+                Values = new[] { list ?? System.ComponentModel.TypeDescriptor.GetConverter(type).ConvertFromString(value) },
                 NextIndex = this.index + 1
             };
         }
 
-        void AddItems<T>(List<T> list, JArray jarray)
+        private void AddItems<T>(List<T> list, JArray jarray)
         {
             foreach (var i in jarray)
             {

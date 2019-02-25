@@ -24,8 +24,8 @@ namespace AutoAPI
             new Operator() { Name = "lteq", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} <= @{index}"},
             new Operator() { Name = "gt", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} > @{index}"},
             new Operator() { Name = "gteq", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "{propertyName} >= @{index}"},
-            new Operator() { Name = "in", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "@{index}.Contains({propertyName})"},
-            new Operator() { Name = "nin", SupportsString = false, SupportsValueType = true , SupportsGuid = false, Expression = "!@{index}.Contains({propertyName})"}
+            new Operator() { Name = "in", SupportsString = true, SupportsValueType = true , SupportsGuid = true, Expression = "@{index}.Contains({propertyName})"},
+            new Operator() { Name = "nin", SupportsString = true, SupportsValueType = true , SupportsGuid = true, Expression = "!@{index}.Contains({propertyName})"}
         };
 
         public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
@@ -64,13 +64,14 @@ namespace AutoAPI
 
         public static bool IsOperatorSuported(this Type type, string comparisonOperator)
         {
+            type = Nullable.GetUnderlyingType(type) ?? type;
 
             if (type == typeof(string) && Operators.Any(x=>x.SupportsString && x.Name.Equals(comparisonOperator,StringComparison.InvariantCultureIgnoreCase)))
             {
                 return true;
             }
 
-            if (type.IsValueType && Operators.Any(x => x.SupportsValueType && x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)))
+            if (type.IsValueType && Operators.Any(x => x.SupportsValueType && x.Name.Equals(comparisonOperator, StringComparison.InvariantCultureIgnoreCase)) && type != typeof(Guid))
             {
                 return true;
             }

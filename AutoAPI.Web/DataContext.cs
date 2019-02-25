@@ -23,13 +23,16 @@ namespace AutoAPI.Web
                 {
                     Id = 1,
                     Name = "Ernest Hemingway",
-                    DateOfBirth = new DateTime(1899, 7, 21)
+                    DateOfBirth = new DateTime(1899, 7, 21),
+                    UniqueId = Guid.Empty
+                    
                 },
                new Author()
                 {
                     Id = 2,
                     Name = "Stephen King",
-                    DateOfBirth = new DateTime(1947, 9, 21)
+                    DateOfBirth = new DateTime(1947, 9, 21),
+                    UniqueId = null
                 }
             });
 
