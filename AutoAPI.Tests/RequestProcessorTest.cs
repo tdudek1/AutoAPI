@@ -2,7 +2,6 @@
 using AutoAPI.Web.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Moq;
@@ -35,9 +34,9 @@ namespace AutoAPI.Tests
 		public void GetData_WhenData_ThenEntity()
 		{
 			//arrange
-			var input = @"{""id"": 1,""name"": ""Ernest Hemingway""}";
+			var input = @"{""Id"": 1,""Name"": ""Ernest Hemingway""}";
 			var stream = new MemoryStream();
-			var writer = new StreamWriter(stream);
+			var writer = new StreamWriter(stream,Encoding.UTF8);
 			writer.Write(input);
 			writer.Flush();
 			stream.Position = 0;

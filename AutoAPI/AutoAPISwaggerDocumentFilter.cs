@@ -1,4 +1,4 @@
-﻿using Swashbuckle.AspNetCore.Swagger;
+﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
@@ -9,285 +9,367 @@ namespace AutoAPI
     public class AutoAPISwaggerDocumentFilter : IDocumentFilter
     {
 
-        public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            foreach (var entity in APIConfiguration.AutoAPIEntityCache)
+            try
             {
-                var idschema = SchemaTypeMap[entity.Id.PropertyType]();
-                var tag = entity.EntityType.Name;
-                //get,post
-                swaggerDoc.Paths.Add($"{entity.Route.ToLower()}", new PathItem
+                foreach (var entity in APIConfiguration.AutoAPIEntityCache)
                 {
-                    Get = new Operation
+                    var idschema = SchemaTypeMap[entity.Id.PropertyType]();
+                    var tag = entity.EntityType.Name;
+                    
+                    //get,post
+                    swaggerDoc.Paths.Add($"{entity.Route.ToLower()}", new OpenApiPathItem
                     {
-                        OperationId = $"{entity.Route.ToLower()}/get".ToOperationID(),
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                            {
-                                {"200", new Response()
-                                {
-                                    Description = "Success",
-                                    Schema = new Schema()
-                                    {
-                                        Type="array",
-                                        Items = new Schema()
-                                        {
-                                            Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                        }
-                                    }
-                                } }
-                            },
-                        Tags = new List<string>() { tag }
-                    },
-                    Post = new Operation
-                    {
-                        OperationId = $"{entity.Route.ToLower()}/post".ToOperationID(),
-                        Consumes = new List<string>() { "application/json" },
-                        Parameters = new List<IParameter>()
-                            {
-                                new BodyParameter()
-                                {
-                                    Name = entity.EntityType.Name.ToLower(),
-                                    Schema = new Schema()
-                                    {
-                                        Type="object",
-                                        Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                    }
-                                }
-                            },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                            {
-                                {"201", new Response()
-                                        {
-                                            Description = "Created",
-                                            Schema = new Schema()
-                                            {
-                                                Type="object",
-                                                Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                            }
-                                        }
-                                }
-                            },
-                        Tags = new List<string>() { tag }
-                    }
-                });
-
-                //get,put,delete by id
-                swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/{{id}}", new PathItem
-                {
-                    Get = new Operation
-                    {
-                        OperationId = $"{entity.Route.ToLower()}/getById".ToOperationID(),
-                        Parameters = new List<IParameter>()
-                            {
-                                new NonBodyParameter()
-                                {
-                                    Name = "id",
-                                    In = "path",
-                                    Type = idschema.Type,
-                                    Format = idschema.Format,
-                                    Required = true
-                                }
-                            },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                            {
-                                {"200", new Response()
-                                {
-                                    Description = "Success",
-                                    Schema = new Schema()
-                                    {
-                                        Type="object",
-                                        Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                    }
-                                } }
-                            },
-                        Tags = new List<string>() { tag }
-                    },
-
-                    Put = new Operation
-                    {
-                        OperationId = $"{entity.Route.ToLower()}/putById".ToOperationID(),
-                        Consumes = new List<string>() { "application/json" },
-                        Parameters = new List<IParameter>()
-                            {
-                                new NonBodyParameter()
-                                {
-                                    Name = "id",
-                                    In = "path",
-                                    Type = idschema.Type,
-                                    Format = idschema.Format,
-                                    Required = true
-                                },
-                                new BodyParameter()
-                                {
-                                    Name = entity.EntityType.Name.ToLower(),
-                                    Schema = new Schema()
-                                    {
-                                        Type="object",
-                                        Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                    }
-                                }
-                            },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                            {
-                                {"200", new Response()
-                                        {
-                                            Description = "Success",
-                                            Schema = new Schema()
-                                            {
-                                                Type="object",
-                                                Ref = $"#/definitions/{entity.EntityType.Name.ToLower()}"
-                                            }
-                                        }
-                                }
-                            },
-                        Tags = new List<string>() { tag }
-                    },
-
-                    Delete = new Operation
-                    {
-                        OperationId = $"{entity.Route.ToLower()}/deleteById".ToOperationID(),
-                        Consumes = new List<string>() { "application/json" },
-                        Parameters = new List<IParameter>()
-                            {
-                                new NonBodyParameter()
-                                {
-                                    Name = "id",
-                                    In = "path",
-                                    Type = idschema.Type,
-                                    Format = idschema.Format,
-                                    Required = true
-                                }
-                            },
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                            {
-                                {"200", new Response()
-                                        {
-                                            Description = "Success"
-                                        }
-                                }
-                            },
-                        Tags = new List<string>() { tag }
-                    }
-
-                });
-
-                swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/count", new PathItem()
-                {
-                    Get = new Operation
-                    {
-                        OperationId = $"{entity.Route.ToLower()}/count".ToOperationID(),
-                        Produces = new List<string>() { "application/json" },
-                        Responses = new Dictionary<string, Response>()
-                            {
-                                {"200", new Response()
-                                {
-                                    Description = "Success",
-                                    Schema =SchemaTypeMap[typeof(int)]()
-                                } }
-                            },
-                        Tags = new List<string>() { tag }
-                    }
-                });
-
-                if (entity.ExposePagedResult)
-                {
-                    swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/pagedresult", new PathItem()
-                    {
-                        Get = new Operation
+                        Operations =
                         {
-                            OperationId = $"{entity.Route.ToLower()}/pagedresult".ToOperationID(),
-                            Produces = new List<string>() { "application/json" },
-                            Responses = new Dictionary<string, Response>()
+                            [OperationType.Get] = new OpenApiOperation
                             {
-                                {"200", new Response()
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/get"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Get all/filter items for {entity.EntityType.Name}",
+                                Responses =
                                 {
-                                    Description = "Success",
-                                    Schema = new Schema()
+                                    ["200"] = new OpenApiResponse()
                                     {
-                                        Type = "object",
-                                        Ref =  $"#/definitions/pagedresult"
+                                        Description = "Success",
+                                        Content =
+                                        {
+                                            ["application/json"] = new OpenApiMediaType()
+                                            {
+                                                Schema = new OpenApiSchema()
+                                                {
+                                                    Type = $"array",
+                                                    Items  = new OpenApiSchema()
+                                                    {
+                                                        Reference = new OpenApiReference()
+                                                        {
+                                                            Type = ReferenceType.Schema,
+                                                            Id = $"{entity.EntityType.Name.ToLower()}"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
-                                } }
+                                }
                             },
-                            Tags = new List<string>() { tag }
+                            [OperationType.Post] = new OpenApiOperation
+                            {
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/post"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Create {entity.EntityType.Name}",
+                                Responses =
+                                {
+                                    ["201"] = new OpenApiResponse()
+                                    {
+                                        Description = "Success",
+                                        Content =
+                                        {
+                                            ["application/json"] = new OpenApiMediaType()
+                                            {
+                                                Schema = new OpenApiSchema()
+                                                {
+                                                    Reference = new OpenApiReference()
+                                                    {
+                                                        Type = ReferenceType.Schema,
+                                                        Id = $"{entity.EntityType.Name.ToLower()}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                RequestBody = new OpenApiRequestBody()
+                                {
+                                    Content =
+                                    {
+                                        ["application/json"] = new OpenApiMediaType()
+                                        {
+                                            Schema = new OpenApiSchema()
+                                            {
+                                                Reference = new OpenApiReference()
+                                                {
+                                                    Type = ReferenceType.Schema,
+                                                    Id = $"{entity.EntityType.Name.ToLower()}"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     });
-                }
-            }
 
-            foreach (var entity in APIConfiguration.AutoAPIEntityCache)
-            {
-                if (!swaggerDoc.Definitions.ContainsKey(entity.EntityType.Name.ToLower()))
-                {
-                    swaggerDoc.Definitions.Add(entity.EntityType.Name.ToLower(), new Schema()
+                    //get,put,delete by id
+                    swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/{{id}}", new OpenApiPathItem
                     {
-                        Type = "object",
-                        Properties = new Dictionary<string, Schema>()
-
+                        Operations =
+                        {
+                            [OperationType.Get] = new OpenApiOperation
+                            {
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/getById"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Get {entity.EntityType.Name} by id",
+                                Responses =
+                                {
+                                    ["200"] = new OpenApiResponse()
+                                    {
+                                        Description = "Success",
+                                        Content =
+                                        {
+                                            ["application/json"] = new OpenApiMediaType()
+                                            {
+                                                Schema = new OpenApiSchema()
+                                                {
+                                                    Reference = new OpenApiReference()
+                                                    {
+                                                        Type = ReferenceType.Schema,
+                                                        Id = $"{entity.EntityType.Name.ToLower()}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                Parameters = new List<OpenApiParameter>()
+                                {
+                                    new OpenApiParameter()
+                                    {
+                                        Name = "id",
+                                        Schema =  SchemaTypeMap[entity.Id.PropertyType](),
+                                        Required = true,
+                                        In = ParameterLocation.Path
+                                    }
+                                }
+                            },
+                            [OperationType.Delete] = new OpenApiOperation
+                            {
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/deleteById"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Delete {entity.EntityType.Name} by id",
+                                Responses =
+                                {
+                                    ["200"] = new OpenApiResponse()
+                                    {
+                                        Description = "Success"
+                                    }
+                                },
+                                Parameters = new List<OpenApiParameter>()
+                                {
+                                    new OpenApiParameter()
+                                    {
+                                        Name = "id",
+                                        Schema =  SchemaTypeMap[entity.Id.PropertyType](),
+                                        Required = true,
+                                        In = ParameterLocation.Path
+                                    }
+                                }
+                            },
+                            [OperationType.Put] = new OpenApiOperation
+                            {
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/updateById"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Update {entity.EntityType.Name} by id",
+                                Responses =
+                                {
+                                    ["200"] = new OpenApiResponse()
+                                    {
+                                        Description = "Success",
+                                        Content =
+                                        {
+                                            ["application/json"] = new OpenApiMediaType()
+                                            {
+                                                Schema = new OpenApiSchema()
+                                                {
+                                                    Reference = new OpenApiReference()
+                                                    {
+                                                        Type = ReferenceType.Schema,
+                                                        Id = $"{entity.EntityType.Name.ToLower()}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                Parameters = new List<OpenApiParameter>()
+                                {
+                                    new OpenApiParameter()
+                                    {
+                                        Name = "id",
+                                        Schema =  SchemaTypeMap[entity.Id.PropertyType](),
+                                        Required = true,
+                                        In = ParameterLocation.Path
+                                    }
+                                },
+                                RequestBody = new OpenApiRequestBody()
+                                {
+                                    Content =
+                                    {
+                                        ["application/json"] = new OpenApiMediaType()
+                                        {
+                                            Schema = new OpenApiSchema()
+                                            {
+                                                Reference = new OpenApiReference()
+                                                {
+                                                    Type = ReferenceType.Schema,
+                                                    Id = $"{entity.EntityType.Name.ToLower()}"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     });
 
-                    foreach (var prop in entity.Properties)
+                    //count
+                    swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/count", new OpenApiPathItem
                     {
-                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType]());
-                    }
-                }
-            }
-
-            if (APIConfiguration.AutoAPIEntityCache.Any(x=>x.ExposePagedResult) && !swaggerDoc.Definitions.ContainsKey("pagedresult") )
-            {
-                swaggerDoc.Definitions.Add("pagedresult", new Schema()
-                {
-                    Type = "object",
-                    Properties = new Dictionary<string, Schema>()
-                });
-
-                foreach (var prop in typeof(PagedResult).GetProperties())
-                {
-                    if (!prop.PropertyType.IsGenericType)
-                    {
-                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType]());
-                    }
-                    else
-                    {
-                        swaggerDoc.Definitions.Last().Value.Properties.Add(prop.Name, new Schema()
+                        Operations =
                         {
-                            Type = "array",
-                            Items = new Schema()
+                            [OperationType.Get] = new OpenApiOperation
                             {
-                                Type = "object"
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/count"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Get count of items for {entity.EntityType.Name}",
+                                Responses =
+                                {
+                                    ["200"] = new OpenApiResponse()
+                                    {
+                                        Description = "Success",
+                                        Content =
+                                        {
+                                            ["application/json"] = new OpenApiMediaType()
+                                            {
+                                                Schema = SchemaTypeMap[typeof(int)]()
+                                            }
+                                        }
+                                    }
+                                }
                             }
+                        }
+                    });
+
+                    //paged result
+                    if (entity.ExposePagedResult)
+                    {
+                        swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/pagedresult", new OpenApiPathItem
+                        {
+                            Operations =
+                        {
+                            [OperationType.Get] = new OpenApiOperation
+                            {
+                                OperationId = GetOperationID($"{entity.Route.ToLower()}/pagedresult"),
+                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
+                                Description = $"Get paged result of items for {entity.EntityType.Name}",
+                                Responses =
+                                {
+                                    ["200"] = new OpenApiResponse()
+                                    {
+                                        Description = "Success",
+                                        Content =
+                                        {
+                                            ["application/json"] = new OpenApiMediaType()
+                                            {
+                                                Schema = new OpenApiSchema()
+                                                {
+                                                    Reference = new OpenApiReference()
+                                                    {
+                                                        Type = ReferenceType.Schema,
+                                                        Id = "pagedresult"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         });
                     }
+
                 }
 
+
+                foreach (var entity in APIConfiguration.AutoAPIEntityCache)
+                {
+                    if (!swaggerDoc.Components.Schemas.ContainsKey(entity.EntityType.Name.ToLower()))
+                    {
+                        swaggerDoc.Components.Schemas.Add(entity.EntityType.Name.ToLower(), new OpenApiSchema()
+                        {
+                            Type = "object",
+                            Properties = new Dictionary<string, OpenApiSchema>()
+
+                        });
+
+                        foreach (var prop in entity.Properties)
+                        {
+                            swaggerDoc.Components.Schemas.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType]());
+                        }
+                    }
+                }
+
+                if (APIConfiguration.AutoAPIEntityCache.Any(x => x.ExposePagedResult) && !swaggerDoc.Components.Schemas.ContainsKey("pagedresult"))
+                {
+                    swaggerDoc.Components.Schemas.Add("pagedresult", new OpenApiSchema()
+                    {
+                        Type = "object",
+                        Properties = new Dictionary<string, OpenApiSchema>()
+                    });
+
+                    foreach (var prop in typeof(PagedResult).GetProperties())
+                    {
+                        if (!prop.PropertyType.IsGenericType)
+                        {
+                            swaggerDoc.Components.Schemas.Last().Value.Properties.Add(prop.Name, SchemaTypeMap[Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType]());
+                        }
+                        else
+                        {
+                            swaggerDoc.Components.Schemas.Last().Value.Properties.Add(prop.Name, new OpenApiSchema()
+                            {
+                                Type = "array",
+                                Items = new OpenApiSchema()
+                                {
+                                    Type = "object"
+                                }
+                            });
+                        }
+                    }
+
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        private static readonly Dictionary<Type, Func<Schema>> SchemaTypeMap = new Dictionary<Type, Func<Schema>>
+        public static string GetOperationID(string path)
         {
-            { typeof(string), () => new Schema { Type = "string", Format = "string" } },
-            { typeof(DateTime), () => new Schema { Type = "string", Format = "date-time" } },
-            { typeof(DateTimeOffset), () => new Schema { Type = "string", Format = "date-time" } },
-            { typeof(Guid), () => new Schema { Type = "string", Format = "uuid" } },
-            { typeof(short), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(ushort), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(int), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(uint), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(long), () => new Schema { Type = "integer", Format = "int64" } },
-            { typeof(ulong), () => new Schema { Type = "integer", Format = "int64" } },
-            { typeof(float), () => new Schema { Type = "number", Format = "float" } },
-            { typeof(double), () => new Schema { Type = "number", Format = "double" } },
-            { typeof(decimal), () => new Schema { Type = "number", Format = "double" } },
-            { typeof(byte), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(sbyte), () => new Schema { Type = "integer", Format = "int32" } },
-            { typeof(byte[]), () => new Schema { Type = "string", Format = "byte" } },
-            { typeof(sbyte[]), () => new Schema { Type = "string", Format = "byte" } },
-            { typeof(bool), () => new Schema { Type = "boolean" } }
+            return string.Join("", path.Split("/", StringSplitOptions.RemoveEmptyEntries).Select(x => x.First().ToString().ToUpper() + x.Substring(1)));
+        }
+
+        private static readonly Dictionary<Type, Func<OpenApiSchema>> SchemaTypeMap = new Dictionary<Type, Func<OpenApiSchema>>
+        {
+            [typeof(string)] = () => new OpenApiSchema { Type = "string", Format = "string" },
+            [typeof(DateTime)] = () => new OpenApiSchema { Type = "string", Format = "date-time" },
+            [typeof(DateTimeOffset)] = () => new OpenApiSchema { Type = "string", Format = "date-time" },
+            [typeof(Guid)] = () => new OpenApiSchema { Type = "string", Format = "uuid" },
+            [typeof(short)] = () => new OpenApiSchema { Type = "integer", Format = "int32" },
+            [typeof(ushort)] = () => new OpenApiSchema { Type = "integer", Format = "int32" },
+            [typeof(int)] = () => new OpenApiSchema { Type = "integer", Format = "int32" },
+            [typeof(uint)] = () => new OpenApiSchema { Type = "integer", Format = "int32" },
+            [typeof(long)] = () => new OpenApiSchema { Type = "integer", Format = "int64" },
+            [typeof(ulong)] = () => new OpenApiSchema { Type = "integer", Format = "int64" },
+            [typeof(float)] = () => new OpenApiSchema { Type = "number", Format = "float" },
+            [typeof(double)] = () => new OpenApiSchema { Type = "number", Format = "double" },
+            [typeof(decimal)] = () => new OpenApiSchema { Type = "number", Format = "double" },
+            [typeof(byte)] = () => new OpenApiSchema { Type = "integer", Format = "int32" },
+            [typeof(sbyte)] = () => new OpenApiSchema { Type = "integer", Format = "int32" },
+            [typeof(byte[])] = () => new OpenApiSchema { Type = "string", Format = "byte" },
+            [typeof(sbyte[])] = () => new OpenApiSchema { Type = "string", Format = "byte" },
+            [typeof(bool)] = () => new OpenApiSchema { Type = "boolean" }
         };
     }
 }

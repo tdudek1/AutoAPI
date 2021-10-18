@@ -1,9 +1,13 @@
 using AutoAPI.Web.Entity;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -20,7 +24,6 @@ namespace AutoAPI.IntegrationTests
             this.output = output;
         }
         private readonly Uri baseUrl = new Uri("http://localhost:5000/api/data/");
-        private string token;
 
         [Fact, TestPriority(1)]
         public async void DateController_WhenGetAll_ReturnList()
@@ -111,7 +114,7 @@ namespace AutoAPI.IntegrationTests
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
-            request.Headers.Add("Authorization", await Login());
+            request.Headers.Add("Authorization", Login());
 
             //act
             var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
@@ -128,7 +131,7 @@ namespace AutoAPI.IntegrationTests
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
-            request.Headers.Add("Authorization", await Login());
+            request.Headers.Add("Authorization", Login());
 
             //act
             var result = await Helper.Response(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "" });
@@ -144,7 +147,7 @@ namespace AutoAPI.IntegrationTests
 
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/5678"));
-            request.Headers.Add("Authorization", await Login());
+            request.Headers.Add("Authorization", Login());
             //act
 
             var result = await Helper.Json<Book>(request, new Book() { ISBN = "5678", AuthorId = 1, Title = "The Sun Also Rises" });
@@ -162,7 +165,7 @@ namespace AutoAPI.IntegrationTests
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/99999"));
-            request.Headers.Add("Authorization", await Login());
+            request.Headers.Add("Authorization", Login());
 
             //act
             var result = await Helper.Response(request);
@@ -268,21 +271,25 @@ namespace AutoAPI.IntegrationTests
             Assert.True(result.Object.First().Books.Count() > 0);
         }
 
-        private async Task<string> Login()
+        private string Login()
         {
-            if (string.IsNullOrEmpty(this.token))
-            {
-                var result = await Helper.Json<Token>(new HttpRequestMessage()
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri("http://localhost:5000/login"),
-                    Content = new FormUrlEncodedContent(new Dictionary<string, string>() { { "UserName", "test@test.com" }, { "Password", "Password1234!" } })
-                });
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim> {
+                new Claim(ClaimTypes.Role, "Admin"),
+                new Claim(ClaimTypes.NameIdentifier, Guid.Empty.ToString()),
+                new Claim(ClaimTypes.Name, "admin")
+            };
 
-                this.token = result.Object.token;
-            }
+            var token = new JwtSecurityToken(
+                issuer: "test.com",
+                audience: "test.com",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: creds);
 
-            return "Bearer " + this.token;
+            var t =  "Bearer " + new JwtSecurityTokenHandler().WriteToken(token);
+            return t;
         }
 
         private class Token

@@ -1,131 +1,105 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Swashbuckle.AspNetCore.Swagger;
+using System.Threading.Tasks;
 
 namespace AutoAPI.Web
 {
-	public class Startup
-	{
-		public static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((x, y) => true, true) });
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+        public IConfiguration Configuration { get; }
 
-		public IConfiguration Configuration { get; }
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(options =>
+            {
+                options.UseInMemoryDatabase(databaseName: "Data");
+            });
 
-		// This method gets called by the runtime. Use this method to add services to the container.
-		public void ConfigureServices(IServiceCollection services)
-		{
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AutoAPI.Web", Version = "v1" });
+            });
 
-			services.AddDbContext<IdentityContext>(options =>
-			{
-				options.UseInMemoryDatabase(databaseName: "Identity");
-			});
+            services
+                .AddAuthentication(o =>
+                {
+                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "test.com",
+                        ValidAudience = "test.com",
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"))
+                    };
+                });
 
-			services.AddDbContext<DataContext>(options =>
-			{
-				options.UseInMemoryDatabase(databaseName: "Data");
-			});
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsAdmin", policy =>
+                {
+                    policy.RequireRole("Admin");
+                });
+            });
 
-			services.AddAutoAPI<DataContext>("/api/data");
+            services.AddAutoAPI<DataContext>("/api/data");
 
-			services
-				.AddIdentity<IdentityUser, IdentityRole>()
-				.AddEntityFrameworkStores<IdentityContext>()
-				.AddDefaultTokenProviders();
+            services.AddSwaggerGen(a=>
+            {
+                a.DocumentFilter<AutoAPISwaggerDocumentFilter>();
+            });
+        }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataContext context)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AutoAPI.Web v1"));
+            }
 
-			services
-				.AddAuthentication(o =>
-				{
-					o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-				})
-				.AddJwtBearer(options =>
-				{
-					options.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuer = true,
-						ValidateAudience = true,
-						ValidateLifetime = true,
-						ValidateIssuerSigningKey = true,
-						ValidIssuer = "test.com",
-						ValidAudience = "test.com",
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"))
-					};
-				});
+            app.UseRouting();
 
-			services.AddAuthorization(options =>
-			{
-				options.AddPolicy("IsAdmin", policy =>
-				{
-					policy.RequireRole("Admin");
-				});
-			});
-
-			services.Configure<IdentityOptions>(options =>
-			{
-				// User settings
-				options.User.RequireUniqueEmail = true;
-			});
-
-			services.AddSwaggerGen(c =>
-			{
-				c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-				c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
-			});
-
-
-		}
-
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, DataContext context, UserManager<IdentityUser> userManager, IdentityContext identityContext)
-		{
-            app.UseDeveloperExceptionPage();
-            
             app.UseAuthentication();
-			app.UseMvc();
+            app.UseAuthorization();
+
             app.UseAutoAPI();
-            app.UseSwagger();
-			app.UseSwaggerUI(c =>
-			{
-				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-			});
-            
-			context.Database.EnsureCreated();
-			identityContext.Database.EnsureCreated();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
-			userManager.CreateAsync(new IdentityUser()
-			{
-				UserName = "test@test.com",
-				Email = "test@test.com"
+            context.Database.EnsureCreated();
 
-			}, "Password1234!");
-
-			var user = userManager.FindByNameAsync("test@test.com").Result;
-
-			userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
-			userManager.AddClaimAsync(user, new Claim(ClaimTypes.NameIdentifier, user.Id));
-			userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, user.UserName));
-		}
-	}
+        }
+    }
 }
