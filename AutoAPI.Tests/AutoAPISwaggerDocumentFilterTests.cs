@@ -1,60 +1,68 @@
-﻿//using AutoAPI.Web;
-//using Swashbuckle.AspNetCore.Swagger;
-//using System.Collections.Generic;
-//using System.Linq;
-//using Xunit;
+﻿using AutoAPI.Web;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit;
 
-//namespace AutoAPI.Tests
-//{
-//    public class AutoAPISwaggerDocumentFilterTests
-//    {
+namespace AutoAPI.Tests
+{
+    public class AutoAPISwaggerDocumentFilterTests
+    {
 
-//        public AutoAPISwaggerDocumentFilterTests()
-//        {
-//            lock (APIConfiguration.AutoAPIEntityCache)
-//            {
-//                if (APIConfiguration.AutoAPIEntityCache.Count == 0)
-//                {
-//                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
-//                }
-//            }
-//        }
+        public AutoAPISwaggerDocumentFilterTests()
+        {
+            lock (APIConfiguration.AutoAPIEntityCache)
+            {
+                if (APIConfiguration.AutoAPIEntityCache.Count == 0)
+                {
+                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
+                }
+            }
+        }
 
-//        [Fact]
-//        public void Apply_WhenEntity_AddDefinitions()
-//        {
-//            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>(), Paths = new Dictionary<string, PathItem>() };
-//            var filter = new AutoAPISwaggerDocumentFilter();
+        [Fact]
+        public void Apply_WhenEntity_AddDefinitions()
+        {
+            var swaggerDoc = new OpenApiDocument();
+            swaggerDoc.Paths = new OpenApiPaths();
+            swaggerDoc.Components = new OpenApiComponents() { Schemas = new Dictionary<string, OpenApiSchema>() };
+            var filter = new AutoAPISwaggerDocumentFilter();
 
-//            filter.Apply(swaggerDoc, null);
 
-//            Assert.Equal(3, swaggerDoc.Definitions.Count);
-//            Assert.Equal("author", swaggerDoc.Definitions.First().Key);
-//        }
+            filter.Apply(swaggerDoc, null);
 
-//        [Fact]
-//        public void Apply_WhenEntityExists_DontAddDefinitions()
-//        {
-//            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>(), Paths = new Dictionary<string, PathItem>() };
-//            var filter = new AutoAPISwaggerDocumentFilter();
+            Assert.Equal(3, swaggerDoc.Components.Schemas.Count);
+            Assert.Equal("author", swaggerDoc.Components.Schemas.First().Key);
+        }
 
-//            filter.Apply(swaggerDoc, null);
+        [Fact]
+        public void Apply_WhenEntityExists_DontAddDefinitions()
+        {
+            var swaggerDoc = new OpenApiDocument();
+            swaggerDoc.Paths = new OpenApiPaths();
+            swaggerDoc.Components = new OpenApiComponents() { Schemas = new Dictionary<string, OpenApiSchema>() };
+            var filter = new AutoAPISwaggerDocumentFilter();
 
-//            Assert.Equal(3, swaggerDoc.Definitions.Count);
-//            Assert.Equal("book", swaggerDoc.Definitions.Keys.ToList()[1]);
-//        }
+            filter.Apply(swaggerDoc, null);
 
-//        [Fact]
-//        public void Apply_WhenEntity_AddPaths()
-//        {
-//            Assert.Equal(2, APIConfiguration.AutoAPIEntityCache.Count);
-//            var swaggerDoc = new SwaggerDocument() { Definitions = new Dictionary<string, Schema>(), Paths = new Dictionary<string, PathItem>() };
-//            var filter = new AutoAPISwaggerDocumentFilter();
+            Assert.Equal(3, swaggerDoc.Components.Schemas.Count);
+            Assert.Equal("book", swaggerDoc.Components.Schemas.Keys.ToList()[1]);
+        }
 
-//            filter.Apply(swaggerDoc, null);
+        [Fact]
+        public void Apply_WhenEntity_AddPaths()
+        {
+            var swaggerDoc = new OpenApiDocument();
+            swaggerDoc.Paths = new OpenApiPaths();
+            swaggerDoc.Components = new OpenApiComponents() { Schemas = new Dictionary<string, OpenApiSchema>() };
+            var filter = new AutoAPISwaggerDocumentFilter();
 
-//            Assert.Equal(7, swaggerDoc.Paths.Count);
+            filter.Apply(swaggerDoc, null);
 
-//        }
-//    }
-//}
+            Assert.Equal(2, APIConfiguration.AutoAPIEntityCache.Count);
+            Assert.Equal(7, swaggerDoc.Paths.Count);
+
+        }
+    }
+}

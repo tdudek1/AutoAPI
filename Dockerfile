@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.2-aspnetcore-runtime
+FROM mcr.microsoft.com/dotnet/runtime:5.0
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:5000
 COPY AutoAPI.Web/out/ .
