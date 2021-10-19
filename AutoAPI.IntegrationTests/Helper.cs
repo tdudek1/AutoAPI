@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AutoAPI.IntegrationTests
@@ -38,7 +38,7 @@ namespace AutoAPI.IntegrationTests
         public static async Task<HttpResponseMessage> Response(HttpRequestMessage message, object content)
         {
             message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            message.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            message.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
 
             var client = new HttpClient();
 
@@ -52,7 +52,7 @@ namespace AutoAPI.IntegrationTests
 
         public static Task<(T Object, HttpStatusCode StatusCode)> Json<T>(HttpRequestMessage message, object content)
         {
-            message.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            message.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
             return Json<T>(message);
         }
     }
