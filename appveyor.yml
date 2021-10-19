@@ -9,6 +9,7 @@ environment:
   key:
     secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
 before_build:
+- ps: dotnet --version
 - ps: nuget restore
 build_script:
 - ps: dotnet build -c Release
