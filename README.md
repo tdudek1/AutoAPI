@@ -4,6 +4,8 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nuls4kut9jv1wjsn/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
+**Upgrade to .NET 5 switches to use System.Text.Json from Json.NET - Newtonsoft for serialization 
+
 **Version 2 breaks compatilbity as it uses a middleware instead of a controller to handle requests**
 
 ### Nuget
