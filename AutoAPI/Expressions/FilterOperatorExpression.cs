@@ -35,9 +35,17 @@ namespace AutoAPI.Expressions
             if ( (new string[] { "in", "nin" }).Contains(comparisonOperator))
             {
                 var listType = typeof(List<>).MakeGenericType(new Type[] { property.PropertyType });
-                
 
-                list = JsonSerializer.Deserialize(value, listType);
+                try
+                {
+                    list = JsonSerializer.Deserialize(value, listType);
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+                
 
                 
             }

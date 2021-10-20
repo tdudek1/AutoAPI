@@ -9,6 +9,7 @@ using System.Text.Json;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AutoAPI
 {
@@ -22,9 +23,9 @@ namespace AutoAPI
             this.objectModelValidator = objectModelValidator;
         }
 
-        public object GetData(HttpRequest request, Type type)
+        public async Task<object> GetData(HttpRequest request, Type type)
         {
-            return JsonSerializer.DeserializeAsync(request.Body, type).Result;
+            return await JsonSerializer.DeserializeAsync(request.Body, type, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
         }
 
 

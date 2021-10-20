@@ -16,7 +16,7 @@ namespace AutoAPI
     {
         RouteInfo GetRoutInfo(HttpRequest request);
 
-        object GetData(HttpRequest request, Type type);
+        Task<object> GetData(HttpRequest request, Type type);
 
         IRestAPIController GetController(ActionContext actionContext, Type dbContextType);
 

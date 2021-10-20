@@ -46,7 +46,7 @@ namespace AutoAPI.Tests
 			httpRequestMock.Setup(x => x.Body).Returns(stream);
 
 			//act
-			var result = (new RequestProcessor(null, null)).GetData(httpRequestMock.Object, typeof(Author));
+			var result = (new RequestProcessor(null, null)).GetData(httpRequestMock.Object, typeof(Author)).Result;
 
 			//assert
 			Assert.Equal(1, ((Author)result).Id);
