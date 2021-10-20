@@ -32,22 +32,11 @@ namespace AutoAPI.Expressions
 
             object list = null;
 
-            if ( (new string[] { "in", "nin" }).Contains(comparisonOperator))
+            if ((new string[] { "in", "nin" }).Contains(comparisonOperator))
             {
                 var listType = typeof(List<>).MakeGenericType(new Type[] { property.PropertyType });
 
-                try
-                {
-                    list = JsonSerializer.Deserialize(value, listType);
-                }
-                catch (Exception ex)
-                {
-
-                    throw;
-                }
-                
-
-                
+                list = JsonSerializer.Deserialize(value, listType);
             }
 
             var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
