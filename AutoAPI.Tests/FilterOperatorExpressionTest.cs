@@ -217,7 +217,7 @@ namespace AutoAPI.Tests
             var propertyInfo = entityList.Where(x => x.Route == "/api/data/authors").First().Properties.Where(x => x.Name == "DateOfBirth").First();
 
             //act
-            var result = (new FilterOperatorExpression(propertyInfo, "['9/21/1947']", 0, "nin")).Build();
+            var result = (new FilterOperatorExpression(propertyInfo, "[\"1947-09-21\"]", 0, "nin")).Build();
 
             //assert
             Assert.Equal("!@0.Contains(DateOfBirth)", result.Filter);

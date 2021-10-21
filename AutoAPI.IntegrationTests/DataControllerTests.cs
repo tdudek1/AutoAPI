@@ -1,9 +1,16 @@
 using AutoAPI.Web.Entity;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,59 +21,54 @@ namespace AutoAPI.IntegrationTests
     public class DataControllerTests
     {
         private ITestOutputHelper output;
+        private HttpClient client;
+        private HttpClient authClient;
+        private readonly Uri baseUrl = new Uri("http://localhost:5000/api/data/");
 
         public DataControllerTests(ITestOutputHelper output)
         {
             this.output = output;
+            this.client = new HttpClient() { BaseAddress = baseUrl };
+            this.authClient = new HttpClient() { BaseAddress = baseUrl };
+            this.authClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Login());
         }
-        private readonly Uri baseUrl = new Uri("http://localhost:5000/api/data/");
-        private string token;
+
 
         [Fact, TestPriority(1)]
         public async void DateController_WhenGetAll_ReturnList()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors"));
 
             //act
-            var result = await Helper.Json<List<Author>>(request);
+            var result = await client.GetFromJsonAsync<IEnumerable<Author>>("authors");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(2, result.Object.Count());
-            Assert.Equal(1, result.Object.First().Id);
-            Assert.Equal("Ernest Hemingway", result.Object.First().Name);
+
+            Assert.Equal(2, result.Count());
+            Assert.Equal(1, result.First().Id);
+            Assert.Equal("Ernest Hemingway", result.First().Name);
         }
 
         [Fact, TestPriority(2)]
         public async void DateController_WhenGetById_ReturnOne()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/1"));
-
             //act
-            var result = await Helper.Json<Author>(request);
+            var result = await client.GetFromJsonAsync<Author>("authors/1");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(1, result.Object.Id);
-            Assert.Equal("Ernest Hemingway", result.Object.Name);
+            Assert.Equal(1, result.Id);
+            Assert.Equal("Ernest Hemingway", result.Name);
         }
 
         [Fact, TestPriority(3)]
         public async void DateController_WhenGetAllOrderDesc_ReturnListDesc()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors?sort[id]=desc"));
-
             //act
-            var result = await Helper.Json<List<Author>>(request);
+            var result = await client.GetFromJsonAsync<IEnumerable<Author>>("authors?sort[id]=desc");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(2, result.Object.Count());
-            Assert.Equal(2, result.Object.First().Id);
-            Assert.Equal("Stephen King", result.Object.First().Name);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(2, result.First().Id);
+            Assert.Equal("Stephen King", result.First().Name);
         }
 
 
@@ -82,27 +84,23 @@ namespace AutoAPI.IntegrationTests
         [InlineData("filter[id][lteq]=2", 2, 1, "Ernest Hemingway")]
         [InlineData("filter[id][in]=[1]", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[id][nin]=[2]", 1, 1, "Ernest Hemingway")]
-        [InlineData("filter[dateofbirth][in]=['7/21/1899']", 1, 1, "Ernest Hemingway")]
-        [InlineData("filter[dateofbirth][nin]=['9/21/1947']", 1, 1, "Ernest Hemingway")]
-        [InlineData("filter[uniqueid][in]=['00000000-0000-0000-0000-000000000000']", 1, 1, "Ernest Hemingway")]
-        [InlineData("filter[uniqueid][nin]=['00000000-0000-0000-0000-000000000000']", 1, 2, "Stephen King")]
-        [InlineData("filter[name][in]=['Ernest Hemingway','blah']", 1, 1, "Ernest Hemingway")]
-        [InlineData("filter[name][nin]=['Ernest Hemingway']", 1, 2, "Stephen King")]
+        [InlineData("filter[dateofbirth][in]=[\"1899-07-21\"]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[dateofbirth][nin]=[\"1947-09-21\"]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[uniqueid][in]=[\"00000000-0000-0000-0000-000000000000\"]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[uniqueid][nin]=[\"00000000-0000-0000-0000-000000000000\"]", 1, 2, "Stephen King")]
+        [InlineData("filter[name][in]=[\"Ernest Hemingway\",\"blah\"]", 1, 1, "Ernest Hemingway")]
+        [InlineData("filter[name][nin]=[\"Ernest Hemingway\"]", 1, 2, "Stephen King")]
         [InlineData("filter[uniqueid][eq]=00000000-0000-0000-0000-000000000000", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[uniqueid][neq]=00000000-0000-0000-0000-000000000000", 1, 2, "Stephen King")]
         public async void DateController_WhenGetFilter_ReturnFiltered(string filter, int count, int id, string name)
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"authors?{filter}"));
-
             //act
-            var result = await Helper.Json<List<Author>>(request);
+            var result = await client.GetFromJsonAsync<IEnumerable<Author>>($"authors?{filter}");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(count, result.Object.Count);
-            Assert.Equal(id, result.Object.First().Id);
-            Assert.Equal(name, result.Object.First().Name);
+            Assert.Equal(count, result.Count());
+            Assert.Equal(id, result.First().Id);
+            Assert.Equal(name, result.First().Name);
         }
 
 
@@ -111,61 +109,52 @@ namespace AutoAPI.IntegrationTests
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
-            request.Headers.Add("Authorization", await Login());
+            request.Headers.Add("Authorization", Login());
+
 
             //act
-            var result = await Helper.Json<Book>(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" });
+            var result = await authClient.PostAsJsonAsync<Book>("books", new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "The Sun Also Rises" },new JsonSerializerOptions());
 
             //assert
             Assert.Equal(HttpStatusCode.Created, result.StatusCode);
-            Assert.Equal(1, result.Object.AuthorId);
-            Assert.Equal("The Sun Also Rises", result.Object.Title);
+            var book = await result.Content.ReadFromJsonAsync<Book>();
+            Assert.Equal(1, book.AuthorId);
+            Assert.Equal("The Sun Also Rises", book.Title);
         }
 
 
         [Fact, TestPriority(6)]
         public async void DateController_WhenPostToBooksAndInvalid_ReturnBadRequest()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
-            request.Headers.Add("Authorization", await Login());
 
             //act
-            var result = await Helper.Response(request, new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "" });
+            var result = await authClient.PostAsJsonAsync<Book>("books", new Book() { ISBN = Guid.NewGuid().ToString(), AuthorId = 1, Title = "" },new JsonSerializerOptions());
 
             //assert
             Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+
         }
 
 
         [Fact, TestPriority(7)]
         public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
         {
-
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Put, new Uri(baseUrl, $"books/5678"));
-            request.Headers.Add("Authorization", await Login());
             //act
-
-            var result = await Helper.Json<Book>(request, new Book() { ISBN = "5678", AuthorId = 1, Title = "The Sun Also Rises" });
+            var result = await authClient.PutAsJsonAsync<Book>("books/5678", new Book() { ISBN = "5678", AuthorId = 1, Title = "The Sun Also Rises" },new JsonSerializerOptions());
 
             //Assert
+            var book = await result.Content.ReadFromJsonAsync<Book>();
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(1, result.Object.AuthorId);
-            Assert.Equal("The Sun Also Rises", result.Object.Title);
-
+            Assert.Equal(1, book.AuthorId);
+            Assert.Equal("The Sun Also Rises", book.Title);
         }
 
 
         [Fact, TestPriority(8)]
         public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Delete, new Uri(baseUrl, $"books/99999"));
-            request.Headers.Add("Authorization", await Login());
-
             //act
-            var result = await Helper.Response(request);
+            var result = await authClient.DeleteAsync("books/99999");
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
@@ -179,7 +168,7 @@ namespace AutoAPI.IntegrationTests
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
 
             //act
-            var result = await Helper.Response(request);
+            var result = await client.GetAsync("books");
 
             //Assert
             Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
@@ -192,11 +181,10 @@ namespace AutoAPI.IntegrationTests
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/count"));
 
             //act
-            var result = await Helper.Json<int>(request);
+            var result = await client.GetFromJsonAsync<int>("authors/count");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(2, (int)result.Object);
+            Assert.Equal(2, result);
         }
 
 
@@ -208,81 +196,71 @@ namespace AutoAPI.IntegrationTests
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/pagedresult?page=1&pageSize=1"));
 
             //act
-            var result = await Helper.Json<PagedResult>(request);
-            var pagedResult = (PagedResult)result.Object;
+            var result = await client.GetFromJsonAsync<PagedResult>("authors/pagedresult?page=1&pageSize=1");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(2, pagedResult.Total);
-            Assert.Single(pagedResult.Items);
-            Assert.Equal(1, pagedResult.PageSize);
-            Assert.Equal(2, pagedResult.PageCount);
+            Assert.Equal(2, result.Total);
+            Assert.Single(result.Items);
+            Assert.Equal(1, result.PageSize);
+            Assert.Equal(2, result.PageCount);
         }
 
 
         [Fact, TestPriority(12)]
-        public async void DateController_WhenPagedResultWithNoPagfe_ReturnPagedResult()
+        public async void DateController_WhenPagedResultWithNoPage_ReturnPagedResult()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/pagedresult"));
-
             //act
-            var result = await Helper.Json<PagedResult>(request);
-            var pagedResult = (PagedResult)result.Object;
+            var result = await client.GetFromJsonAsync<PagedResult>("authors/pagedresult");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(2, pagedResult.Total);
-            Assert.Equal(2, pagedResult.Items.Count());
-            Assert.Equal(2, pagedResult.PageSize);
-            Assert.Equal(1, pagedResult.PageCount);
+            Assert.Equal(2, result.Total);
+            Assert.Equal(2, result.Items.Count());
+            Assert.Equal(2, result.PageSize);
+            Assert.Equal(1, result.PageCount);
         }
 
         [Fact, TestPriority(13)]
         public async void DateController_WhenGetCountAndFilter_ReturnCount()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/count?filter[Id]=1"));
-
             //act
-            var result = await Helper.Json<int>(request);
+            var result = await client.GetFromJsonAsync<int>("authors/count?filter[Id]=1");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(1, (int)result.Object);
+            Assert.Equal(1, result);
         }
 
         [Fact, TestPriority(14)]
         public async void DateController_WhenGetAllAndInclude_ReturnList()
         {
-            //arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors?include=Books"));
 
             //act
-            var result = await Helper.Json<List<Author>>(request);
+            var result = await client.GetFromJsonAsync<IEnumerable<Author>>("authors?include=Books");
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal(1, result.Object.First().Id);
-            Assert.Equal("Ernest Hemingway", result.Object.First().Name);
-            Assert.True(result.Object.First().Books.Count() > 0);
+            Assert.Equal(1, result.First().Id);
+            Assert.Equal("Ernest Hemingway", result.First().Name);
+            Assert.True(result.First().Books.Count() > 0);
         }
 
-        private async Task<string> Login()
+        private string Login()
         {
-            if (string.IsNullOrEmpty(this.token))
-            {
-                var result = await Helper.Json<Token>(new HttpRequestMessage()
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri("http://localhost:5000/login"),
-                    Content = new FormUrlEncodedContent(new Dictionary<string, string>() { { "UserName", "test@test.com" }, { "Password", "Password1234!" } })
-                });
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperDuperSecureKey"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim> {
+                new Claim(ClaimTypes.Role, "Admin"),
+                new Claim(ClaimTypes.NameIdentifier, Guid.Empty.ToString()),
+                new Claim(ClaimTypes.Name, "admin")
+            };
 
-                this.token = result.Object.token;
-            }
+            var token = new JwtSecurityToken(
+                issuer: "test.com",
+                audience: "test.com",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: creds);
 
-            return "Bearer " + this.token;
+            var t = new JwtSecurityTokenHandler().WriteToken(token);
+            return t;
         }
 
         private class Token

@@ -43,10 +43,10 @@ namespace AutoAPI
                         result = controller.Get(routeInfo);
                         break;
                     case "POST":
-                        result = controller.Post(routeInfo, requestProcessor.GetData(context.Request, routeInfo.Entity.EntityType));
+                        result = controller.Post(routeInfo, await requestProcessor.GetData(context.Request, routeInfo.Entity.EntityType));
                         break;
                     case "PUT":
-                        result = controller.Put(routeInfo, requestProcessor.GetData(context.Request, routeInfo.Entity.EntityType));
+                        result = controller.Put(routeInfo, await requestProcessor.GetData(context.Request, routeInfo.Entity.EntityType));
                         break;
                     case "DELETE":
                         result = controller.Delete(routeInfo);

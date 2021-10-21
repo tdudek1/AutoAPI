@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AutoAPI.Expressions
 {
@@ -32,14 +32,11 @@ namespace AutoAPI.Expressions
 
             object list = null;
 
-            if ( (new string[] { "in", "nin" }).Contains(comparisonOperator))
+            if ((new string[] { "in", "nin" }).Contains(comparisonOperator))
             {
                 var listType = typeof(List<>).MakeGenericType(new Type[] { property.PropertyType });
-                list = Activator.CreateInstance(listType);
 
-                var jarray = (JArray)JsonConvert.DeserializeObject(value);
-
-                AddItems((dynamic)list, jarray);
+                list = JsonSerializer.Deserialize(value, listType);
             }
 
             var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
@@ -52,7 +49,7 @@ namespace AutoAPI.Expressions
             };
         }
 
-        private void AddItems<T>(List<T> list, JArray jarray)
+        private void AddItems<T>(List<T> list, IList<string> jarray)
         {
             foreach (var i in jarray)
             {

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -104,9 +103,11 @@ namespace AutoAPI
             return builder.UseMiddleware<AutoAPIMiddleware>();
         }
 
-        public static string ToOperationID(this string path)
+
+
+        static public void Main(String[] args)
         {
-            return string.Join("", path.Split("/", StringSplitOptions.RemoveEmptyEntries).Select(x => x.First().ToString().ToUpper() + x.Substring(1)));
+            throw new Exception("This is library");
         }
 
     }

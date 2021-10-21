@@ -1,5 +1,6 @@
 ﻿using AutoAPI.Web.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System;
 
 namespace AutoAPI.Web

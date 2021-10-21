@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AutoAPI
 {
@@ -22,21 +23,15 @@ namespace AutoAPI
             this.objectModelValidator = objectModelValidator;
         }
 
-        public object GetData(HttpRequest request, Type type)
+        public async Task<object> GetData(HttpRequest request, Type type)
         {
-            var serializer = new JsonSerializer();
-
-            using (var sr = new StreamReader(request.Body))
-            using (var jsonTextReader = new JsonTextReader(sr))
-            {
-                return serializer.Deserialize(jsonTextReader, type);
-            }
+            return await JsonSerializer.DeserializeAsync(request.Body, type, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
         }
 
 
         public RouteInfo GetRoutInfo(HttpRequest request)
         {
-            PathString path;
+            PathString path = null;
             var result = new RouteInfo();
 
             var apiEntity = APIConfiguration.AutoAPIEntityCache.Where(x => request.Path.StartsWithSegments(x.Route, out path)).FirstOrDefault();
