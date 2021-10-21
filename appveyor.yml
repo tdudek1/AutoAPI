@@ -7,7 +7,7 @@ dotnet_csproj:
   version: '{version}'
 environment:
   key:
-    secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
+    secure: G4yxuYKkPftFKBlGFWvgu92cq+AmVfbUZwX8DMQEnkHufc7MIFH3u5qyQZQfzXOZ
 build_script:
 - ps: dotnet build -c Release
 before_test:
