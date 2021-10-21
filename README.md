@@ -4,7 +4,9 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ar22x62t99bdv09v/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
-**Upgrade to .NET 5 switches to use System.Text.Json from Json.NET - Newtonsoft for serialization 
+**Update to .NET 5 
+
+ - switches to use System.Text.Json from Json.NET - Newtonsoft for serialization and this make cause breaking changes
 
 **Version 2 breaks compatilbity as it uses a middleware instead of a controller to handle requests**
 
@@ -97,9 +99,9 @@ Add AutoApi routes to swagger document with DocumentFilter using **Swashbuckle.A
 
 ```c#
 
-services.AddSwaggerGen(c =>
+services.AddSwaggerGen(a=>
 {
-    c.DocumentFilter<AutoAPISwaggerDocumentFilter>();
+    a.DocumentFilter<AutoAPISwaggerDocumentFilter>();
 });
 
 ```
