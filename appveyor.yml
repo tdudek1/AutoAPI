@@ -8,14 +8,11 @@ dotnet_csproj:
 environment:
   key:
     secure: 2ymWtJQhQh/Xl3ik2l+QeJ0uIdIaCPdkpIGPnxPGHmfSiLNdWapPX64E2dWVBXeF
-before_build:
-- ps: dotnet --version
-- ps: nuget restore
 build_script:
 - ps: dotnet build -c Release
 before_test:
 - ps: | 
-    dotnet publish -c Release -o out  
+    dotnet publish -c Release -o out -f net5.0
     docker build -t autoapi . 
     docker run -d -p 5000:5000 autoapi
 test_script:
