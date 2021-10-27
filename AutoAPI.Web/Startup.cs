@@ -69,7 +69,10 @@ namespace AutoAPI.Web
                 });
             });
 
-            services.AddAutoAPI<DataContext>("/api/data");
+            services.AddAutoAPI<DataContext>(options=>
+            {
+                options.Path = "/api/data";
+            });
 
             services.AddSwaggerGen(a=>
             {

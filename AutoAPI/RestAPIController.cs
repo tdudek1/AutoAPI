@@ -21,14 +21,14 @@ namespace AutoAPI
             this.objectModelValidator = objectModelValidator;
         }
 
-        public ObjectResult Get(RouteInfo routeInfo)
+        public ActionResult Get(RouteInfo routeInfo)
         {
             if (routeInfo.Id != null)
             {
                 var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
                 if (result != null)
                 {
-                    return new OkObjectResult(result);
+                    return new JsonResult(result,APIConfiguration.AutoAPIOptions.JsonSerializerOptions);
                 }
                 else
                 {
@@ -61,7 +61,7 @@ namespace AutoAPI
 
                 if (routeInfo.IsCount)
                 {
-                    return new OkObjectResult(dbSet.Count());
+                    return new JsonResult(dbSet.Count(),APIConfiguration.AutoAPIOptions.js);
                 }
 
                 if (routeInfo.IsPageResult)
