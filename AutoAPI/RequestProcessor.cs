@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace AutoAPI
 {
@@ -25,7 +26,32 @@ namespace AutoAPI
 
         public async Task<object> GetData(HttpRequest request, Type type)
         {
-            return await JsonSerializer.DeserializeAsync(request.Body, type, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            object result;
+            if (APIConfiguration.AutoAPIOptions.UseNewtonoftSerializer)
+            {
+                var jsonString = string.Empty;
+                using (var sr = new StreamReader(request.Body))
+                {
+                    jsonString = sr.ReadToEnd();
+                }
+                if (APIConfiguration.AutoAPIOptions.JsonSerializerSettings != null)
+                {
+                    result = JsonConvert.DeserializeObject(jsonString, APIConfiguration.AutoAPIOptions.JsonSerializerSettings);
+                }
+                else
+                {
+                    result = JsonConvert.DeserializeObject(jsonString);
+                }
+
+                return Task.FromResult<object>(result);
+            }
+            else
+            {
+                if(APIConfiguration.AutoAPIOptions.JsonSerializerOptions != null)
+                    return await System.Text.Json.JsonSerializer.DeserializeAsync(request.Body, type, APIConfiguration.AutoAPIOptions.JsonSerializerOptions);
+                else
+                    return await System.Text.Json.JsonSerializer.DeserializeAsync(request.Body, type);
+            }
         }
 
 

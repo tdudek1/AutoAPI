@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -28,7 +29,7 @@ namespace AutoAPI
                 var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
                 if (result != null)
                 {
-                    return new JsonResult(result,APIConfiguration.AutoAPIOptions.JsonSerializerOptions);
+                    return GetJsonResult(result);
                 }
                 else
                 {
@@ -61,34 +62,34 @@ namespace AutoAPI
 
                 if (routeInfo.IsCount)
                 {
-                    return new JsonResult(dbSet.Count(),APIConfiguration.AutoAPIOptions.js);
+                    return GetJsonResult(dbSet.Count());
                 }
 
                 if (routeInfo.IsPageResult)
                 {
-                    return new OkObjectResult(GetPagedResult(dbSet, (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), routeInfo.Page, routeInfo.Take));
+                    return GetJsonResult(GetPagedResult(dbSet, (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), routeInfo.Page, routeInfo.Take));
                 }
 
-                return new OkObjectResult(dbSet.ToDynamicList());
+                return GetJsonResult(dbSet.ToDynamicList());
             }
             else
             {
                 if (routeInfo.IsCount)
                 {
-                    return new OkObjectResult(((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext)).Count());
+                    return GetJsonResult(((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext)).Count());
                 }
                 else if (routeInfo.IsPageResult)
                 {
-                    return new OkObjectResult(GetPagedResult((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), 1, 0));
+                    return GetJsonResult(GetPagedResult((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), 1, 0));
                 }
                 else
                 {
-                    return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
+                    return GetJsonResult(routeInfo.Entity.DbSet.GetValue(dbContext));
                 }
             }
         }
 
-        public ObjectResult Post(RouteInfo routeInfo, object entity)
+        public ActionResult Post(RouteInfo routeInfo, object entity)
         {
             if (!IsValid(entity))
             {
@@ -98,7 +99,8 @@ namespace AutoAPI
             dbContext.Add(entity);
             dbContext.SaveChanges();
 
-            return new CreatedResult(routeInfo.Entity.Route, entity);
+            var result = GetJsonResult(entity);
+            return result;
         }
 
         public ObjectResult Put(RouteInfo routeInfo, object entity)
@@ -121,6 +123,32 @@ namespace AutoAPI
             dbContext.SaveChanges();
 
             return new OkObjectResult(entity);
+        }
+
+        private JsonResult GetJsonResult(object result)
+        {
+            if (APIConfiguration.AutoAPIOptions.UseNewtonoftSerializer)
+            {
+                if (APIConfiguration.AutoAPIOptions.JsonSerializerSettings != null)
+                {
+                    return new JsonResult(result, APIConfiguration.AutoAPIOptions.JsonSerializerSettings);
+                }
+                else
+                {
+                    return new JsonResult(result, JsonConvert.DefaultSettings);
+                }
+            }
+            else
+            {
+                if (APIConfiguration.AutoAPIOptions.JsonSerializerSettings != null)
+                {
+                    return new JsonResult(result, APIConfiguration.AutoAPIOptions.JsonSerializerOptions);
+                }
+                else
+                {
+                    return new JsonResult(result);
+                }
+            }
         }
 
         public ObjectResult Delete(RouteInfo routeInfo)
