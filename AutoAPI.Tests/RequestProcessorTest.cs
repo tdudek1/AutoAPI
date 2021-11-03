@@ -25,7 +25,7 @@ namespace AutoAPI.Tests
             {
                 if (APIConfiguration.AutoAPIEntityCache.Count == 0)
                 {
-                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
+                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path = "/api/data" }));
                 }
             }
         }

@@ -109,9 +109,9 @@ namespace AutoAPI
             return new RESTAPIController(dbContext, actionContext, this.objectModelValidator);
         }
 
-        public IActionResultExecutor<ObjectResult> GetActionExecutor()
+        public IActionResultExecutor<JsonResult> GetActionExecutor() 
         {
-            return serviceProvider.GetRequiredService<IActionResultExecutor<ObjectResult>>();
+            return serviceProvider.GetRequiredService<IActionResultExecutor<JsonResult>>();
         }
     }
 }

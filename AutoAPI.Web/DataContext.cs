@@ -48,7 +48,6 @@ namespace AutoAPI.Web
                 new Book() { AuthorId = 2, ISBN = "324423423", Title = "The Shining" }
             });
         }
-
     }
 
 }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
@@ -72,6 +73,7 @@ namespace AutoAPI.Web
             services.AddAutoAPI<DataContext>(options=>
             {
                 options.Path = "/api/data";
+                options.UseNewtonoftSerializer = true;
             });
 
             services.AddSwaggerGen(a=>

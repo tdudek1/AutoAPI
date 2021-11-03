@@ -9,9 +9,5 @@ namespace AutoAPI
 
 		public JsonSerializerOptions JsonSerializerOptions { get; set; }
 
-		public JsonSerializerSettings JsonSerializerSettings { get; set; }
-
-		public bool UseNewtonoftSerializer { get; set; }
-
 	}
 }

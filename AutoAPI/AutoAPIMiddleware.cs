@@ -22,7 +22,7 @@ namespace AutoAPI
         public async Task InvokeAsync(HttpContext context, IRequestProcessor requestProcessor, IAuthorizationService authorizationService)
         {
             var routeInfo = requestProcessor.GetRoutInfo(context.Request);
-            var result = new ObjectResult(null);
+            JsonResult result = null;
 
             if (routeInfo.Entity != null)
             {
@@ -31,8 +31,6 @@ namespace AutoAPI
                     context.Response.StatusCode = 401;
                     return;
                 }
-
-                var executor = requestProcessor.GetActionExecutor();
 
                 var actionContext = new ActionContext(context, new RouteData(), new ActionDescriptor());
                 var controller = requestProcessor.GetController(actionContext, routeInfo.Entity.DbContextType);
@@ -55,6 +53,7 @@ namespace AutoAPI
                         throw new NotSupportedException("Http Method not supported");
                 }
 
+                var executor = requestProcessor.GetActionExecutor();
                 await executor.ExecuteAsync(actionContext, result);
             }
             else

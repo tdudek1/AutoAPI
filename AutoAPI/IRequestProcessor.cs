@@ -20,7 +20,6 @@ namespace AutoAPI
 
         IRestAPIController GetController(ActionContext actionContext, Type dbContextType);
 
-        IActionResultExecutor<ObjectResult> GetActionExecutor();
-
+        IActionResultExecutor<JsonResult> GetActionExecutor();
     }
 }

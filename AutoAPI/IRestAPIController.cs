@@ -4,9 +4,9 @@ namespace AutoAPI
 {
     public interface IRestAPIController
     {
-        ObjectResult Delete(RouteInfo routeInfo);
-        ObjectResult Get(RouteInfo routeInfo);
-        ObjectResult Post(RouteInfo routeInfo, object entity);
-        ObjectResult Put(RouteInfo routeInfo, object entity);
+        JsonResult Delete(RouteInfo routeInfo);
+        JsonResult Get(RouteInfo routeInfo);
+        JsonResult Post(RouteInfo routeInfo, object entity);
+        JsonResult Put(RouteInfo routeInfo, object entity);
     }
 }

@@ -15,7 +15,7 @@ namespace AutoAPI.Tests
 
         public FilterOperatorExpressionTest()
         {
-            entityList = APIConfiguration.Init<DataContext>("/api/data");
+            entityList = APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path = "/api/data" });
         }
 
         [Fact]

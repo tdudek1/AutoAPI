@@ -16,7 +16,7 @@ namespace AutoAPI.Tests
 
         public RestAPIControllerTests()
         {
-            entityList = APIConfiguration.Init<DataContext>("/api");
+            entityList = APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path = "/api" });
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace AutoAPI.Tests
             var routinfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First() };
 
             //act
-            var result = (OkObjectResult)controller.Get(routinfo);
+            var result = (JsonResult)controller.Get(routinfo);
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);
@@ -45,7 +45,7 @@ namespace AutoAPI.Tests
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(), Id = "1" };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);
@@ -70,7 +70,7 @@ namespace AutoAPI.Tests
             };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);
@@ -90,7 +90,7 @@ namespace AutoAPI.Tests
             };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);
@@ -111,7 +111,7 @@ namespace AutoAPI.Tests
             };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);
@@ -136,7 +136,7 @@ namespace AutoAPI.Tests
             };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
             var pagedResult = (PagedResult)result.Value;
             //assert
 
@@ -168,7 +168,7 @@ namespace AutoAPI.Tests
             };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
             var pagedResult = (PagedResult)result.Value;
             //assert
 
@@ -191,7 +191,7 @@ namespace AutoAPI.Tests
             };
 
             //act
-            var result = (OkObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);
@@ -208,7 +208,7 @@ namespace AutoAPI.Tests
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(), Id = "10" };
 
             //act
-            var result = (NotFoundObjectResult)controller.Get(routeInfo);
+            var result = (JsonResult)controller.Get(routeInfo);
 
             //assert
             Assert.Equal(404, result.StatusCode);
@@ -224,7 +224,7 @@ namespace AutoAPI.Tests
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(), Id = "1" };
 
             //act
-            var result = (OkObjectResult)controller.Delete(routeInfo);
+            var result = (JsonResult)controller.Delete(routeInfo);
 
             //assert
             Assert.Equal(200, result.StatusCode);
@@ -240,7 +240,7 @@ namespace AutoAPI.Tests
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(), Id = "100" };
 
             //act
-            var result = (NotFoundObjectResult)controller.Delete(routeInfo);
+            var result = (JsonResult)controller.Delete(routeInfo);
 
             //assert
             Assert.Equal(404, result.StatusCode);
@@ -259,7 +259,7 @@ namespace AutoAPI.Tests
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First() };
 
             //act
-            var result = (CreatedResult)controllerMock.Object.Post(routeInfo, new Author() { Id = 3, Name = "J.R.R.Tolkien" });
+            var result = (JsonResult)controllerMock.Object.Post(routeInfo, new Author() { Id = 3, Name = "J.R.R.Tolkien" });
 
             //assert
             Assert.Equal(201, result.StatusCode.Value);
@@ -280,7 +280,7 @@ namespace AutoAPI.Tests
             var routeInfo = new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/authors").First(), Id = "1" };
 
             //act
-            var result = (OkObjectResult)controllerMock.Object.Put(routeInfo, new Author() { Id = 1, Name = "J.R.R.Tolkien" });
+            var result = (JsonResult)controllerMock.Object.Put(routeInfo, new Author() { Id = 1, Name = "J.R.R.Tolkien" });
 
             //assert
             Assert.Equal(200, result.StatusCode.Value);

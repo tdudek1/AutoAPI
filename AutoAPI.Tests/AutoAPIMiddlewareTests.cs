@@ -21,7 +21,7 @@ namespace AutoAPI.Tests
 
         public AutoAPIMiddlewareTests()
         {
-            entityList = APIConfiguration.Init<DataContext>("/api/data");
+            entityList = APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path = "/api/data" });
         }
 
 
@@ -134,46 +134,46 @@ namespace AutoAPI.Tests
         }
 
 
-        [Theory]
-        [InlineData("GET")]
-        [InlineData("POST")]
-        [InlineData("PUT")]
-        [InlineData("DELETE")]
-        public async void InvokeAsync_RequestMatched_ThenResponse(string method)
-        {
-            var restControllerMock = new Mock<IRestAPIController>();
-            restControllerMock.Setup(x => x.Get(It.IsAny<RouteInfo>())).Returns(new OkObjectResult(null));
+		[Theory]
+		[InlineData("GET")]
+		[InlineData("POST")]
+		[InlineData("PUT")]
+		[InlineData("DELETE")]
+		public async void InvokeAsync_RequestMatched_ThenResponse(string method)
+		{
+			var restControllerMock = new Mock<IRestAPIController>();
+			restControllerMock.Setup(x => x.Get(It.IsAny<RouteInfo>())).Returns(new JsonResult(null));
 
-            var actionExecutorMock = new Mock<IActionResultExecutor<ObjectResult>>();
+			var actionExecutorMock = new Mock<IActionResultExecutor<ActionResult>>();
 
-            var requestProcessorMock = new Mock<IRequestProcessor>();
-            requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/data/authors").First() });
-            requestProcessorMock.Setup(x => x.GetController(It.IsAny<ActionContext>(), It.IsAny<Type>())).Returns(restControllerMock.Object);
-            requestProcessorMock.Setup(x => x.GetActionExecutor()).Returns(actionExecutorMock.Object);
-            var middlewareMock = new Mock<AutoAPIMiddleware>(null);
+			var requestProcessorMock = new Mock<IRequestProcessor>();
+			requestProcessorMock.Setup(x => x.GetRoutInfo(It.IsAny<HttpRequest>())).Returns(new RouteInfo() { Entity = entityList.Where(x => x.Route == "/api/data/authors").First() });
+			requestProcessorMock.Setup(x => x.GetController(It.IsAny<ActionContext>(), It.IsAny<Type>())).Returns(restControllerMock.Object);
+			requestProcessorMock.Setup(x => x.GetActionExecutor()).Returns(actionExecutorMock.Object);
+			var middlewareMock = new Mock<AutoAPIMiddleware>(null);
 
-            middlewareMock.Protected().Setup<bool>("Authorize", ItExpr.IsAny<IAuthorizationService>(), ItExpr.IsAny<ClaimsPrincipal>(), ItExpr.IsAny<string>()).Returns(true);
+			middlewareMock.Protected().Setup<bool>("Authorize", ItExpr.IsAny<IAuthorizationService>(), ItExpr.IsAny<ClaimsPrincipal>(), ItExpr.IsAny<string>()).Returns(true);
 
-            var userMock = new Mock<ClaimsPrincipal>();
-            var identityMock = new Mock<IIdentity>();
-            identityMock.Setup(x => x.IsAuthenticated).Returns(true);
-            userMock.Setup(x => x.Identity).Returns(identityMock.Object);
+			var userMock = new Mock<ClaimsPrincipal>();
+			var identityMock = new Mock<IIdentity>();
+			identityMock.Setup(x => x.IsAuthenticated).Returns(true);
+			userMock.Setup(x => x.Identity).Returns(identityMock.Object);
 
-            var requestMock = new Mock<HttpRequest>();
-            requestMock.Setup(x => x.Method).Returns(method);
+			var requestMock = new Mock<HttpRequest>();
+			requestMock.Setup(x => x.Method).Returns(method);
 
-            var contextMock = new Mock<HttpContext>();
-            contextMock.Setup(x => x.User).Returns(userMock.Object);
-            contextMock.Setup(x => x.Request).Returns(requestMock.Object);
+			var contextMock = new Mock<HttpContext>();
+			contextMock.Setup(x => x.User).Returns(userMock.Object);
+			contextMock.Setup(x => x.Request).Returns(requestMock.Object);
 
-            //act
-            await middlewareMock.Object.InvokeAsync(contextMock.Object, requestProcessorMock.Object, null);
+			//act
+			await middlewareMock.Object.InvokeAsync(contextMock.Object, requestProcessorMock.Object, null);
 
-            //assert
-            actionExecutorMock.Verify(x => x.ExecuteAsync(It.IsAny<ActionContext>(), It.IsAny<ObjectResult>()), Times.Once);
-        }
+			//assert
+			actionExecutorMock.Verify(x => x.ExecuteAsync(It.IsAny<ActionContext>(), It.IsAny<ObjectResult>()), Times.Once);
+		}
 
-        [Fact]
+		[Fact]
         public async void InvokeAsync_RequestNotAuthorized_Then401()
         {
             var entity = entityList.Where(x => x.Route == "/api/data/authors").First();
