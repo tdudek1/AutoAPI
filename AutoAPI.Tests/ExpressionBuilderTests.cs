@@ -16,7 +16,7 @@ namespace AutoAPI.Tests
 
         public ExpressionBuilderTests()
         {
-            entityList = APIConfiguration.Init<DataContext>("/api/data");
+            entityList = APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path ="/api/data"});
         }
 
         #region Paging

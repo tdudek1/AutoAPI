@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -28,7 +29,7 @@ namespace AutoAPI
                 var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
                 if (result != null)
                 {
-                    return new OkObjectResult(result);
+                    return GetOkObjectResult(result);
                 }
                 else
                 {
@@ -61,29 +62,29 @@ namespace AutoAPI
 
                 if (routeInfo.IsCount)
                 {
-                    return new OkObjectResult(dbSet.Count());
+                    return GetOkObjectResult(dbSet.Count());
                 }
 
                 if (routeInfo.IsPageResult)
                 {
-                    return new OkObjectResult(GetPagedResult(dbSet, (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), routeInfo.Page, routeInfo.Take));
+                    return GetOkObjectResult(GetPagedResult(dbSet, (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), routeInfo.Page, routeInfo.Take));
                 }
 
-                return new OkObjectResult(dbSet.ToDynamicList());
+                return GetOkObjectResult(dbSet.ToDynamicList());
             }
             else
             {
                 if (routeInfo.IsCount)
                 {
-                    return new OkObjectResult(((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext)).Count());
+                    return GetOkObjectResult(((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext)).Count());
                 }
                 else if (routeInfo.IsPageResult)
                 {
-                    return new OkObjectResult(GetPagedResult((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), 1, 0));
+                    return GetOkObjectResult(GetPagedResult((IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), (IQueryable)routeInfo.Entity.DbSet.GetValue(dbContext), 1, 0));
                 }
                 else
                 {
-                    return new OkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
+                    return GetOkObjectResult(routeInfo.Entity.DbSet.GetValue(dbContext));
                 }
             }
         }
@@ -156,6 +157,21 @@ namespace AutoAPI
                 PageCount = pageSize == 0 ? 1 : (int)Math.Ceiling((decimal)total / (decimal)pageSize),
                 Total = total
             };
+        }
+
+        private OkObjectResult GetOkObjectResult(object result)
+        {
+            if (APIConfiguration.AutoAPIOptions.JsonSerializerOptions != null)
+            {
+                var objectResult = new OkObjectResult(result);
+                objectResult.Formatters.Add(new SystemTextJsonOutputFormatter(APIConfiguration.AutoAPIOptions.JsonSerializerOptions));
+
+                return objectResult;
+            }
+            else
+            {
+                return new OkObjectResult(result);
+            }
         }
     }
 }

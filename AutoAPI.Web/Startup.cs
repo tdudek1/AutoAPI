@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AutoAPI.Web
@@ -69,7 +70,11 @@ namespace AutoAPI.Web
                 });
             });
 
-            services.AddAutoAPI<DataContext>("/api/data");
+            services.AddAutoAPI<DataContext>(options =>
+            {
+                options.Path = "/api/data";
+                options.JsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,WriteIndented = true,PropertyNameCaseInsensitive = true };
+            });
 
             services.AddSwaggerGen(a=>
             {
