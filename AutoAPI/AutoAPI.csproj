@@ -6,28 +6,32 @@
 	  <Authors>Thomas Dudek</Authors>
 	  <Company />
 	  <Description>
-		  Automatic REST api library for EF entities in .Net Core
+      Automatic REST api library for EF entities in .Net Core
 
-		  This library automatically generates RESTful API for DbSets in DbContext. This is very much a work in progress right now so feel free to create issues on GitHub.
+      This library automatically generates RESTful API for DbSets in DbContext. This is very much a work in progress right now so feel free to create issues on GitHub.
 
-		  Version 2 breaks compatilbity as it uses a middleware instead of controller to handle requests
+      Version 2 breaks compatilbity as it uses a middleware instead of controller to handle requests
 
-		  Version 2.1 includes count and pagedresult endoints
+      Version 2.1 includes count and pagedresult endoints
 
-		  Version 2.2 update dotnet core runtime and other packages
+      Version 2.2 update dotnet core runtime and other packages
 
-		  Version 2.3 adds support for in/not in operator and fixes a bugs with nullable properties
+      Version 2.3 adds support for in/not in operator and fixes a bugs with nullable properties
 
-		  https://github.com/tdudek1/AutoAPI
-	  </Description>
+      Version 2.3 adds support for in/not in operator and fixes a bugs with nullable properties
+
+      Version 3.1 targets DotNet 5 uses System.Text.Json and adds serializer option configuration
+
+      https://github.com/tdudek1/AutoAPI
+    </Description>
 	  <Copyright>Copyright ©2018 Thomas Dudek</Copyright>
 	  <PackageLicense>https://opensource.org/licenses/GPL-3.0</PackageLicense>
 	  <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
 	  <PackageTags>rest api entityframework</PackageTags>
 	  <PackageId>Auto.Rest.API</PackageId>
-	  <Version>2.3</Version>
-	  <AssemblyVersion>2.2.0.0</AssemblyVersion>
-	  <FileVersion>2.2.0.0</FileVersion>
+	  <Version>3.1</Version>
+	  <AssemblyVersion>3.1.0.0</AssemblyVersion>
+	  <FileVersion>3.1.0.0</FileVersion>
 	  <OutputType>Library</OutputType>
 	  <TargetFrameworks>net5.0</TargetFrameworks>
 	  <IsPackable>true</IsPackable>
