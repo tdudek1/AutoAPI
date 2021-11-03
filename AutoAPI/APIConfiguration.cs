@@ -29,7 +29,7 @@ namespace AutoAPI
 
         public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
-        public static AutoAPIOptions AutoAPIOptions { get; private set; } = new AutoAPIOptions();
+        public static AutoAPIOptions AutoAPIOptions { get; private set; }
 
         public static void AddAutoAPI<T>(this IServiceCollection serviceCollection, string path) where T : DbContext
         {
@@ -40,13 +40,15 @@ namespace AutoAPI
         {
             var op = new AutoAPIOptions();
             options(op);
-            AutoAPIOptions = op;
             AutoAPIEntityCache.AddRange(Init<T>(op));
             serviceCollection.AddTransient<IRequestProcessor, RequestProcessor>();
         }
 
         public static List<APIEntity> Init<T>(AutoAPIOptions options) where T : DbContext
         {
+            
+            AutoAPIOptions = options;
+
             return (from p in typeof(T).GetProperties()
                     let g = p.PropertyType.GetGenericArguments()
                     let a = p.GetCustomAttribute<AutoAPIEntity>()
