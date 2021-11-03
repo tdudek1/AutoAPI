@@ -73,7 +73,6 @@ namespace AutoAPI.Web
             services.AddAutoAPI<DataContext>(options =>
             {
                 options.Path = "/api/data";
-                options.JsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,WriteIndented = true,PropertyNameCaseInsensitive = true };
             });
 
             services.AddSwaggerGen(a=>
