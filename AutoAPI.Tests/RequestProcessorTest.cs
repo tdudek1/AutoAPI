@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -25,7 +26,7 @@ namespace AutoAPI.Tests
             {
                 if (APIConfiguration.AutoAPIEntityCache.Count == 0)
                 {
-                    APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>("/api/data"));
+					APIConfiguration.AutoAPIEntityCache.AddRange(APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path = "/api/data" }));
                 }
             }
         }
@@ -34,7 +35,7 @@ namespace AutoAPI.Tests
 		public void GetData_WhenData_ThenEntity()
 		{
 			//arrange
-			var input = @"{""Id"": 1,""Name"": ""Ernest Hemingway""}";
+			var input = JsonSerializer.Serialize(new Author() { Id = 1, Name = "Ernest Hemingway" });
 			var stream = new MemoryStream();
 			var writer = new StreamWriter(stream,Encoding.UTF8);
 			writer.Write(input);

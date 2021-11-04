@@ -15,8 +15,4 @@
     <ProjectReference Include="..\AutoAPI\AutoAPI.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>

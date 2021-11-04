@@ -29,22 +29,33 @@ namespace AutoAPI
 
         public static List<APIEntity> AutoAPIEntityCache = new List<APIEntity>();
 
+        public static AutoAPIOptions AutoAPIOptions { get; private set; }
+
         public static void AddAutoAPI<T>(this IServiceCollection serviceCollection, string path) where T : DbContext
         {
+            serviceCollection.AddAutoAPI<T>(options => options.Path = path);
+        }
 
-            AutoAPIEntityCache.AddRange(Init<T>(path));
+        public static void AddAutoAPI<T>(this IServiceCollection serviceCollection, Action<AutoAPIOptions> options) where T : DbContext
+        {
+            var op = new AutoAPIOptions();
+            options(op);
+            AutoAPIEntityCache.AddRange(Init<T>(op));
             serviceCollection.AddTransient<IRequestProcessor, RequestProcessor>();
         }
 
-        public static List<APIEntity> Init<T>(string path) where T : DbContext
+        public static List<APIEntity> Init<T>(AutoAPIOptions options) where T : DbContext
         {
+            
+            AutoAPIOptions = options;
+
             return (from p in typeof(T).GetProperties()
                     let g = p.PropertyType.GetGenericArguments()
                     let a = p.GetCustomAttribute<AutoAPIEntity>()
                     where p.IsDefined(typeof(AutoAPIEntity)) && g.Count() == 1
                     select new APIEntity()
                     {
-                        Route = (new PathString(path)).Add(a.Route.StartsWith("/") ? a.Route : $"/{a.Route}"),
+                        Route = (new PathString(options.Path)).Add(a.Route.StartsWith("/") ? a.Route : $"/{a.Route}"),
                         GETPolicy = a.GETPolicy,
                         POSTPolicy = a.POSTPolicy,
                         PUTPolicy = a.PUTPolicy,

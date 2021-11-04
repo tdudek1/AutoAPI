@@ -25,7 +25,7 @@ namespace AutoAPI
 
         public async Task<object> GetData(HttpRequest request, Type type)
         {
-            return await JsonSerializer.DeserializeAsync(request.Body, type, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            return await JsonSerializer.DeserializeAsync(request.Body, type, options: APIConfiguration.AutoAPIOptions.JsonSerializerOptions);
         }
 
 

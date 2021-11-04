@@ -8,6 +8,7 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
  - switches to use System.Text.Json from Json.NET - Newtonsoft for serialization and this make cause breaking changes
  - switches swagger support to use Microsoft.OpenApi.Models;
+ - added extension method to configure System.Text.Json serializer options
 
 **Version 2 breaks compatilbity as it uses a middleware instead of a controller to handle requests**
 
@@ -27,7 +28,12 @@ public void ConfigureServices(IServiceCollection services)
 {
     ...
     //generic argument is DbContext
-    services.AddAutoAPI<DataContext>("/api/data")
+    services.AddAutoAPI<DataContext>(options =>
+    {
+        options.Path = "/api/data";
+        //optional 
+        options.JsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
+    });
 
     //register db context
     services.AddDbContext<DataContext>(o => o.UseSqlServer(Configuration.GetConnectionString("Data")));

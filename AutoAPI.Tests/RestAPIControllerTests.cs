@@ -16,7 +16,7 @@ namespace AutoAPI.Tests
 
         public RestAPIControllerTests()
         {
-            entityList = APIConfiguration.Init<DataContext>("/api");
+            entityList = APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path = "/api" });
         }
 
         [Fact]

@@ -21,7 +21,7 @@ namespace AutoAPI.Tests
 
         public AutoAPIMiddlewareTests()
         {
-            entityList = APIConfiguration.Init<DataContext>("/api/data");
+            entityList = APIConfiguration.Init<DataContext>(new AutoAPIOptions() { Path ="/api/data"} );
         }
 
 
