@@ -61,7 +61,7 @@ namespace AutoAPI.Tests
             filter.Apply(swaggerDoc, null);
 
             Assert.Equal(4, APIConfiguration.AutoAPIEntityCache.Count);
-            Assert.Equal(10, swaggerDoc.Paths.Count);
+            Assert.Equal(11, swaggerDoc.Paths.Count);
 
         }
     }
