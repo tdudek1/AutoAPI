@@ -1,5 +1,5 @@
 version: 3.1.{build}
-image: Visual Studio 2019
+image: Visual Studio 2022
 configuration: Release
 dotnet_csproj:
   patch: true
@@ -12,7 +12,7 @@ build_script:
 - ps: dotnet build -c Release
 before_test:
 - ps: | 
-    dotnet publish -c Release -o out -f net5.0
+    dotnet publish -c Release -o out -f net6.0
     docker build -t autoapi . 
     docker run -d -p 5000:5000 autoapi
 test_script:
