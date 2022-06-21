@@ -15,10 +15,8 @@ namespace AutoAPI
             {
                 foreach (var entity in APIConfiguration.AutoAPIEntityCache)
                 {
-                    var idschema = SchemaTypeMap[entity.Id.PropertyType]();
-                    var tag = entity.EntityType.Name;
-                    
-                    //get,post
+                                   
+                    //get
                     swaggerDoc.Paths.Add($"{entity.Route.ToLower()}", new OpenApiPathItem
                     {
                         Operations =
@@ -53,35 +51,26 @@ namespace AutoAPI
                                         }
                                     }
                                 }
-                            },
-                            [OperationType.Post] = new OpenApiOperation
+                            }
+                        }
+                    });
+
+                    if (entity.Id == null)
+                        continue;
+
+                    //post
+                    swaggerDoc.Paths[$"{entity.Route.ToLower()}"].Operations.Add(
+                        OperationType.Post,
+                        new OpenApiOperation
+                        {
+                            OperationId = GetOperationID($"{entity.Route.ToLower()}/post"),
+                            Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name } },
+                            Description = $"Create {entity.EntityType.Name}",
+                            Responses =
                             {
-                                OperationId = GetOperationID($"{entity.Route.ToLower()}/post"),
-                                Tags = new List<OpenApiTag>() { new OpenApiTag() { Name = entity.EntityType.Name} },
-                                Description = $"Create {entity.EntityType.Name}",
-                                Responses =
+                                ["201"] = new OpenApiResponse()
                                 {
-                                    ["201"] = new OpenApiResponse()
-                                    {
-                                        Description = "Success",
-                                        Content =
-                                        {
-                                            ["application/json"] = new OpenApiMediaType()
-                                            {
-                                                Schema = new OpenApiSchema()
-                                                {
-                                                    Reference = new OpenApiReference()
-                                                    {
-                                                        Type = ReferenceType.Schema,
-                                                        Id = $"{entity.EntityType.Name.ToLower()}"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                RequestBody = new OpenApiRequestBody()
-                                {
+                                    Description = "Success",
                                     Content =
                                     {
                                         ["application/json"] = new OpenApiMediaType()
@@ -97,9 +86,32 @@ namespace AutoAPI
                                         }
                                     }
                                 }
+                            },
+                            RequestBody = new OpenApiRequestBody()
+                            {
+                                Content =
+                                {
+                                    ["application/json"] = new OpenApiMediaType()
+                                    {
+                                        Schema = new OpenApiSchema()
+                                        {
+                                            Reference = new OpenApiReference()
+                                            {
+                                                Type = ReferenceType.Schema,
+                                                Id = $"{entity.EntityType.Name.ToLower()}"
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    });
+                        });
+
+
+
+                    var idschema = SchemaTypeMap[entity.Id.PropertyType]();
+
+
+
 
                     //get,put,delete by id
                     swaggerDoc.Paths.Add($"{entity.Route.ToLower()}/{{id}}", new OpenApiPathItem

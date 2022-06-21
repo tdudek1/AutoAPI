@@ -32,7 +32,7 @@ namespace AutoAPI.Tests
 
             filter.Apply(swaggerDoc, null);
 
-            Assert.Equal(3, swaggerDoc.Components.Schemas.Count);
+            Assert.Equal(4, swaggerDoc.Components.Schemas.Count);
             Assert.Equal("author", swaggerDoc.Components.Schemas.First().Key);
         }
 
@@ -46,7 +46,7 @@ namespace AutoAPI.Tests
 
             filter.Apply(swaggerDoc, null);
 
-            Assert.Equal(3, swaggerDoc.Components.Schemas.Count);
+            Assert.Equal(4, swaggerDoc.Components.Schemas.Count);
             Assert.Equal("book", swaggerDoc.Components.Schemas.Keys.ToList()[1]);
         }
 
@@ -60,8 +60,8 @@ namespace AutoAPI.Tests
 
             filter.Apply(swaggerDoc, null);
 
-            Assert.Equal(2, APIConfiguration.AutoAPIEntityCache.Count);
-            Assert.Equal(7, swaggerDoc.Paths.Count);
+            Assert.Equal(3, APIConfiguration.AutoAPIEntityCache.Count);
+            Assert.Equal(10, swaggerDoc.Paths.Count);
 
         }
     }

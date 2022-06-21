@@ -21,7 +21,7 @@ namespace AutoAPI.Expressions
             return new FilterResult()
             {
                 Filter = $"{property.Name} == @{index}",
-                Values = new[] { Convert.ChangeType(value, property.PropertyType) },
+                Values = new[] { TypeConverter.ChangeType(value, property.PropertyType) },
                 NextIndex = this.index + 1
             };
         }

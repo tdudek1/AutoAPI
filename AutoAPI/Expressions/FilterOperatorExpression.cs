@@ -53,7 +53,7 @@ namespace AutoAPI.Expressions
         {
             foreach (var i in jarray)
             {
-                list.Add((T)Convert.ChangeType(i, typeof(T)));
+                list.Add((T)TypeConverter.ChangeType(i, typeof(T)));
             }
         }
 
