@@ -4,7 +4,13 @@ This library automatically generates RESTful API for DbSets in DbContext.  This 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ar22x62t99bdv09v/branch/master?svg=true)](https://ci.appveyor.com/project/tdudek1/autoapi/branch/master)
 
-**Update to .NET 5** 
+**3.2 update to dotnet 6**
+
+ - update to dotnet 6 and ef 6
+ - fixed exception when key was a guid
+ - added support for [Keyless] entities
+
+**3.1 Update to dotnet 5** 
 
  - switches to use System.Text.Json from Json.NET - Newtonsoft for serialization and this make cause breaking changes
  - switches swagger support to use Microsoft.OpenApi.Models;
