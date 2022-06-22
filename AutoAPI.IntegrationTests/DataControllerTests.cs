@@ -242,7 +242,7 @@ namespace AutoAPI.IntegrationTests
             Assert.True(result.First().Books.Count() > 0);
         }
 
-        [Fact, TestPriority(15]
+        [Fact, TestPriority(15)]
         public async void DataController_WhenGenreByGuid_ReturnItem()
         {
 
@@ -253,7 +253,7 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal("Horror", result.Name);
         }
 
-        [Fact, TestPriority(15]
+        [Fact, TestPriority(16)]
         public async void DataController_WhenBookView_ReturnEmpty()
         {
 
