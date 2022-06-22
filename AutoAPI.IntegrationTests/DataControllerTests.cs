@@ -35,7 +35,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(1)]
-        public async void DateController_WhenGetAll_ReturnList()
+        public async void DataController_WhenGetAll_ReturnList()
         {
 
             //act
@@ -49,7 +49,7 @@ namespace AutoAPI.IntegrationTests
         }
 
         [Fact, TestPriority(2)]
-        public async void DateController_WhenGetById_ReturnOne()
+        public async void DataController_WhenGetById_ReturnOne()
         {
             //act
             var result = await client.GetFromJsonAsync<Author>("authors/1");
@@ -60,7 +60,7 @@ namespace AutoAPI.IntegrationTests
         }
 
         [Fact, TestPriority(3)]
-        public async void DateController_WhenGetAllOrderDesc_ReturnListDesc()
+        public async void DataController_WhenGetAllOrderDesc_ReturnListDesc()
         {
             //act
             var result = await client.GetFromJsonAsync<IEnumerable<Author>>("authors?sort[id]=desc");
@@ -92,7 +92,7 @@ namespace AutoAPI.IntegrationTests
         [InlineData("filter[name][nin]=[\"Ernest Hemingway\"]", 1, 2, "Stephen King")]
         [InlineData("filter[uniqueid][eq]=00000000-0000-0000-0000-000000000000", 1, 1, "Ernest Hemingway")]
         [InlineData("filter[uniqueid][neq]=00000000-0000-0000-0000-000000000000", 1, 2, "Stephen King")]
-        public async void DateController_WhenGetFilter_ReturnFiltered(string filter, int count, int id, string name)
+        public async void DataController_WhenGetFilter_ReturnFiltered(string filter, int count, int id, string name)
         {
             //act
             var result = await client.GetFromJsonAsync<IEnumerable<Author>>($"authors?{filter}");
@@ -105,7 +105,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(5)]
-        public async void DateController_WhenPostToBooks_ReturnNewBook()
+        public async void DataController_WhenPostToBooks_ReturnNewBook()
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(baseUrl, $"books"));
@@ -124,7 +124,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(6)]
-        public async void DateController_WhenPostToBooksAndInvalid_ReturnBadRequest()
+        public async void DataController_WhenPostToBooksAndInvalid_ReturnBadRequest()
         {
 
             //act
@@ -137,7 +137,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(7)]
-        public async void DateController_WhenPutToBooks_ReturnUpdateBookd()
+        public async void DataController_WhenPutToBooks_ReturnUpdateBookd()
         {
             //act
             var result = await authClient.PutAsJsonAsync<Book>("books/5678", new Book() { ISBN = "5678", AuthorId = 1, Title = "The Sun Also Rises" },new JsonSerializerOptions());
@@ -151,7 +151,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(8)]
-        public async void DateController_WhenDeleteToBooks_ReturnDeletedOK()
+        public async void DataController_WhenDeleteToBooks_ReturnDeletedOK()
         {
             //act
             var result = await authClient.DeleteAsync("books/99999");
@@ -162,7 +162,7 @@ namespace AutoAPI.IntegrationTests
         }
 
         [Fact, TestPriority(9)]
-        public async void DateController_WhenGetToBooksAndNoToken_ReturnUnauthorized()
+        public async void DataController_WhenGetToBooksAndNoToken_ReturnUnauthorized()
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, $"books"));
@@ -175,7 +175,7 @@ namespace AutoAPI.IntegrationTests
         }
 
         [Fact, TestPriority(10)]
-        public async void DateController_WhenGetCount_ReturnCount()
+        public async void DataController_WhenGetCount_ReturnCount()
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/count"));
@@ -190,7 +190,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(11)]
-        public async void DateController_WhenGetPagedResult_ReturnPagedResult()
+        public async void DataController_WhenGetPagedResult_ReturnPagedResult()
         {
             //arrange
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(baseUrl, "authors/pagedresult?page=1&pageSize=1"));
@@ -207,7 +207,7 @@ namespace AutoAPI.IntegrationTests
 
 
         [Fact, TestPriority(12)]
-        public async void DateController_WhenPagedResultWithNoPage_ReturnPagedResult()
+        public async void DataController_WhenPagedResultWithNoPage_ReturnPagedResult()
         {
             //act
             var result = await client.GetFromJsonAsync<PagedResult>("authors/pagedresult");
@@ -220,7 +220,7 @@ namespace AutoAPI.IntegrationTests
         }
 
         [Fact, TestPriority(13)]
-        public async void DateController_WhenGetCountAndFilter_ReturnCount()
+        public async void DataController_WhenGetCountAndFilter_ReturnCount()
         {
             //act
             var result = await client.GetFromJsonAsync<int>("authors/count?filter[Id]=1");
@@ -230,7 +230,7 @@ namespace AutoAPI.IntegrationTests
         }
 
         [Fact, TestPriority(14)]
-        public async void DateController_WhenGetAllAndInclude_ReturnList()
+        public async void DataController_WhenGetAllAndInclude_ReturnList()
         {
 
             //act
@@ -240,6 +240,28 @@ namespace AutoAPI.IntegrationTests
             Assert.Equal(1, result.First().Id);
             Assert.Equal("Ernest Hemingway", result.First().Name);
             Assert.True(result.First().Books.Count() > 0);
+        }
+
+        [Fact, TestPriority(15]
+        public async void DataController_WhenGenreByGuid_ReturnItem()
+        {
+
+            //act
+            var result = await client.GetFromJsonAsync<Genre>("genres/b1a1596e-1aac-4fb4-aed0-ecd39d5d3caa");
+
+            //Assert;
+            Assert.Equal("Horror", result.Name);
+        }
+
+        [Fact, TestPriority(15]
+        public async void DataController_WhenBookView_ReturnEmpty()
+        {
+
+            //act
+            var result = await client.GetFromJsonAsync<IEnumerable<BookView>>("bookview");
+
+            //Assert;
+            Assert.Empty(result);
         }
 
         private string Login()

@@ -22,6 +22,8 @@
 
       Version 3.1 targets DotNet 5 uses System.Text.Json and adds serializer option configuration
 
+      Version 3.1 targets DotNet 6 fixes guid id bug and adds support for keyless entities
+
       https://github.com/tdudek1/AutoAPI
     </Description>
 	  <Copyright>Copyright ©2018 Thomas Dudek</Copyright>
