@@ -14,8 +14,15 @@ namespace AutoAPI.Web
 
         [AutoAPIEntity(Route = "authors", ExposePagedResult = true)]
         public DbSet<Author> Authors { get; set; }
-        [AutoAPIEntity(Route = "Books", Authorize = true, POSTPolicy = "IsAdmin")]
+        
+        [AutoAPIEntity(Route = "books", Authorize = true, POSTPolicy = "IsAdmin")]
         public DbSet<Book> Books { get; set; }
+        
+        [AutoAPIEntity(Route = "genres")]
+        public DbSet<Genre> Genres { get; set; }
+
+        [AutoAPIEntity(Route = "bookview")]
+        public DbSet<BookView> BookView { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +33,7 @@ namespace AutoAPI.Web
                     Name = "Ernest Hemingway",
                     DateOfBirth = new DateTime(1899, 7, 21),
                     UniqueId = Guid.Empty
-                    
+
                 },
                new Author()
                 {
@@ -47,8 +54,14 @@ namespace AutoAPI.Web
                 new Book() { AuthorId = 2, ISBN = "99999", Title = "IT" },
                 new Book() { AuthorId = 2, ISBN = "324423423", Title = "The Shining" }
             });
-        }
 
+            modelBuilder.Entity<Genre>().HasData(new Genre[] {
+                new Genre() { Id = Guid.Parse("b1a1596e-1aac-4fb4-aed0-ecd39d5d3caa"), Name = "Horror" }
+            });
+
+			modelBuilder.Entity<BookView>().HasNoKey().HasData(new BookView[] {
+			});
+		}
     }
 
 }

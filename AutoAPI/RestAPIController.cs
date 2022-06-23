@@ -14,6 +14,7 @@ namespace AutoAPI
         private readonly DbContext dbContext;
         private readonly ActionContext actionContext;
         private readonly IObjectModelValidator objectModelValidator;
+        private const string KeylessError = "Operation not allowed for keyless entities";
 
         public RESTAPIController(DbContext dbContext, ActionContext actionContext, IObjectModelValidator objectModelValidator)
         {
@@ -26,7 +27,10 @@ namespace AutoAPI
         {
             if (routeInfo.Id != null)
             {
-                var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+                if (routeInfo.Entity.Id == null)
+                    throw new Exception(KeylessError);
+
+                var result = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(TypeConverter.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
                 if (result != null)
                 {
                     return GetOkObjectResult(result);
@@ -91,6 +95,9 @@ namespace AutoAPI
 
         public ObjectResult Post(RouteInfo routeInfo, object entity)
         {
+            if (routeInfo.Entity.Id == null)
+                throw new Exception(KeylessError);
+
             if (!IsValid(entity))
             {
                 return new BadRequestObjectResult(this.actionContext.ModelState);
@@ -104,9 +111,11 @@ namespace AutoAPI
 
         public ObjectResult Put(RouteInfo routeInfo, object entity)
         {
+            if (routeInfo.Entity.Id == null)
+                throw new Exception(KeylessError);
 
-            var objectId = Convert.ChangeType(routeInfo.Entity.Id.GetValue(entity), routeInfo.Entity.Id.PropertyType);
-            var routeId = Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
+            var objectId = routeInfo.Entity.Id.GetValue(entity);
+            var routeId = TypeConverter.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType);
 
             if (!objectId.Equals(routeId))
             {
@@ -126,7 +135,10 @@ namespace AutoAPI
 
         public ObjectResult Delete(RouteInfo routeInfo)
         {
-            object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(Convert.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
+            if (routeInfo.Entity.Id == null)
+                throw new Exception(KeylessError);
+
+            object entity = ((dynamic)routeInfo.Entity.DbSet.GetValue(dbContext)).Find(TypeConverter.ChangeType(routeInfo.Id, routeInfo.Entity.Id.PropertyType));
 
             if (entity == null)
             {

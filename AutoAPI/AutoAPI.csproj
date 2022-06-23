@@ -22,6 +22,8 @@
 
       Version 3.1 targets DotNet 5 uses System.Text.Json and adds serializer option configuration
 
+      Version 3.2 targets DotNet 6 fixes guid id bug and adds support for keyless entities
+
       https://github.com/tdudek1/AutoAPI
     </Description>
 	  <Copyright>Copyright ©2018 Thomas Dudek</Copyright>
@@ -29,11 +31,11 @@
 	  <PackageProjectUrl>https://github.com/tdudek1/AutoAPI</PackageProjectUrl>
 	  <PackageTags>rest api entityframework</PackageTags>
 	  <PackageId>Auto.Rest.API</PackageId>
-	  <Version>3.1</Version>
-	  <AssemblyVersion>3.1.0.0</AssemblyVersion>
-	  <FileVersion>3.1.0.0</FileVersion>
+	  <Version>3.2</Version>
+	  <AssemblyVersion>3.2.0.0</AssemblyVersion>
+	  <FileVersion>3.2.0.0</FileVersion>
 	  <OutputType>Library</OutputType>
-	  <TargetFrameworks>net5.0</TargetFrameworks>
+	  <TargetFrameworks>net6.0</TargetFrameworks>
 	  <IsPackable>true</IsPackable>
 	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
   </PropertyGroup>
@@ -43,9 +45,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.6.3" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.18" />
   </ItemGroup>
 
 </Project>
